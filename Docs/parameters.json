@@ -1,0 +1,1508 @@
+{
+  "shaders": [
+    {
+      "modifier": "bcsAurora",
+      "metal": "bcs_aurora",
+      "title": "Aurora",
+      "animated": true,
+      "params": [
+        {
+          "label": "intensity",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "bands",
+          "type": "float",
+          "min": 1.0,
+          "max": 8.0,
+          "default": 4.5
+        },
+        {
+          "label": "speed",
+          "type": "float",
+          "min": 0.3,
+          "max": 3.0,
+          "default": 1.65
+        },
+        {
+          "label": "colorShift",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        }
+      ]
+    },
+    {
+      "modifier": "bcsBlackHole",
+      "metal": "bcs_blackHole",
+      "title": "Black Hole",
+      "animated": true,
+      "params": [
+        {
+          "label": "mass",
+          "type": "float",
+          "min": 0.05,
+          "max": 0.5,
+          "default": 0.28
+        },
+        {
+          "label": "spin",
+          "type": "float",
+          "min": 0.0,
+          "max": 5.0,
+          "default": 2.5
+        },
+        {
+          "label": "distortion",
+          "type": "float",
+          "min": 10.0,
+          "max": 200.0,
+          "default": 105
+        },
+        {
+          "label": "ringBrightness",
+          "type": "float",
+          "min": 0.0,
+          "max": 2.0,
+          "default": 1.0
+        }
+      ]
+    },
+    {
+      "modifier": "bcsChromaticSplit",
+      "metal": "bcs_chromaticSplit",
+      "title": "Chromatic Split",
+      "animated": true,
+      "params": [
+        {
+          "label": "spread",
+          "type": "float",
+          "min": 0.0,
+          "max": 30.0,
+          "default": 8.0
+        },
+        {
+          "label": "angle",
+          "type": "float",
+          "min": 0.0,
+          "max": 6.28,
+          "default": 0.0
+        },
+        {
+          "label": "edgeOnly",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "animate",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        }
+      ]
+    },
+    {
+      "modifier": "bcsDatamosh",
+      "metal": "bcs_datamosh",
+      "title": "Datamosh",
+      "animated": true,
+      "params": [
+        {
+          "label": "blockCorruption",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.4
+        },
+        {
+          "label": "smearAmount",
+          "type": "float",
+          "min": 0.0,
+          "max": 60.0,
+          "default": 30.0
+        },
+        {
+          "label": "colorBleed",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "glitchRate",
+          "type": "float",
+          "min": 0.5,
+          "max": 5.0,
+          "default": 2.0
+        }
+      ]
+    },
+    {
+      "modifier": "bcsDisintegrate",
+      "metal": "bcs_disintegrate",
+      "title": "Disintegrate",
+      "animated": true,
+      "params": [
+        {
+          "label": "threshold",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.0
+        },
+        {
+          "label": "edgeWidth",
+          "type": "float",
+          "min": 0.05,
+          "max": 0.3,
+          "default": 0.12
+        },
+        {
+          "label": "driftAmount",
+          "type": "float",
+          "min": 0.0,
+          "max": 50.0,
+          "default": 25.0
+        },
+        {
+          "label": "direction",
+          "type": "float",
+          "min": 0.0,
+          "max": 6.28,
+          "default": 1.0
+        }
+      ]
+    },
+    {
+      "modifier": "bcsDuochrome",
+      "metal": "bcs_duochrome",
+      "title": "Duochrome",
+      "animated": true,
+      "params": [
+        {
+          "label": "intensity",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "hue1",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "hue2",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "contrast",
+          "type": "float",
+          "min": 0.5,
+          "max": 2.0,
+          "default": 1.25
+        }
+      ]
+    },
+    {
+      "modifier": "bcsEcho",
+      "metal": "bcs_echo",
+      "title": "Echo / Ghost",
+      "animated": true,
+      "params": [
+        {
+          "label": "echoCount",
+          "type": "float",
+          "min": 2.0,
+          "max": 8.0,
+          "default": 4.0
+        },
+        {
+          "label": "spread",
+          "type": "float",
+          "min": 5.0,
+          "max": 50.0,
+          "default": 20.0
+        },
+        {
+          "label": "direction",
+          "type": "float",
+          "min": 0.0,
+          "max": 6.28,
+          "default": 0.785
+        },
+        {
+          "label": "fade",
+          "type": "float",
+          "min": 0.3,
+          "max": 0.9,
+          "default": 0.6
+        }
+      ]
+    },
+    {
+      "modifier": "bcsEmboss",
+      "metal": "bcs_emboss",
+      "title": "Emboss / Relief",
+      "animated": false,
+      "params": [
+        {
+          "label": "strength",
+          "type": "float",
+          "min": 0.0,
+          "max": 5.0,
+          "default": 2.0
+        },
+        {
+          "label": "angle",
+          "type": "float",
+          "min": 0.0,
+          "max": 6.28,
+          "default": 0.785
+        },
+        {
+          "label": "mixAmount",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.8
+        }
+      ]
+    },
+    {
+      "modifier": "bcsEtherealAura",
+      "metal": "bcs_etherealAura",
+      "title": "Ethereal Aura (v2)",
+      "animated": true,
+      "params": [
+        {
+          "label": "auraWidth",
+          "type": "float",
+          "min": null,
+          "max": null,
+          "default": 0.12
+        },
+        {
+          "label": "auraIntensity",
+          "type": "float",
+          "min": null,
+          "max": null,
+          "default": 1.0
+        },
+        {
+          "label": "pulseSpeed",
+          "type": "float",
+          "min": null,
+          "max": null,
+          "default": 1.5
+        },
+        {
+          "label": "distortion",
+          "type": "float",
+          "min": null,
+          "max": null,
+          "default": 8.0
+        },
+        {
+          "label": "hueShift",
+          "type": "float",
+          "min": null,
+          "max": null,
+          "default": 3.5
+        }
+      ]
+    },
+    {
+      "modifier": "bcsFrosted",
+      "metal": "bcs_frosted",
+      "title": "Frosted Glass",
+      "animated": false,
+      "params": [
+        {
+          "label": "frostAmount",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "grainSize",
+          "type": "float",
+          "min": 1.0,
+          "max": 20.0,
+          "default": 10
+        },
+        {
+          "label": "clearRadius",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "clearSoftness",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        }
+      ]
+    },
+    {
+      "modifier": "bcsGeometricWarp",
+      "metal": "bcs_geometricWarp",
+      "title": "Geometric Warp",
+      "animated": true,
+      "params": [
+        {
+          "label": "spiralTight",
+          "type": "float",
+          "min": 1.0,
+          "max": 8.0,
+          "default": 3.0
+        },
+        {
+          "label": "zoomRepeat",
+          "type": "float",
+          "min": 0.3,
+          "max": 2.0,
+          "default": 1.0
+        },
+        {
+          "label": "rotation",
+          "type": "float",
+          "min": 0.0,
+          "max": 6.28,
+          "default": 0.0
+        },
+        {
+          "label": "blend",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.0
+        }
+      ]
+    },
+    {
+      "modifier": "bcsGlitch",
+      "metal": "bcs_glitch",
+      "title": "Glitch",
+      "animated": true,
+      "params": [
+        {
+          "label": "intensity",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "blockSize",
+          "type": "float",
+          "min": 2.0,
+          "max": 50.0,
+          "default": 15.0
+        },
+        {
+          "label": "scanLines",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.4
+        },
+        {
+          "label": "colorShift",
+          "type": "float",
+          "min": 0.0,
+          "max": 20.0,
+          "default": 8.0
+        }
+      ]
+    },
+    {
+      "modifier": "bcsGravityWells",
+      "metal": "bcs_gravityWells",
+      "title": "Gravity Wells",
+      "animated": true,
+      "params": [
+        {
+          "label": "wellStrength",
+          "type": "float",
+          "min": 10.0,
+          "max": 200.0,
+          "default": 80.0
+        },
+        {
+          "label": "wellCount",
+          "type": "float",
+          "min": 1.0,
+          "max": 5.0,
+          "default": 3.0
+        },
+        {
+          "label": "orbitSpeed",
+          "type": "float",
+          "min": 0.1,
+          "max": 3.0,
+          "default": 0.8
+        },
+        {
+          "label": "warpFalloff",
+          "type": "float",
+          "min": 0.5,
+          "max": 5.0,
+          "default": 2.0
+        }
+      ]
+    },
+    {
+      "modifier": "bcsHeatShimmer",
+      "metal": "bcs_heatShimmer",
+      "title": "Heat Shimmer",
+      "animated": true,
+      "params": [
+        {
+          "label": "amplitude",
+          "type": "float",
+          "min": 0.0,
+          "max": 20.0,
+          "default": 10
+        },
+        {
+          "label": "frequency",
+          "type": "float",
+          "min": 1.0,
+          "max": 30.0,
+          "default": 16
+        },
+        {
+          "label": "speed",
+          "type": "float",
+          "min": 0.5,
+          "max": 5.0,
+          "default": 2.75
+        },
+        {
+          "label": "verticalBias",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        }
+      ]
+    },
+    {
+      "modifier": "bcsHolographic",
+      "metal": "bcs_holographic",
+      "title": "Holographic / Prismatic",
+      "animated": true,
+      "params": [
+        {
+          "label": "intensity",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.4
+        },
+        {
+          "label": "scale",
+          "type": "float",
+          "min": 1.0,
+          "max": 20.0,
+          "default": 8.0
+        },
+        {
+          "label": "speed",
+          "type": "float",
+          "min": 0.1,
+          "max": 3.0,
+          "default": 1.0
+        },
+        {
+          "label": "angleOffset",
+          "type": "float",
+          "min": 0.0,
+          "max": 6.28,
+          "default": 0.785
+        }
+      ]
+    },
+    {
+      "modifier": "bcsInkBleed",
+      "metal": "bcs_inkBleed",
+      "title": "Ink Bleed / Domain Warp",
+      "animated": true,
+      "params": [
+        {
+          "label": "warpStrength",
+          "type": "float",
+          "min": 0.0,
+          "max": 50.0,
+          "default": 15.0
+        },
+        {
+          "label": "scale",
+          "type": "float",
+          "min": 1.0,
+          "max": 10.0,
+          "default": 4.0
+        },
+        {
+          "label": "speed",
+          "type": "float",
+          "min": 0.1,
+          "max": 2.0,
+          "default": 0.5
+        },
+        {
+          "label": "detail",
+          "type": "float",
+          "min": 2.0,
+          "max": 8.0,
+          "default": 5.0
+        }
+      ]
+    },
+    {
+      "modifier": "bcsKaleidoscope",
+      "metal": "bcs_kaleidoscope",
+      "title": "Kaleidoscope",
+      "animated": true,
+      "params": [
+        {
+          "label": "segments",
+          "type": "float",
+          "min": 2.0,
+          "max": 16.0,
+          "default": 9.0
+        },
+        {
+          "label": "rotation",
+          "type": "float",
+          "min": 0.0,
+          "max": 6.28,
+          "default": 3.14
+        },
+        {
+          "label": "zoom",
+          "type": "float",
+          "min": 0.5,
+          "max": 3.0,
+          "default": 1.75
+        },
+        {
+          "label": "animateSpeed",
+          "type": "float",
+          "min": 0.0,
+          "max": 2.0,
+          "default": 1.0
+        }
+      ]
+    },
+    {
+      "modifier": "bcsLiquidChrome",
+      "metal": "bcs_liquidChrome",
+      "title": "Liquid Chrome",
+      "animated": true,
+      "params": [
+        {
+          "label": "distortion",
+          "type": "float",
+          "min": 0.0,
+          "max": 30.0,
+          "default": 15
+        },
+        {
+          "label": "chromeIntensity",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "flowSpeed",
+          "type": "float",
+          "min": 0.1,
+          "max": 3.0,
+          "default": 1.55
+        },
+        {
+          "label": "reflectionScale",
+          "type": "float",
+          "min": 1.0,
+          "max": 10.0,
+          "default": 5.5
+        }
+      ]
+    },
+    {
+      "modifier": "bcsLiquidMirror",
+      "metal": "bcs_liquidMirror",
+      "title": "Liquid Mirror",
+      "animated": true,
+      "params": [
+        {
+          "label": "mirrorAxis",
+          "type": "float",
+          "min": 0.3,
+          "max": 0.7,
+          "default": 0.55
+        },
+        {
+          "label": "ripple",
+          "type": "float",
+          "min": 2.0,
+          "max": 30.0,
+          "default": 12.0
+        },
+        {
+          "label": "speed",
+          "type": "float",
+          "min": 0.5,
+          "max": 3.0,
+          "default": 1.5
+        },
+        {
+          "label": "depth",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        }
+      ]
+    },
+    {
+      "modifier": "bcsLiveRipple",
+      "metal": "bcs_liveRipple",
+      "title": "Live Ripple",
+      "animated": true,
+      "params": [
+        {
+          "label": "amplitude",
+          "type": "float",
+          "min": 0.0,
+          "max": 30.0,
+          "default": 12.0
+        },
+        {
+          "label": "frequency",
+          "type": "float",
+          "min": 5.0,
+          "max": 60.0,
+          "default": 25.0
+        },
+        {
+          "label": "speed",
+          "type": "float",
+          "min": 1.0,
+          "max": 10.0,
+          "default": 4.0
+        },
+        {
+          "label": "damping",
+          "type": "float",
+          "min": 0.5,
+          "max": 5.0,
+          "default": 2.0
+        },
+        {
+          "label": "ringCount",
+          "type": "float",
+          "min": 1.0,
+          "max": 5.0,
+          "default": 3.0
+        }
+      ]
+    },
+    {
+      "modifier": "bcsMagneticField",
+      "metal": "bcs_magneticField",
+      "title": "Magnetic Field",
+      "animated": true,
+      "params": [
+        {
+          "label": "fieldStrength",
+          "type": "float",
+          "min": 5.0,
+          "max": 80.0,
+          "default": 40.0
+        },
+        {
+          "label": "lineCount",
+          "type": "float",
+          "min": 3.0,
+          "max": 20.0,
+          "default": 8.0
+        },
+        {
+          "label": "fieldTurbulence",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "polarity",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.0
+        }
+      ]
+    },
+    {
+      "modifier": "bcsMelt",
+      "metal": "bcs_melt",
+      "title": "Melt",
+      "animated": true,
+      "params": [
+        {
+          "label": "meltAmount",
+          "type": "float",
+          "min": 0.0,
+          "max": 100.0,
+          "default": 40.0
+        },
+        {
+          "label": "dripScale",
+          "type": "float",
+          "min": 1.0,
+          "max": 15.0,
+          "default": 6.0
+        },
+        {
+          "label": "speed",
+          "type": "float",
+          "min": 0.1,
+          "max": 3.0,
+          "default": 1.0
+        },
+        {
+          "label": "heat",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.3
+        }
+      ]
+    },
+    {
+      "modifier": "bcsMorphBreathe",
+      "metal": "bcs_morphBreathe",
+      "title": "Morph Breathe",
+      "animated": true,
+      "params": [
+        {
+          "label": "breatheDepth",
+          "type": "float",
+          "min": 5.0,
+          "max": 50.0,
+          "default": 28
+        },
+        {
+          "label": "breatheRate",
+          "type": "float",
+          "min": 0.3,
+          "max": 3.0,
+          "default": 1.65
+        },
+        {
+          "label": "warpComplexity",
+          "type": "float",
+          "min": 1.0,
+          "max": 8.0,
+          "default": 4.5
+        },
+        {
+          "label": "organic",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        }
+      ]
+    },
+    {
+      "modifier": "bcsNeonEdge",
+      "metal": "bcs_neonEdge",
+      "title": "Neon Edge",
+      "animated": true,
+      "params": [
+        {
+          "label": "edgeStrength",
+          "type": "float",
+          "min": 1.0,
+          "max": 10.0,
+          "default": 5.5
+        },
+        {
+          "label": "glowAmount",
+          "type": "float",
+          "min": 0.0,
+          "max": 2.0,
+          "default": 4.0
+        },
+        {
+          "label": "colorCycle",
+          "type": "float",
+          "min": 0.0,
+          "max": 3.0,
+          "default": 1.0
+        },
+        {
+          "label": "mixOriginal",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 1.0
+        }
+      ]
+    },
+    {
+      "modifier": "bcsPixelateMosaic",
+      "metal": "bcs_pixelateMosaic",
+      "title": "Pixelate Mosaic",
+      "animated": true,
+      "params": [
+        {
+          "label": "pixelSize",
+          "type": "float",
+          "min": 4.0,
+          "max": 60.0,
+          "default": 20.0
+        },
+        {
+          "label": "bevel",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.6
+        },
+        {
+          "label": "animateAssemble",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "gap",
+          "type": "float",
+          "min": 0.0,
+          "max": 0.3,
+          "default": 0.05
+        }
+      ]
+    },
+    {
+      "modifier": "bcsPixelateStorm",
+      "metal": "bcs_pixelateStorm",
+      "title": "Pixelate Storm",
+      "animated": true,
+      "params": [
+        {
+          "label": "pixelSize",
+          "type": "float",
+          "min": 2.0,
+          "max": 40.0,
+          "default": 21
+        },
+        {
+          "label": "stormAmount",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "swirl",
+          "type": "float",
+          "min": 0.0,
+          "max": 3.0,
+          "default": 1.5
+        },
+        {
+          "label": "pulse",
+          "type": "float",
+          "min": 0.0,
+          "max": 3.0,
+          "default": 1.5
+        }
+      ]
+    },
+    {
+      "modifier": "bcsPlasma",
+      "metal": "bcs_plasma",
+      "title": "Plasma",
+      "animated": true,
+      "params": [
+        {
+          "label": "intensity",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "scale",
+          "type": "float",
+          "min": 1.0,
+          "max": 10.0,
+          "default": 5.5
+        },
+        {
+          "label": "speed",
+          "type": "float",
+          "min": 0.5,
+          "max": 5.0,
+          "default": 2.75
+        },
+        {
+          "label": "colorMode",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        }
+      ]
+    },
+    {
+      "modifier": "bcsPulse",
+      "metal": "bcs_pulse",
+      "title": "Pulse / Heartbeat",
+      "animated": true,
+      "params": [
+        {
+          "label": "amplitude",
+          "type": "float",
+          "min": 0.0,
+          "max": 30.0,
+          "default": 15.0
+        },
+        {
+          "label": "bpm",
+          "type": "float",
+          "min": 30.0,
+          "max": 180.0,
+          "default": 72.0
+        },
+        {
+          "label": "sharpness",
+          "type": "float",
+          "min": 1.0,
+          "max": 10.0,
+          "default": 3.0
+        },
+        {
+          "label": "glowIntensity",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        }
+      ]
+    },
+    {
+      "modifier": "bcsRefractLens",
+      "metal": "bcs_refractLens",
+      "title": "Refract Lens (Interactive)",
+      "animated": false,
+      "params": [
+        {
+          "label": "touchPos",
+          "type": "point",
+          "min": null,
+          "max": null,
+          "default": "center"
+        },
+        {
+          "label": "lensRadius",
+          "type": "float",
+          "min": 0.1,
+          "max": 0.5,
+          "default": 0.3
+        },
+        {
+          "label": "refraction",
+          "type": "float",
+          "min": 1.0,
+          "max": 3.0,
+          "default": 2.0
+        },
+        {
+          "label": "aberration",
+          "type": "float",
+          "min": 0.0,
+          "max": 15.0,
+          "default": 5.0
+        },
+        {
+          "label": "wobble",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        }
+      ]
+    },
+    {
+      "modifier": "bcsShatter",
+      "metal": "bcs_shatter",
+      "title": "Shatter",
+      "animated": true,
+      "params": [
+        {
+          "label": "shardCount",
+          "type": "float",
+          "min": 3.0,
+          "max": 30.0,
+          "default": 16
+        },
+        {
+          "label": "explode",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "rotationAmt",
+          "type": "float",
+          "min": 0.0,
+          "max": 3.0,
+          "default": 1.5
+        },
+        {
+          "label": "edgeGlow",
+          "type": "float",
+          "min": 0.0,
+          "max": 2.0,
+          "default": 1.0
+        }
+      ]
+    },
+    {
+      "modifier": "bcsShatterGlass",
+      "metal": "bcs_shatterGlass",
+      "title": "Shatter Glass",
+      "animated": true,
+      "params": [
+        {
+          "label": "crackDensity",
+          "type": "float",
+          "min": 3.0,
+          "max": 15.0,
+          "default": 8.0
+        },
+        {
+          "label": "glassRefraction",
+          "type": "float",
+          "min": 0.0,
+          "max": 20.0,
+          "default": 10.0
+        },
+        {
+          "label": "prismStrength",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "shatterSpread",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.0
+        }
+      ]
+    },
+    {
+      "modifier": "bcsShockwave",
+      "metal": "bcs_shockwave",
+      "title": "Shockwave",
+      "animated": true,
+      "params": [
+        {
+          "label": "waveSpeed",
+          "type": "float",
+          "min": 50.0,
+          "max": 500.0,
+          "default": 200.0
+        },
+        {
+          "label": "ringWidth",
+          "type": "float",
+          "min": 5.0,
+          "max": 60.0,
+          "default": 30.0
+        },
+        {
+          "label": "strength",
+          "type": "float",
+          "min": 5.0,
+          "max": 80.0,
+          "default": 40.0
+        },
+        {
+          "label": "repeatRate",
+          "type": "float",
+          "min": 0.5,
+          "max": 5.0,
+          "default": 2.0
+        }
+      ]
+    },
+    {
+      "modifier": "bcsSmokeReveal",
+      "metal": "bcs_smokeReveal",
+      "title": "Smoke Reveal",
+      "animated": true,
+      "params": [
+        {
+          "label": "smokeAmount",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.6
+        },
+        {
+          "label": "smokeScale",
+          "type": "float",
+          "min": 2.0,
+          "max": 10.0,
+          "default": 5.0
+        },
+        {
+          "label": "windSpeed",
+          "type": "float",
+          "min": 0.5,
+          "max": 3.0,
+          "default": 1.5
+        },
+        {
+          "label": "smokeTurb",
+          "type": "float",
+          "min": 0.5,
+          "max": 3.0,
+          "default": 1.5
+        }
+      ]
+    },
+    {
+      "modifier": "bcsSolarize",
+      "metal": "bcs_solarize",
+      "title": "Solarize",
+      "animated": true,
+      "params": [
+        {
+          "label": "threshold",
+          "type": "float",
+          "min": 0.2,
+          "max": 0.8,
+          "default": 0.5
+        },
+        {
+          "label": "curveIntensity",
+          "type": "float",
+          "min": 0.0,
+          "max": 3.0,
+          "default": 1.5
+        },
+        {
+          "label": "colorSeparation",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "animate",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.5
+        }
+      ]
+    },
+    {
+      "modifier": "bcsThermal",
+      "metal": "bcs_thermal",
+      "title": "Thermal",
+      "animated": true,
+      "params": [
+        {
+          "label": "intensity",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.8
+        },
+        {
+          "label": "shimmer",
+          "type": "float",
+          "min": 0.0,
+          "max": 15.0,
+          "default": 5.0
+        },
+        {
+          "label": "noiseSpeed",
+          "type": "float",
+          "min": 0.5,
+          "max": 3.0,
+          "default": 1.5
+        },
+        {
+          "label": "paletteShift",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.0
+        }
+      ]
+    },
+    {
+      "modifier": "bcsTopographic",
+      "metal": "bcs_topographic",
+      "title": "Topographic",
+      "animated": true,
+      "params": [
+        {
+          "label": "lineCount",
+          "type": "float",
+          "min": 5.0,
+          "max": 40.0,
+          "default": 20.0
+        },
+        {
+          "label": "lineWidth",
+          "type": "float",
+          "min": 0.01,
+          "max": 0.15,
+          "default": 0.05
+        },
+        {
+          "label": "colorize",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.7
+        },
+        {
+          "label": "animate",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.3
+        }
+      ]
+    },
+    {
+      "modifier": "bcsTouchRipple",
+      "metal": "bcs_touchRipple",
+      "title": "Touch Ripple",
+      "animated": false,
+      "params": [
+        {
+          "label": "touchPos",
+          "type": "point",
+          "min": null,
+          "max": null,
+          "default": "center"
+        },
+        {
+          "label": "touchAge",
+          "type": "float",
+          "min": null,
+          "max": null,
+          "default": 1.0
+        },
+        {
+          "label": "amplitude",
+          "type": "float",
+          "min": 0.0,
+          "max": 30.0,
+          "default": 15.0
+        },
+        {
+          "label": "frequency",
+          "type": "float",
+          "min": 5.0,
+          "max": 40.0,
+          "default": 20.0
+        },
+        {
+          "label": "speed",
+          "type": "float",
+          "min": 50.0,
+          "max": 500.0,
+          "default": 300.0
+        },
+        {
+          "label": "decay",
+          "type": "float",
+          "min": 0.5,
+          "max": 4.0,
+          "default": 2.0
+        }
+      ]
+    },
+    {
+      "modifier": "bcsUnderwaterCaustics",
+      "metal": "bcs_underwaterCaustics",
+      "title": "Underwater Caustics",
+      "animated": true,
+      "params": [
+        {
+          "label": "causticScale",
+          "type": "float",
+          "min": 2.0,
+          "max": 15.0,
+          "default": 6.0
+        },
+        {
+          "label": "causticIntensity",
+          "type": "float",
+          "min": 0.0,
+          "max": 2.0,
+          "default": 1.0
+        },
+        {
+          "label": "waterDistortion",
+          "type": "float",
+          "min": 0.0,
+          "max": 30.0,
+          "default": 12.0
+        },
+        {
+          "label": "waterDepth",
+          "type": "float",
+          "min": 0.0,
+          "max": 1.0,
+          "default": 0.4
+        }
+      ]
+    },
+    {
+      "modifier": "bcsVortex",
+      "metal": "bcs_vortex",
+      "title": "Vortex Spiral",
+      "animated": true,
+      "params": [
+        {
+          "label": "twistAmount",
+          "type": "float",
+          "min": 0.0,
+          "max": 10.0,
+          "default": 3.0
+        },
+        {
+          "label": "radius",
+          "type": "float",
+          "min": 0.1,
+          "max": 1.0,
+          "default": 0.5
+        },
+        {
+          "label": "speed",
+          "type": "float",
+          "min": 0.1,
+          "max": 3.0,
+          "default": 0.5
+        },
+        {
+          "label": "falloff",
+          "type": "float",
+          "min": 0.5,
+          "max": 5.0,
+          "default": 2.0
+        }
+      ]
+    },
+    {
+      "modifier": "bcsWavePool",
+      "metal": "bcs_wavePool",
+      "title": "Wave Pool",
+      "animated": true,
+      "params": [
+        {
+          "label": "amplitude",
+          "type": "float",
+          "min": 0.0,
+          "max": 25.0,
+          "default": 12
+        },
+        {
+          "label": "wavelength",
+          "type": "float",
+          "min": 5.0,
+          "max": 40.0,
+          "default": 22
+        },
+        {
+          "label": "speed",
+          "type": "float",
+          "min": 0.5,
+          "max": 5.0,
+          "default": 2.75
+        },
+        {
+          "label": "complexity",
+          "type": "float",
+          "min": 1.0,
+          "max": 6.0,
+          "default": 3.5
+        }
+      ]
+    },
+    {
+      "modifier": "bcsWormhole",
+      "metal": "bcs_wormhole",
+      "title": "Wormhole",
+      "animated": true,
+      "params": [
+        {
+          "label": "depth",
+          "type": "float",
+          "min": 1.0,
+          "max": 8.0,
+          "default": 4.5
+        },
+        {
+          "label": "speed",
+          "type": "float",
+          "min": 0.3,
+          "max": 3.0,
+          "default": 1.65
+        },
+        {
+          "label": "twist",
+          "type": "float",
+          "min": 0.0,
+          "max": 5.0,
+          "default": 2.5
+        },
+        {
+          "label": "radius",
+          "type": "float",
+          "min": 0.1,
+          "max": 0.5,
+          "default": 0.3
+        }
+      ]
+    }
+  ]
+}

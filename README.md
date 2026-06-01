@@ -10,6 +10,8 @@ These started as a hidden shader lab inside Epilogue, my reading app. I built wa
 
 Drop them into your own project and mess around. They're also built to hand straight to a coding agent like Claude Code or Codex. If one sparks an idea, point your agent at [AGENTS.md](AGENTS.md) and let it riff.
 
+Want to dial them in by eye? Hand the repo to your agent and ask it to build a slider-based tuning tool. Everything it needs is in [`Docs/parameters.json`](Docs/parameters.json), and the recipe is in [AGENTS.md](AGENTS.md). Tune against your own content, copy the line it spits out, paste it into your code.
+
 > The `bcs_` prefix is just the shader namespace. Nothing here is wired to Epilogue's actual app code.
 
 ## Requirements
