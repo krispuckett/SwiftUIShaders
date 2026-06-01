@@ -5,7 +5,7 @@ This file is for an AI agent (Claude Code, Codex, etc.) asked to **use, extend, 
 ## What this package is
 
 - A SwiftPM library, `EpilogueShaders`, with **two source files**:
-  - `Sources/EpilogueShaders/Shaders/EpilogueShaders.metal` — ~69 `[[ stitchable ]]` SwiftUI fragment shaders plus 5 shared helper functions. This is the source of truth.
+  - `Sources/EpilogueShaders/Shaders/EpilogueShaders.metal` — 41 `[[ stitchable ]]` SwiftUI fragment shaders plus 5 shared helper functions. This is the source of truth.
   - `Sources/EpilogueShaders/ShaderEffects.swift` — one typed `View` modifier per shader, plus two private `ViewModifier`s (`_StaticShaderEffect`, `_AnimatedShaderEffect`) that do the actual `layerEffect` plumbing.
 - No third-party dependencies. No app code. The `bcs_` prefix is just a namespace (it originated as "book cover shaders").
 
