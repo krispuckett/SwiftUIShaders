@@ -2,6 +2,10 @@
 
 A collection of **69 SwiftUI Metal shader effects** — luminous pools, liquid marble, holographic foil, gravity wells, chromatic glitch, watercolor bleed, and more. Each is a `[[ stitchable ]]` Metal function wrapped in a typed, drop-in SwiftUI `View` modifier.
 
+<p align="center">
+  <img src="Docs/demo.gif" width="280" alt="EpilogueShaders running live in the Shader Lab" />
+</p>
+
 These were built as the shader lab inside [Epilogue](https://apps.apple.com), a reading app. They're shared here so you can drop them into your own SwiftUI project, play with them, and remix them. They're also meant to be **handed to a coding agent** (Claude Code, Codex) as a working reference — see [AGENTS.md](AGENTS.md) for the architecture an agent needs to extend or rebuild them.
 
 > The `bcs_` prefix on the Metal functions is just the shader namespace. Nothing here is tied to Epilogue's app code.
