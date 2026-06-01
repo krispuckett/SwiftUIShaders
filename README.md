@@ -22,7 +22,7 @@ These were built as the shader lab inside [Epilogue](https://apps.apple.com), a 
 Swift Package Manager — in Xcode: **File ▸ Add Package Dependencies…** and point at this repo's URL. Or in `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/USERNAME/EpilogueShaders.git", from: "1.0.0")
+.package(url: "https://github.com/krispuckett/EpilogueShaders.git", from: "1.0.0")
 ```
 
 Then add `EpilogueShaders` to your target's dependencies.
