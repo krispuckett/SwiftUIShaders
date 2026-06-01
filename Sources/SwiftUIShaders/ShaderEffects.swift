@@ -1,4 +1,4 @@
-// ShaderEffects.swift — typed SwiftUI wrappers for every shader in EpilogueShaders.metal.
+// ShaderEffects.swift — typed SwiftUI wrappers for every shader in SwiftUIShaders.metal.
 //
 // This file is generated to mirror the Metal function signatures. Each method applies
 // one `[[ stitchable ]]` shader as a `layerEffect`. Conventions:

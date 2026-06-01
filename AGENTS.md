@@ -4,9 +4,9 @@ This file is for an AI agent (Claude Code, Codex, etc.) asked to **use, extend, 
 
 ## What this package is
 
-- A SwiftPM library, `EpilogueShaders`, with **two source files**:
-  - `Sources/EpilogueShaders/Shaders/EpilogueShaders.metal` — 41 `[[ stitchable ]]` SwiftUI fragment shaders plus 5 shared helper functions. This is the source of truth.
-  - `Sources/EpilogueShaders/ShaderEffects.swift` — one typed `View` modifier per shader, plus two private `ViewModifier`s (`_StaticShaderEffect`, `_AnimatedShaderEffect`) that do the actual `layerEffect` plumbing.
+- A SwiftPM library, `SwiftUIShaders`, with **two source files**:
+  - `Sources/SwiftUIShaders/Shaders/SwiftUIShaders.metal` — 41 `[[ stitchable ]]` SwiftUI fragment shaders plus 5 shared helper functions. This is the source of truth.
+  - `Sources/SwiftUIShaders/ShaderEffects.swift` — one typed `View` modifier per shader, plus two private `ViewModifier`s (`_StaticShaderEffect`, `_AnimatedShaderEffect`) that do the actual `layerEffect` plumbing.
 - No third-party dependencies. No app code. The `bcs_` prefix is just a namespace (it originated as "book cover shaders").
 
 ## How SwiftUI Metal shader effects work (the mental model)
@@ -78,7 +78,7 @@ struct _AnimatedShaderEffect: ViewModifier {
 
 ## How to add a new shader
 
-1. **Write the Metal function** in `EpilogueShaders.metal`. Follow the signature shape above. If it animates, include `float time`. Add a `// MARK: - Name` line and a one-line description comment above it, and `// lo-hi: meaning` comments on each parameter — the docs and defaults are derived from those.
+1. **Write the Metal function** in `SwiftUIShaders.metal`. Follow the signature shape above. If it animates, include `float time`. Add a `// MARK: - Name` line and a one-line description comment above it, and `// lo-hi: meaning` comments on each parameter — the docs and defaults are derived from those.
 2. **Declaration order matters.** A helper or function must be defined *before* anything that calls it. The shared helpers (`bcs_hash`, `bcs_valueNoise`, `bcs_fbm`, `bcs_hsb2rgb`) sit at the top; `bcs_sampleRegion` sits before its first user. Append new entry-point shaders; don't reorder existing ones.
 3. **Add the Swift wrapper** in `ShaderEffects.swift`:
 
@@ -95,7 +95,7 @@ func bcsMyEffect(strength: Float = 5, maxSampleOffset: CGSize = CGSize(width: 64
 ```
 
 Use `_StaticShaderEffect { size in ... }` (no `t`) for non-animated effects.
-4. **Build with Xcode** (`xcodebuild -scheme EpilogueShaders -destination 'generic/platform=iOS Simulator' build`) — Metal errors only surface through the real toolchain, not `swift build`.
+4. **Build with Xcode** (`xcodebuild -scheme SwiftUIShaders -destination 'generic/platform=iOS Simulator' build`) — Metal errors only surface through the real toolchain, not `swift build`.
 
 ## How to modify an existing shader
 

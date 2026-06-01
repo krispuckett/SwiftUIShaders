@@ -1,9 +1,9 @@
-# EpilogueShaders
+# SwiftUIShaders
 
 **41 hand-picked SwiftUI Metal shader effects** — holographic foil, kaleidoscope mandalas, magnetic fields, aurora, chromatic glitch, liquid mirror, neon edges, gravity wells, and more. Each is a `[[ stitchable ]]` Metal function wrapped in a typed, drop-in SwiftUI `View` modifier.
 
 <p align="center">
-  <img src="Docs/demo.gif" width="280" alt="EpilogueShaders running live in the Shader Lab" />
+  <img src="Docs/demo.gif" width="280" alt="SwiftUIShaders running live in the Shader Lab" />
 </p>
 
 These started as the shader lab inside Epilogue, a reading app. The set was **curated by eye** — every effect here was rendered on real content and kept only if it looked genuinely good (the duds, the washed-out ones, and the ones that only work on a blank gradient were cut). They're shared so you can drop them into your own SwiftUI project, play, and remix. They're also built to be **handed to a coding agent** (Claude Code, Codex) as a working reference — see [AGENTS.md](AGENTS.md) for the architecture an agent needs to extend them.
@@ -22,16 +22,16 @@ These started as the shader lab inside Epilogue, a reading app. The set was **cu
 Swift Package Manager — in Xcode: **File ▸ Add Package Dependencies…** and point at this repo's URL. Or in `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/krispuckett/EpilogueShaders.git", from: "1.0.0")
+.package(url: "https://github.com/krispuckett/SwiftUIShaders.git", from: "1.0.0")
 ```
 
-Then add `EpilogueShaders` to your target's dependencies.
+Then add `SwiftUIShaders` to your target's dependencies.
 
 ## Quick start
 
 ```swift
 import SwiftUI
-import EpilogueShaders
+import SwiftUIShaders
 
 struct ContentView: View {
     var body: some View {

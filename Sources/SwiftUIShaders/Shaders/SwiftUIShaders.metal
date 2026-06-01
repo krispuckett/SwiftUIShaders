@@ -1,4 +1,4 @@
-// EpilogueShaders — a collection of SwiftUI Metal effects.
+// SwiftUIShaders — a collection of SwiftUI Metal effects.
 // Extracted from the Epilogue reading app's shader lab. MIT licensed.
 // Each [[ stitchable ]] function is a SwiftUI layerEffect. See README / ShaderEffects.swift
 // for the typed Swift wrappers. The `bcs_` prefix is just the shader namespace.

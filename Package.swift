@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "EpilogueShaders",
+    name: "SwiftUIShaders",
     platforms: [
         .iOS(.v17),
         .macOS(.v14),
@@ -10,11 +10,11 @@ let package = Package(
         .visionOS(.v1),
     ],
     products: [
-        .library(name: "EpilogueShaders", targets: ["EpilogueShaders"]),
+        .library(name: "SwiftUIShaders", targets: ["SwiftUIShaders"]),
     ],
     targets: [
         // The .metal sources are compiled into the module's default.metallib and
         // loaded at runtime via `ShaderLibrary.bundle(.module)`.
-        .target(name: "EpilogueShaders"),
+        .target(name: "SwiftUIShaders"),
     ]
 )
