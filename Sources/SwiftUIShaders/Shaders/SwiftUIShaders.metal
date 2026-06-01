@@ -1,4 +1,4 @@
-// SwiftUIShaders — a collection of SwiftUI Metal effects.
+// SwiftUIShaders, a collection of SwiftUI Metal effects.
 // Extracted from the Epilogue reading app's shader lab. MIT licensed.
 // Each [[ stitchable ]] function is a SwiftUI layerEffect. See README / ShaderEffects.swift
 // for the typed Swift wrappers. The `bcs_` prefix is just the shader namespace.
@@ -115,7 +115,7 @@ static half3 bcs_hsb2rgb(half3 c) {
 }
 
 // MARK: - 3. Holographic / Prismatic
-// Rainbow foil effect that shifts with time — like a holographic trading card
+// Rainbow foil effect that shifts with time, like a holographic trading card
 
 [[ stitchable ]] half4 bcs_holographic(
     float2 position,
@@ -193,7 +193,7 @@ static half3 bcs_hsb2rgb(half3 c) {
 }
 
 // MARK: - 5. Frosted Glass
-// Partial blur with a clear window — like breathing on cold glass
+// Partial blur with a clear window, like breathing on cold glass
 
 [[ stitchable ]] half4 bcs_frosted(
     float2 position,
@@ -349,7 +349,7 @@ static half3 bcs_hsb2rgb(half3 c) {
     float rippleRadius = touchAge * speed;
     float distFromFront = dist - rippleRadius;
 
-    // Wider, smoother gaussian envelope — more liquid, less sharp
+    // Wider, smoother gaussian envelope, more liquid, less sharp
     float waveWidth = 60.0 + touchAge * 40.0;
     float envelope = exp(-(distFromFront * distFromFront) / (2.0 * waveWidth * waveWidth));
 
@@ -414,7 +414,7 @@ static half3 bcs_hsb2rgb(half3 c) {
     // Specular: how much the surface faces the "camera"
     float specular = pow(max(normal.z, 0.0), 4.0);
 
-    // Chrome highlight — bright white where surface is angled just right
+    // Chrome highlight, bright white where surface is angled just right
     float highlight = pow(1.0 - abs(dot(normal, float3(0, 0, 1))), 3.0) * chrome_intensity;
 
     // Desaturate for metallic look, then add highlights
@@ -604,7 +604,7 @@ static half3 bcs_hsb2rgb(half3 c) {
 }
 
 // MARK: - 16. Ethereal Aura (v2)
-// The cover BREATHES — edges warp and glow with visible liquid displacement
+// The cover BREATHES, edges warp and glow with visible liquid displacement
 
 [[ stitchable ]] half4 bcs_etherealAura(
     float2 position,
@@ -686,7 +686,7 @@ static half3 bcs_hsb2rgb(half3 c) {
 }
 
 // MARK: - 17. Black Hole
-// Gravitational lensing — warps space around a singularity
+// Gravitational lensing, warps space around a singularity
 
 [[ stitchable ]] half4 bcs_blackHole(
     float2 position,
@@ -754,7 +754,7 @@ static half3 bcs_hsb2rgb(half3 c) {
 }
 
 // MARK: - 18. Melt
-// The image melts downward like hot wax — gravity pulls pixels down
+// The image melts downward like hot wax, gravity pulls pixels down
 
 [[ stitchable ]] half4 bcs_melt(
     float2 position,
@@ -768,13 +768,13 @@ static half3 bcs_hsb2rgb(half3 c) {
 ) {
     float2 uv = position / size;
 
-    // Per-column drip amount — each vertical strip melts at different rate
+    // Per-column drip amount, each vertical strip melts at different rate
     float column = uv.x * drip_scale;
     float dripNoise = bcs_fbm(float2(column, time * speed * 0.3), 4);
     float dripNoise2 = bcs_fbm(float2(column * 1.7 + 3.0, time * speed * 0.25), 3);
 
     // Drip amount increases toward the bottom
-    float gravity = uv.y * uv.y; // quadratic — bottom melts more
+    float gravity = uv.y * uv.y; // quadratic, bottom melts more
     float drip = (dripNoise * 0.7 + dripNoise2 * 0.3) * melt_amount * gravity;
 
     // Add some horizontal wobble as things melt
@@ -840,7 +840,7 @@ static half3 bcs_hsb2rgb(half3 c) {
 }
 
 // MARK: - 21. Refract Lens (Interactive)
-// Thick glass sphere — drag to move the lens around the cover
+// Thick glass sphere, drag to move the lens around the cover
 
 [[ stitchable ]] half4 bcs_refractLens(
     float2 position,
@@ -893,7 +893,7 @@ static half3 bcs_hsb2rgb(half3 c) {
 
     float2 refractedUV = uv + refracted.xy * lens_radius * 0.5;
 
-    // Chromatic aberration — stronger at edges
+    // Chromatic aberration, stronger at edges
     float chroma = aberration * (1.0 - z) * 0.01;
     float2 chromaDir = normalize(delta + 0.001);
     chromaDir.x /= aspectRatio;
@@ -1077,7 +1077,7 @@ static half3 bcs_hsb2rgb(half3 c) {
     // Eased explode for natural feel
     float eased = explode * explode * (3.0 - 2.0 * explode);
 
-    // Shard offset — radial from center with stagger
+    // Shard offset, radial from center with stagger
     float2 center = float2(0.5, 0.5);
     float2 shardCenter = (closestCell + 0.5) / shard_count;
     float2 driftDir = normalize(shardCenter - center + float2(0.001));
@@ -1116,7 +1116,7 @@ static half3 bcs_hsb2rgb(half3 c) {
     float tiltDarken = 1.0 - abs(tiltX) * eased * 2.0;
     color.rgb *= half(max(tiltDarken, 0.6));
 
-    // Refined edge lines — thin, clean, with glow
+    // Refined edge lines, thin, clean, with glow
     float edgeDist = secondDist - minDist;
     float thinEdge = 1.0 - smoothstep(0.0, 0.03, edgeDist); // thin line
     float softEdge = 1.0 - smoothstep(0.0, 0.1, edgeDist);  // soft glow
@@ -1321,7 +1321,7 @@ static half3 bcs_hsb2rgb(half3 c) {
 ) {
     float2 uv = position / size;
 
-    // Shimmer distortion — rising heat waves
+    // Shimmer distortion, rising heat waves
     float2 st = uv * 8.0;
     float n1 = bcs_valueNoise(st + float2(0.0, time * noise_speed * 2.0));
     float n2 = bcs_valueNoise(st * 1.3 + float2(time * noise_speed * 1.5, 0.0));
@@ -1406,7 +1406,7 @@ static half3 bcs_hsb2rgb(half3 c) {
 
     float2 disp = mix(radialDisp, organicDisp, organic) * breathe_depth;
 
-    // Edge softening — less displacement at edges to prevent harsh cutoff
+    // Edge softening, less displacement at edges to prevent harsh cutoff
     float edgeFade = smoothstep(0.0, 0.15, min(min(uv.x, 1.0 - uv.x), min(uv.y, 1.0 - uv.y)));
     disp *= edgeFade;
 
@@ -1483,7 +1483,7 @@ static half3 bcs_hsb2rgb(half3 c) {
 }
 
 // MARK: - 32. Liquid Mirror
-// Seamless water-like reflection — no visible mirror line
+// Seamless water-like reflection, no visible mirror line
 
 [[ stitchable ]] half4 bcs_liquidMirror(
     float2 position,
@@ -1513,7 +1513,7 @@ static half3 bcs_hsb2rgb(half3 c) {
         mirrorUV.y = mirror_axis - (uv.y - mirror_axis);
     }
 
-    // Liquid ripple displacement — only in reflected area
+    // Liquid ripple displacement, only in reflected area
     float t = time * speed;
     float2 rippleSt = mirrorUV * 6.0;
 
@@ -1608,7 +1608,7 @@ static half3 bcs_hsb2rgb(half3 c) {
     float hue = fract(color_shift + hueAccum * 0.3 + 0.35); // base green
     half3 auroraColor = bcs_hsb2rgb(half3(half(hue), 0.7h, 1.0h));
 
-    // Additive blend — light overlay
+    // Additive blend, light overlay
     color.rgb += auroraColor * half(auroraVal * 0.7);
 
     // Subtle vertical shimmer
@@ -1689,7 +1689,7 @@ static half3 bcs_hsb2rgb(half3 c) {
 }
 
 // MARK: - 35. Duochrome
-// Two-tone color mapping with contrast control — dramatic poster effect
+// Two-tone color mapping with contrast control, dramatic poster effect
 
 [[ stitchable ]] half4 bcs_duochrome(
     float2 position,
@@ -1734,7 +1734,7 @@ static half3 bcs_hsb2rgb(half3 c) {
 }
 
 // MARK: - Disintegrate
-// Thanos-snap style particle dissolution — pixels scatter into dust
+// Thanos-snap style particle dissolution, pixels scatter into dust
 
 [[ stitchable ]] half4 bcs_disintegrate(
     float2 position,
@@ -1796,7 +1796,7 @@ static half3 bcs_hsb2rgb(half3 c) {
 }
 
 // MARK: - Solarize
-// Film solarization — psychedelic inversion at selective luminance thresholds
+// Film solarization, psychedelic inversion at selective luminance thresholds
 
 [[ stitchable ]] half4 bcs_solarize(
     float2 position,
@@ -1834,7 +1834,7 @@ static half3 bcs_hsb2rgb(half3 c) {
 }
 
 // MARK: - Pixelate Mosaic
-// 3D beveled tiles with animated assembly — not flat pixelation
+// 3D beveled tiles with animated assembly, not flat pixelation
 
 [[ stitchable ]] half4 bcs_pixelateMosaic(
     float2 position,
@@ -1893,7 +1893,7 @@ static half3 bcs_hsb2rgb(half3 c) {
 }
 
 // MARK: - Datamosh
-// Digital codec corruption — smeared motion vectors, macro-blocking, I-frame bleed
+// Digital codec corruption, smeared motion vectors, macro-blocking, I-frame bleed
 
 [[ stitchable ]] half4 bcs_datamosh(
     float2 position,
@@ -1946,7 +1946,7 @@ static half3 bcs_hsb2rgb(half3 c) {
 }
 
 // MARK: - Magnetic Field
-// Ferrofluid-inspired displacement — lines of force warp the image
+// Ferrofluid-inspired displacement, lines of force warp the image
 
 [[ stitchable ]] half4 bcs_magneticField(
     float2 position,
@@ -2065,7 +2065,7 @@ static half3 bcs_hsb2rgb(half3 c) {
 }
 
 // MARK: - Topographic
-// Contour map visualization — converts image into elevation lines
+// Contour map visualization, converts image into elevation lines
 
 [[ stitchable ]] half4 bcs_topographic(
     float2 position,

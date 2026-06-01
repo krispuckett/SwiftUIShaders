@@ -1,4 +1,4 @@
-// ShaderEffects.swift — typed SwiftUI wrappers for every shader in SwiftUIShaders.metal.
+// ShaderEffects.swift, typed SwiftUI wrappers for every shader in SwiftUIShaders.metal.
 //
 // This file is generated to mirror the Metal function signatures. Each method applies
 // one `[[ stitchable ]]` shader as a `layerEffect`. Conventions:
@@ -41,7 +41,7 @@ struct _AnimatedShaderEffect: ViewModifier {
 }
 
 public extension View {
-    /// Aurora — Northern lights: flowing bands of colored light across the image
+    /// Aurora, Northern lights: flowing bands of colored light across the image
     /// - Parameter intensity: 0-1: aurora visibility
     /// - Parameter bands: 1-8: number of light bands
     /// - Parameter speed: 0.3-3: flow speed
@@ -60,7 +60,7 @@ public extension View {
         })
     }
 
-    /// Black Hole — Gravitational lensing — warps space around a singularity
+    /// Black Hole, Gravitational lensing, warps space around a singularity
     /// - Parameter mass: 0.05-0.5: size/strength of the singularity
     /// - Parameter spin: 0-5: rotation speed of the accretion disk
     /// - Parameter distortion: 10-200: warp strength
@@ -79,7 +79,7 @@ public extension View {
         })
     }
 
-    /// Chromatic Split — RGB channel separation with directional control
+    /// Chromatic Split, RGB channel separation with directional control
     /// - Parameter spread: 0-30: pixel distance between channels
     /// - Parameter angle: 0-6.28: direction of the split
     /// - Parameter edgeOnly: 0-1: limit effect to edges (radial falloff
@@ -98,7 +98,7 @@ public extension View {
         })
     }
 
-    /// Datamosh — Digital codec corruption — smeared motion vectors, macro-blocking, I-frame bleed
+    /// Datamosh, Digital codec corruption, smeared motion vectors, macro-blocking, I-frame bleed
     /// - Parameter blockCorruption: 0-1: how many blocks are corrupted
     /// - Parameter smearAmount: 0-60: pixel displacement of smear
     /// - Parameter colorBleed: 0-1: channel separation in corrupted areas
@@ -117,7 +117,7 @@ public extension View {
         })
     }
 
-    /// Disintegrate — Thanos-snap style particle dissolution — pixels scatter into dust
+    /// Disintegrate, Thanos-snap style particle dissolution, pixels scatter into dust
     /// - Parameter threshold: 0-1: how much has dissolved
     /// - Parameter edgeWidth: 0.05-0.3: width of the burning edge
     /// - Parameter driftAmount: 0-50: how far particles drift
@@ -136,7 +136,7 @@ public extension View {
         })
     }
 
-    /// Duochrome — Two-tone color mapping with contrast control — dramatic poster effect
+    /// Duochrome, Two-tone color mapping with contrast control, dramatic poster effect
     /// - Parameter intensity: 0-1: strength of the effect
     /// - Parameter hue1: 0-1: shadow hue
     /// - Parameter hue2: 0-1: highlight hue
@@ -155,7 +155,7 @@ public extension View {
         })
     }
 
-    /// Echo / Ghost — Multiple trailing offset copies that create a spectral echo
+    /// Echo / Ghost, Multiple trailing offset copies that create a spectral echo
     /// - Parameter echoCount: 2-8: number of ghost copies
     /// - Parameter spread: 5-50: pixel distance between echoes
     /// - Parameter direction: 0-6.28: angle of echo trail
@@ -174,7 +174,7 @@ public extension View {
         })
     }
 
-    /// Emboss / Relief — Creates a 3D carved look from the cover art using edge detection
+    /// Emboss / Relief, Creates a 3D carved look from the cover art using edge detection
     /// - Parameter strength: 0-5: how pronounced the relief is
     /// - Parameter angle: 0-6.28: light direction in radians
     /// - Parameter mixAmount: 0-1: blend between original and embossed
@@ -189,7 +189,7 @@ public extension View {
         })
     }
 
-    /// Ethereal Aura (v2) — The cover BREATHES — edges warp and glow with visible liquid displacement
+    /// Ethereal Aura (v2), The cover BREATHES, edges warp and glow with visible liquid displacement
     /// - Parameter auraWidth:
     /// - Parameter auraIntensity:
     /// - Parameter pulseSpeed:
@@ -210,7 +210,7 @@ public extension View {
         })
     }
 
-    /// Frosted Glass — Partial blur with a clear window — like breathing on cold glass
+    /// Frosted Glass, Partial blur with a clear window, like breathing on cold glass
     /// - Parameter frostAmount: 0-1: how frosty (0 = clear, 1 = full frost
     /// - Parameter grainSize: 1-20: size of frost crystals
     /// - Parameter clearRadius: 0-1: size of clear center spot
@@ -227,7 +227,7 @@ public extension View {
         })
     }
 
-    /// Geometric Warp — Droste effect / Escher-inspired infinite spiral zoom
+    /// Geometric Warp, Droste effect / Escher-inspired infinite spiral zoom
     /// - Parameter spiralTight: 1-8: tightness of the spiral
     /// - Parameter zoomRepeat: 0.3-2: how fast the zoom repeats
     /// - Parameter rotation: 0-6.28: base rotation
@@ -246,7 +246,7 @@ public extension View {
         })
     }
 
-    /// Glitch — Digital glitch with scan lines, block displacement, and color corruption
+    /// Glitch, Digital glitch with scan lines, block displacement, and color corruption
     /// - Parameter intensity: 0-1: overall glitch strength
     /// - Parameter blockSize: 2-50: size of glitch blocks
     /// - Parameter scanLines: 0-1: scan line darkness
@@ -265,7 +265,7 @@ public extension View {
         })
     }
 
-    /// Gravity Wells — Multiple points of gravitational distortion pulling the image
+    /// Gravity Wells, Multiple points of gravitational distortion pulling the image
     /// - Parameter wellStrength: 10-200: pull force
     /// - Parameter wellCount: 1-5: number of gravity wells
     /// - Parameter orbitSpeed: 0.1-3: how fast wells move
@@ -284,7 +284,7 @@ public extension View {
         })
     }
 
-    /// Heat Shimmer — Animated wavering distortion like heat rising off pavement
+    /// Heat Shimmer, Animated wavering distortion like heat rising off pavement
     /// - Parameter amplitude: 0-20: pixel displacement amount
     /// - Parameter frequency: 1-30: wave tightness
     /// - Parameter speed: 0.5-5: animation speed
@@ -303,7 +303,7 @@ public extension View {
         })
     }
 
-    /// Holographic / Prismatic — Rainbow foil effect that shifts with time — like a holographic trading card
+    /// Holographic / Prismatic, Rainbow foil effect that shifts with time, like a holographic trading card
     /// - Parameter intensity: 0-1: strength of the rainbow overlay
     /// - Parameter scale: 1-20: size of the rainbow bands
     /// - Parameter speed: 0.1-3: animation speed
@@ -322,7 +322,7 @@ public extension View {
         })
     }
 
-    /// Ink Bleed / Domain Warp — Makes the cover look like watercolor bleeding into wet paper
+    /// Ink Bleed / Domain Warp, Makes the cover look like watercolor bleeding into wet paper
     /// - Parameter warpStrength: 0-50: how far pixels wander
     /// - Parameter scale: 1-10: size of the warp patterns
     /// - Parameter speed: 0.1-2: animation speed
@@ -341,7 +341,7 @@ public extension View {
         })
     }
 
-    /// Kaleidoscope — Mirrors and rotates the cover into mesmerizing symmetrical patterns
+    /// Kaleidoscope, Mirrors and rotates the cover into mesmerizing symmetrical patterns
     /// - Parameter segments: 2-16: number of mirror segments
     /// - Parameter rotation: 0-6.28: manual rotation
     /// - Parameter zoom: 0.5-3: zoom level
@@ -360,7 +360,7 @@ public extension View {
         })
     }
 
-    /// Liquid Chrome — Metallic mercury reflection with animated highlights
+    /// Liquid Chrome, Metallic mercury reflection with animated highlights
     /// - Parameter distortion: 0-30: displacement amount
     /// - Parameter chromeIntensity: 0-1: metallic highlight strength
     /// - Parameter flowSpeed: 0.1-3: animation speed
@@ -379,7 +379,7 @@ public extension View {
         })
     }
 
-    /// Liquid Mirror — Seamless water-like reflection — no visible mirror line
+    /// Liquid Mirror, Seamless water-like reflection, no visible mirror line
     /// - Parameter mirrorAxis: 0.3-0.7: where the reflection starts
     /// - Parameter ripple: 2-30: ripple displacement
     /// - Parameter speed: 0.5-3: ripple animation speed
@@ -398,7 +398,7 @@ public extension View {
         })
     }
 
-    /// Live Ripple — Concentric water ripples expanding outward continuously from center
+    /// Live Ripple, Concentric water ripples expanding outward continuously from center
     /// - Parameter amplitude: 0-30: pixel displacement
     /// - Parameter frequency: 5-60: ring tightness
     /// - Parameter speed: 1-10: expansion speed
@@ -419,7 +419,7 @@ public extension View {
         })
     }
 
-    /// Magnetic Field — Ferrofluid-inspired displacement — lines of force warp the image
+    /// Magnetic Field, Ferrofluid-inspired displacement, lines of force warp the image
     /// - Parameter fieldStrength: 5-80: displacement amount
     /// - Parameter lineCount: 3-20: number of field lines
     /// - Parameter fieldTurbulence: 0-1: organic disturbance
@@ -438,7 +438,7 @@ public extension View {
         })
     }
 
-    /// Melt — The image melts downward like hot wax — gravity pulls pixels down
+    /// Melt, The image melts downward like hot wax, gravity pulls pixels down
     /// - Parameter meltAmount: 0-100: how far pixels drip
     /// - Parameter dripScale: 1-15: width of drip columns
     /// - Parameter speed: 0.1-3: melt speed
@@ -457,7 +457,7 @@ public extension View {
         })
     }
 
-    /// Morph Breathe — The image breathes and morphs like a living organism
+    /// Morph Breathe, The image breathes and morphs like a living organism
     /// - Parameter breatheDepth: 5-50: displacement depth
     /// - Parameter breatheRate: 0.3-3: breathing speed
     /// - Parameter warpComplexity: 1-8: noise octave complexity
@@ -476,7 +476,7 @@ public extension View {
         })
     }
 
-    /// Neon Edge — Glowing neon contour lines extracted from the image
+    /// Neon Edge, Glowing neon contour lines extracted from the image
     /// - Parameter edgeStrength: 1-10: edge detection sensitivity
     /// - Parameter glowAmount: 0-2: how much the edges glow
     /// - Parameter colorCycle: 0-3: speed of color cycling
@@ -495,7 +495,7 @@ public extension View {
         })
     }
 
-    /// Pixelate Mosaic — 3D beveled tiles with animated assembly — not flat pixelation
+    /// Pixelate Mosaic, 3D beveled tiles with animated assembly, not flat pixelation
     /// - Parameter pixelSize: 4-60: size of each tile
     /// - Parameter bevel: 0-1: 3D bevel depth on tiles
     /// - Parameter animateAssemble: 0-1: tiles slide in from scattered positions
@@ -514,7 +514,7 @@ public extension View {
         })
     }
 
-    /// Pixelate Storm — Dynamic mosaic that pulses, shifts, and swirls
+    /// Pixelate Storm, Dynamic mosaic that pulses, shifts, and swirls
     /// - Parameter pixelSize: 2-40: base pixel block size
     /// - Parameter stormAmount: 0-1: how chaotic the pixelation is
     /// - Parameter swirl: 0-3: rotational swirl of pixel grid
@@ -533,7 +533,7 @@ public extension View {
         })
     }
 
-    /// Plasma — Electric plasma tendrils crawling across the surface
+    /// Plasma, Electric plasma tendrils crawling across the surface
     /// - Parameter intensity: 0-1: visibility of plasma
     /// - Parameter scale: 1-10: size of plasma cells
     /// - Parameter speed: 0.5-5: animation speed
@@ -552,7 +552,7 @@ public extension View {
         })
     }
 
-    /// Pulse / Heartbeat — Rhythmic radial expansion and contraction like a breathing cover
+    /// Pulse / Heartbeat, Rhythmic radial expansion and contraction like a breathing cover
     /// - Parameter amplitude: 0-30: max pixel displacement
     /// - Parameter bpm: 30-180: beats per minute
     /// - Parameter sharpness: 1-10: how sharp the pulse is (higher = punchier
@@ -571,7 +571,7 @@ public extension View {
         })
     }
 
-    /// Refract Lens (Interactive) — Thick glass sphere — drag to move the lens around the cover
+    /// Refract Lens (Interactive), Thick glass sphere, drag to move the lens around the cover
     /// - Parameter touchPos: touch position in pixels
     /// - Parameter lensRadius: 0.1-0.5: size of the lens
     /// - Parameter refraction: 1.0-3.0: index of refraction
@@ -590,7 +590,7 @@ public extension View {
         })
     }
 
-    /// Shatter — Refined glass shard explosion with depth, reflections, and shadow
+    /// Shatter, Refined glass shard explosion with depth, reflections, and shadow
     /// - Parameter shardCount: 3-30: number of shatter cells
     /// - Parameter explode: 0-1: how far apart the shards are
     /// - Parameter rotationAmt: 0-3: how much each shard rotates
@@ -609,7 +609,7 @@ public extension View {
         })
     }
 
-    /// Shatter Glass — Cracked glass with refraction and prismatic splitting at cracks
+    /// Shatter Glass, Cracked glass with refraction and prismatic splitting at cracks
     /// - Parameter crackDensity: 3-15: number of shatter cells
     /// - Parameter glassRefraction: 0-20: displacement at crack edges
     /// - Parameter prismStrength: 0-1: rainbow splitting at cracks
@@ -628,7 +628,7 @@ public extension View {
         })
     }
 
-    /// Shockwave — Expanding rings of distortion from the center
+    /// Shockwave, Expanding rings of distortion from the center
     /// - Parameter waveSpeed: 50-500: ring expansion speed
     /// - Parameter ringWidth: 5-60: width of the distortion ring
     /// - Parameter strength: 5-80: displacement power
@@ -647,7 +647,7 @@ public extension View {
         })
     }
 
-    /// Smoke Reveal — Swirling smoke that clears to reveal the image underneath
+    /// Smoke Reveal, Swirling smoke that clears to reveal the image underneath
     /// - Parameter smokeAmount: 0-1: smoke coverage
     /// - Parameter smokeScale: 2-10: size of smoke wisps
     /// - Parameter windSpeed: 0.5-3: how fast smoke moves
@@ -666,7 +666,7 @@ public extension View {
         })
     }
 
-    /// Solarize — Film solarization — psychedelic inversion at selective luminance thresholds
+    /// Solarize, Film solarization, psychedelic inversion at selective luminance thresholds
     /// - Parameter threshold: 0.2-0.8: luminance threshold for inversion
     /// - Parameter curveIntensity: 0-3: how sharp the solarization curve is
     /// - Parameter colorSeparation: 0-1: separate channels for psychedelic color
@@ -685,7 +685,7 @@ public extension View {
         })
     }
 
-    /// Thermal — Thermal / infrared vision with heat shimmer
+    /// Thermal, Thermal / infrared vision with heat shimmer
     /// - Parameter intensity: 0-1: strength of thermal colorization
     /// - Parameter shimmer: 0-15: heat distortion amount
     /// - Parameter noiseSpeed: 0.5-3: shimmer animation speed
@@ -704,7 +704,7 @@ public extension View {
         })
     }
 
-    /// Topographic — Contour map visualization — converts image into elevation lines
+    /// Topographic, Contour map visualization, converts image into elevation lines
     /// - Parameter lineCount: 5-40: number of contour lines
     /// - Parameter lineWidth: 0.01-0.15: thickness
     /// - Parameter colorize: 0-1: blend between original and topo colors
@@ -723,7 +723,7 @@ public extension View {
         })
     }
 
-    /// Touch Ripple — Ripples expand from a touch point, decay over time
+    /// Touch Ripple, Ripples expand from a touch point, decay over time
     /// - Parameter touchPos: touch location in pixels
     /// - Parameter touchAge: seconds since touch
     /// - Parameter amplitude: 0-30: displacement strength
@@ -744,7 +744,7 @@ public extension View {
         })
     }
 
-    /// Underwater Caustics — Dancing light refractions like sunlight through water
+    /// Underwater Caustics, Dancing light refractions like sunlight through water
     /// - Parameter causticScale: 2-15: scale of caustic pattern
     /// - Parameter causticIntensity: 0-2: brightness of caustic highlights
     /// - Parameter waterDistortion: 0-30: water surface displacement
@@ -763,7 +763,7 @@ public extension View {
         })
     }
 
-    /// Vortex Spiral — Swirling distortion that twists the cover art
+    /// Vortex Spiral, Swirling distortion that twists the cover art
     /// - Parameter twistAmount: 0-10: how many radians of twist
     /// - Parameter radius: 0.1-1: normalized radius of the vortex
     /// - Parameter speed: 0.1-3: rotation speed
@@ -782,7 +782,7 @@ public extension View {
         })
     }
 
-    /// Wave Pool — Multiple overlapping sine wave displacements creating interference patterns
+    /// Wave Pool, Multiple overlapping sine wave displacements creating interference patterns
     /// - Parameter amplitude: 0-25: displacement strength
     /// - Parameter wavelength: 5-40: distance between wave crests
     /// - Parameter speed: 0.5-5: wave animation speed
@@ -801,7 +801,7 @@ public extension View {
         })
     }
 
-    /// Wormhole — Tunnel zoom into the image center with spiral distortion
+    /// Wormhole, Tunnel zoom into the image center with spiral distortion
     /// - Parameter depth: 1-8: tunnel depth / zoom factor
     /// - Parameter speed: 0.3-3: travel speed
     /// - Parameter twist: 0-5: spiral twist amount
