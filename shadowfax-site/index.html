@@ -1,0 +1,1333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shadowfax</title>
+<meta name="description" content="Shadowfax for iPhone: an assistant that runs on your own Mac, with its door on your phone.">
+<style>
+:root {
+  --paper: #F6F2E6; --ink: #1B241D; --quiet: #626C5C; --bubble: #E8EADB; --accent: #5C7654;
+  --panel-line: #DDE0CE; --panel-wash: #ECEDE0; --quote-rule: #9E7C38;
+  --line: color-mix(in srgb, var(--quiet) 17%, transparent);
+  --card-fill: color-mix(in srgb, var(--bubble) 38%, transparent);
+  --strong-fill: color-mix(in srgb, var(--bubble) 60%, transparent);
+  --glass: color-mix(in srgb, var(--paper) 80%, transparent);
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.05);
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --book: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --r-card: 24px; --r-panel: 28px; --r-field: 29px; --r-action: 18px;
+  --col: 680px;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #111713; --ink: #ECEEE2; --quiet: #96A492; --bubble: #1F2921; --accent: #92B086;
+    --panel-line: #344036; --panel-wash: #263128; --quote-rule: #D0AC64;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #111713; --ink: #ECEEE2; --quiet: #96A492; --bubble: #1F2921; --accent: #92B086;
+  --panel-line: #344036; --panel-wash: #263128; --quote-rule: #D0AC64;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 17px/1.47 var(--sans); font-kerning: normal;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  transition: background-color .4s var(--ease), color .4s var(--ease);
+}
+::selection { background: color-mix(in srgb, var(--accent) 28%, transparent); }
+a { color: inherit; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.glyph { display: block; fill: currentColor; flex: none; }
+.num { font-variant-numeric: tabular-nums; }
+
+.wrap { width: 100%; max-width: calc(var(--col) + 40px); margin-inline: auto; padding-inline: 20px; }
+
+/* ---------- Nav ---------- */
+.nav {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+  background: var(--glass);
+  -webkit-backdrop-filter: saturate(1.4) blur(18px); backdrop-filter: saturate(1.4) blur(18px);
+  border-bottom: 0.5px solid transparent; transition: border-color .3s;
+}
+.nav.scrolled { border-bottom-color: var(--line); }
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 56px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 600; letter-spacing: -0.01em; }
+.brand svg { fill: currentColor; }
+.prefs { display: flex; align-items: center; gap: 14px; }
+.swatches { display: flex; gap: 8px; }
+.swatch {
+  width: 18px; height: 18px; border-radius: 50%; position: relative;
+  background: var(--sw-paper); box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / .18);
+  overflow: hidden;
+}
+.swatch::after { content: ""; position: absolute; inset: 50% 0 0 0; background: var(--sw-accent); }
+.swatch[aria-pressed="true"] { box-shadow: 0 0 0 1.5px var(--paper), 0 0 0 2.5px var(--ink); }
+.mode {
+  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  border: 1px solid var(--panel-line); color: var(--ink);
+}
+
+/* ---------- Type ---------- */
+.label { font-size: 13px; font-weight: 500; color: var(--quiet); }
+h1, h2, h3 { margin: 0; font-family: var(--display); font-weight: 600; text-wrap: balance; }
+h1 { font-size: clamp(42px, 8vw, 68px); line-height: 1.02; letter-spacing: -0.035em; }
+h2 { font-size: clamp(28px, 4.4vw, 36px); line-height: 1.1; letter-spacing: -0.022em; }
+h3 { font-size: 19px; line-height: 1.25; letter-spacing: -0.012em; }
+.lede { font-size: 19px; line-height: 1.5; max-width: 34em; margin: 0; }
+.body { color: color-mix(in srgb, var(--ink) 78%, var(--paper)); margin: 0; max-width: 36em; text-wrap: pretty; }
+
+/* ---------- Hero ---------- */
+.hero { padding-block: 72px 0; }
+.hero .wrap { display: grid; gap: 22px; }
+.gallop { display: block; width: 100%; max-width: 1280px; margin: 56px auto 0; --pitch: 12; }
+.gallop canvas { display: block; width: 100%; }
+.hero-caption { margin-top: 18px; }
+.hero-caption p { margin: 0; }
+@media (max-width: 560px) { .gallop { --pitch: 8; } .hero { padding-top: 48px; } }
+
+/* ---------- Sections ---------- */
+section.feature { padding-block: 112px 0; }
+.intro { display: grid; gap: 14px; margin-bottom: 36px; }
+.fine { font-size: 13px; color: var(--quiet); margin: 16px 0 0; max-width: 40em; }
+
+/* ---------- Shared surfaces ---------- */
+.panel {
+  background: var(--card-fill); border: 0.7px solid var(--line); border-radius: var(--r-panel);
+}
+.card {
+  background: var(--card-fill); border: 0.7px solid var(--line); border-radius: var(--r-card);
+  padding: 22px; display: grid; gap: 14px; break-inside: avoid;
+}
+.card-head { display: grid; grid-template-columns: 1fr 20px; gap: 12px; align-items: start; }
+.card-head .glyph { color: var(--quiet); justify-self: center; margin-top: 4px; }
+.card h3 { font-size: 19px; }
+.card .sub { color: var(--quiet); font-size: 15px; }
+.card-foot {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  border-top: 0.7px solid var(--line); padding-top: 14px; font-size: 13px;
+}
+.card-foot .state { color: var(--quiet); }
+.link-btn { font-weight: 600; font-size: 13px; min-height: 32px; }
+.action {
+  display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; width: 100%;
+  font-size: 13px; font-weight: 500; border-radius: var(--r-action); padding: 11px 13px;
+  background: var(--ink); color: var(--paper); border: 1px solid var(--ink);
+  transition: opacity .12s, background-color .2s, color .2s;
+}
+.action:active { opacity: .72; }
+.action.done { background: transparent; color: var(--ink); border-color: var(--panel-line); }
+.action.waiting { background: var(--panel-wash); color: var(--quiet); border-color: var(--panel-line); }
+.glassbtn {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: var(--glass); border: 0.7px solid var(--panel-line); box-shadow: var(--shadow);
+}
+
+/* ---------- Chat demo ---------- */
+.chat { overflow: hidden; }
+.chat-head {
+  display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 12px;
+  padding: 14px 16px; border-bottom: 0.7px solid var(--line);
+}
+.chat-head .title { text-align: center; font-weight: 600; font-size: 20px; letter-spacing: -0.02em; line-height: 1.1; }
+.chat-head .status { display: block; font-size: 12px; font-weight: 400; color: var(--quiet); letter-spacing: 0; min-height: 15px; }
+.thread { padding: 28px 26px 22px; display: grid; gap: 29px; }
+.me { justify-self: end; max-width: 80%; background: var(--bubble); border-radius: 23px; padding: 13px 18px; line-height: 1.4; }
+.him { display: grid; gap: 12px; }
+.trail { justify-self: start; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--quiet); min-height: 20px; text-align: left; }
+.trail .glyph { transition: transform .25s var(--ease); }
+.trail[aria-expanded="true"] .glyph { transform: rotate(180deg); }
+.trail.live { font-size: 15px; }
+.steps { display: grid; gap: 8px; font-size: 13px; padding-left: 2px; }
+.steps[hidden] { display: none; }
+.step { display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; }
+.step .tool { color: var(--quiet); grid-column: 1; }
+.step .t { color: var(--quiet); grid-row: 1 / span 2; grid-column: 2; font-variant-numeric: tabular-nums; }
+.reply { font-size: 19px; line-height: 1.45; margin: 0; }
+.reply-table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.35; }
+.reply-table th { text-align: left; font-weight: 600; padding: 0 12px 8px 0; border-bottom: 0.7px solid var(--line); }
+.reply-table td { padding: 9px 12px 9px 0; border-bottom: 0.7px solid var(--line); vertical-align: top; }
+.reply-table td:nth-child(2) { color: var(--quiet); white-space: nowrap; }
+.table-wrap { overflow-x: auto; }
+.reply-cards { display: grid; gap: 12px; }
+.page-card { grid-template-columns: 1fr 20px; display: grid; gap: 4px 12px; padding: 18px 22px; }
+.page-card .glyph { color: var(--quiet); grid-row: 1 / span 2; grid-column: 2; align-self: center; justify-self: center; }
+.page-card .meta { font-size: 13px; color: var(--quiet); }
+.page-card b, .page-card .meta { grid-column: 1; }
+.composer {
+  margin: 0 16px 16px; display: flex; align-items: center; justify-content: space-between;
+  min-height: 56px; padding: 0 20px; border-radius: var(--r-field);
+  background: var(--glass); border: 0.7px solid var(--panel-line); color: var(--quiet); box-shadow: var(--shadow);
+}
+.composer .glyph { color: var(--ink); }
+.demo-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 14px; }
+.textbtn { font-size: 15px; font-weight: 500; color: var(--ink); display: inline-flex; gap: 8px; align-items: center; min-height: 40px; }
+.textbtn:disabled { color: var(--quiet); cursor: default; }
+.reveal { transition: opacity .45s var(--ease), transform .45s var(--ease); }
+.reveal.out { opacity: 0; transform: translateY(6px); }
+
+/* ---------- Pull quote ---------- */
+.pull { position: relative; margin: 0; font-size: 18px; line-height: 1.45; }
+.pull::before { content: "\201C"; position: absolute; left: -0.46em; top: 0; color: var(--quote-rule); }
+.pull cite { display: block; font-style: normal; font-size: 13px; color: var(--quiet); margin-top: 8px; }
+
+/* ---------- Cards grid ---------- */
+.cards { columns: 2 300px; column-gap: 16px; }
+.cards > .card { margin-bottom: 16px; }
+.options { display: grid; gap: 8px; }
+.option {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px; text-align: left;
+  min-height: 46px; padding: 12px 16px; border-radius: 16px; border: 1px dashed color-mix(in srgb, var(--quiet) 45%, transparent);
+  font-size: 15px; transition: opacity .2s, border-color .2s, background-color .2s;
+}
+.option .glyph { opacity: 0; }
+.option[aria-pressed="true"] { border-style: solid; border-color: var(--ink); }
+.option[aria-pressed="true"] .glyph { opacity: 1; }
+.options.chosen .option[aria-pressed="false"] { opacity: .45; }
+.list { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.list button { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; min-height: 40px; font-size: 15px; }
+.tick { width: 16px; height: 16px; flex: none; color: var(--quiet); }
+.list [aria-checked="true"] { color: var(--quiet); }
+.list [aria-checked="true"] span { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--quiet) 60%, transparent); }
+.list [aria-checked="true"] .tick { color: var(--accent); }
+.loop-text { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--quiet) 60%, transparent); }
+.loop.open .loop-text { text-decoration: none; }
+.also { margin-top: 8px; }
+
+/* ---------- Talk demo ---------- */
+.talk { padding: 22px; display: grid; gap: 18px; }
+.talk-log { display: grid; gap: 18px; min-height: 124px; align-content: end; }
+.talk-log .him { gap: 8px; }
+.audio {
+  display: inline-flex; align-items: center; gap: 12px; padding: 10px 16px; border-radius: 999px;
+  background: var(--panel-wash); justify-self: start; font-size: 12px; color: var(--quiet);
+}
+.audio .glyph { color: var(--ink); }
+.wave { display: block; }
+.talk-field {
+  border-radius: var(--r-field); background: var(--glass); border: 0.7px solid var(--panel-line);
+  box-shadow: var(--shadow); padding: 14px 10px 10px 20px; display: grid; gap: 6px;
+}
+.talk-row { display: flex; align-items: center; gap: 12px; }
+.talk-words { flex: 1; min-height: 26px; font-size: 17px; }
+.talk-words.hint { color: var(--quiet); }
+.talk-strip { --pitch: 6; margin-right: 10px; }
+.talk-strip canvas { display: block; width: 100%; }
+.talk-btn {
+  width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: color-mix(in srgb, var(--accent) 38%, transparent); color: var(--ink);
+  touch-action: none; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none;
+  transition: background-color .25s, transform .2s var(--ease);
+}
+.talk-btn.held { background: var(--accent); color: var(--paper); transform: scale(1.06); }
+.talk-state { font-size: 13px; color: var(--quiet); min-width: 64px; }
+
+/* ---------- Capture demo ---------- */
+.capture { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+@media (max-width: 640px) { .capture { grid-template-columns: 1fr; } }
+.page-photo {
+  border-radius: 18px; padding: 28px 24px 30px; color: #2a2620;
+  background: linear-gradient(135deg, #F0E8D6, #D6CCB8); transform: rotate(-1.2deg);
+  box-shadow: 0 1px 2px rgb(0 0 0 / .08), 0 12px 32px rgb(0 0 0 / .12);
+  font: 14px/1.6 var(--book); display: grid; gap: 14px;
+}
+.page-photo .running { font-size: 10px; letter-spacing: 0.3em; text-align: center; }
+.page-photo p { margin: 0; text-align: justify; hyphens: auto; }
+.page-photo mark { background: color-mix(in srgb, #5C7654 26%, transparent); color: inherit; border-radius: 2px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.page-photo .folio { font-size: 11px; text-align: center; opacity: .7; }
+.field-row { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; font-size: 15px; }
+.field-row .k { color: var(--quiet); font-size: 13px; }
+.input {
+  width: 100%; font: inherit; font-size: 15px; color: var(--ink); background: var(--panel-wash);
+  border: 1px solid var(--panel-line); border-radius: 14px; padding: 11px 14px;
+}
+.input::placeholder { color: var(--quiet); }
+.filed-note { font-size: 13px; color: var(--quiet); text-align: center; min-height: 18px; }
+
+/* ---------- Library demo ---------- */
+.reader { padding: 34px 28px 22px; display: grid; gap: 18px; position: relative; }
+.reader .meta { font-size: 13px; color: var(--quiet); }
+.reader h3 { font-size: 39px; letter-spacing: -0.044em; line-height: 1.05; }
+.reader p { margin: 0; font-size: 18px; line-height: 1.55; }
+.reader .sel { background: color-mix(in srgb, var(--accent) 22%, transparent); border-radius: 3px; }
+.ask {
+  margin-top: 6px; border-radius: var(--r-panel); background: var(--glass); border: 0.7px solid var(--panel-line);
+  box-shadow: var(--shadow); padding: 18px 20px; display: grid; gap: 12px;
+}
+.ask-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.ask-head b { font-weight: 600; font-size: 15px; }
+.ask .q { justify-self: end; max-width: 85%; background: var(--bubble); border-radius: 20px; padding: 10px 16px; font-size: 15px; }
+.ask .a { font-size: 17px; line-height: 1.45; margin: 0; }
+.inbox { display: grid; margin-top: 16px; }
+.inbox-row { display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; padding: 16px 0; border-top: 0.7px solid var(--line); }
+.inbox-row b { font-weight: 600; }
+.inbox-row .s { color: color-mix(in srgb, var(--ink) 78%, var(--paper)); font-size: 15px; grid-column: 1; }
+.inbox-row .m { color: var(--quiet); font-size: 13px; grid-column: 1; }
+.inbox-row .d { grid-row: 1 / span 3; grid-column: 2; align-self: center; font-size: 13px; font-weight: 500; border: 1px solid var(--panel-line); border-radius: 999px; padding: 6px 14px; }
+
+/* ---------- Away grid ---------- */
+.away { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 640px) { .away { grid-template-columns: 1fr; } }
+.tile { margin: 0; min-width: 0; display: grid; grid-template-rows: 1fr auto; gap: 14px; }
+.tile .stage {
+  border-radius: var(--r-card); background: var(--card-fill); border: 0.7px solid var(--line);
+  min-height: 250px; display: grid; place-items: center; padding: 22px; overflow: hidden;
+}
+.tile .stage.night { background: #0B0F0C; border-color: transparent; }
+.tile figcaption { display: grid; gap: 2px; padding-inline: 4px; }
+.tile figcaption b { font-weight: 600; font-size: 15px; }
+.tile figcaption span { font-size: 13px; color: var(--quiet); }
+.island {
+  width: 100%; max-width: 300px; background: #000; border-radius: 40px; padding: 18px 20px 16px; color: var(--i-ink, #ECEEE2);
+  display: grid; gap: 10px;
+}
+.island-top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+.island-top svg { fill: currentColor; }
+.island-status { font-size: 14px; line-height: 1.35; min-height: 38px; font-weight: 500; }
+.island canvas { display: block; width: 100%; height: 54px; }
+.clock { width: min(220px, 100%); aspect-ratio: 1; border-radius: 36px; background: #000; display: grid; place-items: center; padding: 14px; }
+.clock canvas { width: 100%; aspect-ratio: 1; display: block; }
+.note {
+  width: 100%; max-width: 320px; background: var(--paper); border-radius: 26px; padding: 16px 18px 18px;
+  box-shadow: var(--shadow); display: grid; gap: 12px; font-size: 14px; line-height: 1.45; border: 0.7px solid var(--line);
+}
+.note .player { display: flex; align-items: center; gap: 12px; background: var(--panel-wash); border-radius: 999px; padding: 8px 14px; color: var(--ink); font-size: 12px; }
+.note .player .num { color: var(--quiet); margin-left: auto; }
+.note p { margin: 0; }
+.controls { display: flex; gap: 22px; flex-wrap: wrap; justify-content: center; }
+.control { display: grid; justify-items: center; gap: 10px; font-size: 12px; color: var(--quiet); width: 76px; text-align: center; }
+.control .ring { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--panel-wash); border: 0.7px solid var(--panel-line); color: var(--ink); }
+.phrases { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; width: 100%; max-width: 300px; }
+.phrases li { padding: 11px 16px; border-radius: 16px; background: var(--panel-wash); font-size: 15px; }
+.phrases li.answer { background: none; color: var(--quiet); font-size: 13px; padding: 0 16px; }
+.share { width: 100%; max-width: 320px; display: grid; gap: 12px; }
+.share-link { display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: center; font-size: 14px; }
+.share-link .fav { width: 40px; height: 40px; border-radius: 10px; background: var(--panel-wash); display: grid; place-items: center; color: var(--quiet); }
+.share-link small { display: block; color: var(--quiet); font-size: 12px; }
+
+/* ---------- Palettes ---------- */
+.palettes { display: grid; gap: 8px; }
+.pal {
+  display: grid; grid-template-columns: 1fr auto; gap: 6px 24px; align-items: center; text-align: left; width: 100%;
+  padding: 18px 20px; border-radius: 20px; border: 0.7px solid transparent; transition: background-color .25s, border-color .25s;
+}
+.pal:hover { background: var(--card-fill); }
+.pal[aria-pressed="true"] { background: var(--card-fill); border-color: var(--line); }
+.pal b { font-weight: 600; font-size: 17px; display: flex; gap: 10px; align-items: center; }
+.pal b .glyph { opacity: 0; }
+.pal[aria-pressed="true"] b .glyph { opacity: 1; }
+.pal p { margin: 0; font-size: 13px; color: var(--quiet); grid-column: 1; max-width: 34em; }
+.strips { grid-row: 1 / span 2; grid-column: 2; display: grid; gap: 6px; }
+.strip { display: flex; gap: 3px; padding: 4px; border-radius: 8px; }
+.strip i { width: 14px; height: 14px; border-radius: 3.4px; display: block; box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / .12); }
+@media (max-width: 520px) { .pal { grid-template-columns: 1fr; } .strips { grid-row: auto; grid-column: 1; grid-auto-flow: column; justify-content: start; } }
+
+/* ---------- Icons ---------- */
+.icons { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 520px) { .icons { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.icons figure { margin: 0; display: grid; justify-items: center; gap: 10px; }
+.icons img { width: 100%; max-width: 132px; height: auto; display: block; }
+.icons figcaption { font-size: 13px; color: var(--quiet); text-align: center; }
+.icons figcaption b { color: var(--ink); font-weight: 500; display: block; font-size: 15px; }
+
+/* ---------- Footer ---------- */
+footer { padding-block: 128px 64px; }
+footer .wrap { display: grid; gap: 14px; }
+footer svg { fill: var(--ink); }
+footer p { margin: 0; font-size: 13px; color: var(--quiet); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; }
+}
+</style>
+
+</head>
+<body>
+<nav class="nav" id="nav" aria-label="Page">
+  <div class="wrap">
+    <a class="brand" href="#top"><span id="brand-mark"></span>Shadowfax</a>
+    <div class="prefs">
+      <div class="swatches" role="group" aria-label="Palette" id="nav-swatches"></div>
+      <button class="mode" id="mode" type="button" aria-label="Switch to night"><span id="mode-glyph"></span></button>
+    </div>
+  </div>
+</nav>
+
+<main id="top">
+  <header class="hero">
+    <div class="wrap">
+      <span class="label">Shadowfax for iPhone</span>
+      <h1>Comes when called.</h1>
+      <p class="lede">Shadowfax is an assistant that runs on your own Mac and keeps your library, reminders, and open loops. This app is its door on iPhone. Ask in words or out loud, hand it a photo or a page from a book, and it files, reminds, and answers.</p>
+    </div>
+    <div class="gallop" aria-hidden="true"><canvas id="hero-field"></canvas></div>
+    <div class="wrap hero-caption">
+      <p class="label">Muybridge’s gallop, 1887, traced into dots with the rider removed. The same frames run under your words while you talk.</p>
+    </div>
+  </header>
+
+  <!-- Chat -->
+  <section class="feature" id="chat" aria-labelledby="chat-h">
+    <div class="wrap">
+      <div class="intro">
+        <span class="label">Chat</span>
+        <h2 id="chat-h">Ask, then watch it work.</h2>
+        <p class="body">While a turn runs, the status line says what Shadowfax is doing in plain words. When it finishes, the trail folds into a single line you can open. Replies come back as text, tables, and cards.</p>
+      </div>
+
+      <div class="panel chat">
+        <div class="chat-head">
+          <span class="glassbtn" aria-hidden="true"><span data-glyph="line.3.horizontal" data-pitch="3"></span></span>
+          <div class="title">Shadowfax<span class="status" id="chat-status"></span></div>
+          <span class="glassbtn" aria-hidden="true"><span data-glyph="plus" data-pitch="3"></span></span>
+        </div>
+        <div class="thread" aria-live="polite">
+          <div class="me">What did we file this week?</div>
+          <div class="him">
+            <span class="label">Shadowfax</span>
+            <button class="trail" id="trail" type="button" aria-expanded="false" aria-controls="steps">
+              <span id="trail-text">Worked for 40 seconds · 6 steps</span><span data-glyph="chevron.down" id="trail-chev"></span>
+            </button>
+            <div class="steps" id="steps" hidden></div>
+            <p class="reply reveal" id="reply-text">Seven pages this week. Four are worth your time; three are link drops I filed without comment.</p>
+            <div class="table-wrap reveal" id="reply-table">
+              <table class="reply-table">
+                <thead><tr><th>Page</th><th>Filed</th><th>Why it matters</th></tr></thead>
+                <tbody>
+                  <tr><td>Collaborative Steering</td><td>Tue</td><td>Shared context files, and what keeping them current costs</td></tr>
+                  <tr><td>LongRunningIntent</td><td>Wed</td><td>The Live Activity seam for this app</td></tr>
+                  <tr><td>VisionKit capture idea</td><td>Mon</td><td>Your photograph-then-type bottleneck, costed</td></tr>
+                  <tr><td>Silent failure pattern</td><td>Sat</td><td>Why the bookmark sync died quietly for a week</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="reply reveal" id="reply-loop" style="font-size:17px"><b>One open loop is past due:</b> you said you’d name the capture flow by Monday. I haven’t raised it over iMessage because nothing waits on it.</p>
+            <div class="reply-cards reveal" id="reply-cards">
+              <div class="card page-card">
+                <b>Collaborative Steering</b>
+                <span class="meta">Research · 2 min read</span>
+                <span data-glyph="arrow.up.right"></span>
+              </div>
+              <div class="card">
+                <blockquote class="pull">The maintenance cost of shared context is the price of coherence.”<cite>Collaborative Steering</cite></blockquote>
+                <button class="action" type="button" data-save><span data-glyph="tray.and.arrow.down" data-pitch="2.6"></span><span>Save to mymind</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="composer"><span>Message Shadowfax</span><span data-glyph="waveform" data-pitch="3.4"></span></div>
+      </div>
+      <div class="demo-bar">
+        <span class="label">Sample thread, played five times faster than it ran.</span>
+        <button class="textbtn" id="replay" type="button"><span data-glyph="arrow.counterclockwise" data-pitch="2.6"></span>Replay the turn</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cards -->
+  <section class="feature" id="cards" aria-labelledby="cards-h">
+    <div class="wrap">
+      <div class="intro">
+        <span class="label">Cards</span>
+        <h2 id="cards-h">Answers you can act on.</h2>
+        <p class="body">When a reply needs a decision, a list, or a place, it arrives as a card with the action built in. Reminders go straight into Apple Reminders, and every change can be undone.</p>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <div class="card-head">
+            <div><h3>Read the capture idea page</h3><div class="sub">Tonight, 8:00 PM</div></div>
+            <span data-glyph="bell"></span>
+          </div>
+          <div style="font-size:15px">VisionKit capture idea, in the Library</div>
+          <div class="card-foot"><span class="state" id="rem-state">In Reminders</span><button class="link-btn" type="button" id="rem-btn">Undo</button></div>
+        </article>
+
+        <article class="card">
+          <h3>Want a reminder?</h3>
+          <div class="options" role="group" aria-label="Want a reminder?">
+            <button class="option" type="button" aria-pressed="false">Friday night<span data-glyph="checkmark"></span></button>
+            <button class="option" type="button" aria-pressed="false">Saturday 6:30am<span data-glyph="checkmark"></span></button>
+            <button class="option" type="button" aria-pressed="false">No reminder<span data-glyph="checkmark"></span></button>
+          </div>
+        </article>
+
+        <article class="card">
+          <blockquote class="pull">Our life is frittered away by detail. Simplify, simplify.”<cite>Walden, Henry David Thoreau</cite></blockquote>
+          <button class="action" type="button" data-save><span data-glyph="tray.and.arrow.down" data-pitch="2.6"></span><span>Save to mymind</span></button>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <div><h3>Read Next</h3><div class="sub" id="list-count">3 open</div></div>
+            <span data-glyph="books.vertical"></span>
+          </div>
+          <ul class="list" id="list">
+            <li><button type="button" role="checkbox" aria-checked="false"><span class="tick" data-glyph="circle" data-pitch="3.2"></span><span>The Count of Monte Cristo</span></button></li>
+            <li><button type="button" role="checkbox" aria-checked="true"><span class="tick" data-glyph="checkmark.circle.fill" data-pitch="3.2"></span><span>How Fiction Works</span></button></li>
+            <li><button type="button" role="checkbox" aria-checked="false"><span class="tick" data-glyph="circle" data-pitch="3.2"></span><span>Thinking in Systems</span></button></li>
+            <li><button type="button" role="checkbox" aria-checked="true"><span class="tick" data-glyph="checkmark.circle.fill" data-pitch="3.2"></span><span>The Hero with a Thousand Faces</span></button></li>
+            <li><button type="button" role="checkbox" aria-checked="false"><span class="tick" data-glyph="circle" data-pitch="3.2"></span><span>The Peace of Wild Things</span></button></li>
+          </ul>
+        </article>
+
+        <article class="card loop" id="loop">
+          <div class="card-head">
+            <div><h3 class="loop-text">Return the library copy of Walden</h3></div>
+            <span data-glyph="checkmark"></span>
+          </div>
+          <div class="sub" style="font-size:15px">The library emailed Tuesday: returned, nothing owed.</div>
+          <div class="card-foot"><span class="state" id="loop-state">Closed</span><button class="link-btn" type="button" id="loop-btn">Reopen</button></div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <div><h3>Moved: Read the capture idea page to tomorrow, 9:00 AM</h3><div class="sub">Your evening is booked; tomorrow at 9 is open.</div></div>
+            <span data-glyph="calendar"></span>
+          </div>
+          <div class="card-foot"><span class="state" id="mv-state">In Reminders</span><button class="link-btn" type="button" id="mv-btn">Undo</button></div>
+        </article>
+      </div>
+      <p class="body also" style="font-size:15px">Other kinds: pages and links from the Library, decisions with the deciding fact under each option, purchases you approve, songs and playlists for Apple Music, a photographed bookshelf sorted into new and known, and thread renames you can undo.</p>
+    </div>
+  </section>
+
+  <!-- Talk -->
+  <section class="feature" id="talk" aria-labelledby="talk-h">
+    <div class="wrap">
+      <div class="intro">
+        <span class="label">Talk</span>
+        <h2 id="talk-h">Hold to talk. Let go to send.</h2>
+        <p class="body">Speech is transcribed on the phone. While you hold, he gallops under your words and your voice sets the pace: a full gallop when you speak up, a lope when you go quiet. The reply is spoken back. Tap instead to dictate, slide up to lock a hands-free voice memo, or slide left to cancel.</p>
+      </div>
+      <div class="panel talk">
+        <div class="talk-log" id="talk-log" aria-live="polite"><div class="me">What’s the weather Saturday?</div><div class="him"><span class="label">Shadowfax</span><p class="reply" style="margin:0">Dry until about 2, then wind. High of 71.</p><span class="audio" id="first-audio"><span class="num">0:04</span></span></div></div>
+        <div class="talk-field">
+          <div class="talk-row">
+            <div class="talk-words hint" id="talk-words">Hold the button and he picks up the pace</div>
+          </div>
+          <div class="talk-strip" aria-hidden="true"><canvas id="talk-field"></canvas></div>
+          <div class="talk-row" style="justify-content:space-between">
+            <span class="talk-state" id="talk-state">Ready</span>
+            <button class="talk-btn" id="talk-btn" type="button" aria-label="Hold to talk"><span data-glyph="waveform" data-pitch="3.6"></span></button>
+          </div>
+        </div>
+      </div>
+      <p class="fine">The words are scripted here; the pace follows how long you hold, not a microphone. In the app, the pace comes from 64 bands of your voice.</p>
+    </div>
+  </section>
+
+  <!-- Capture -->
+  <section class="feature" id="capture" aria-labelledby="capture-h">
+    <div class="wrap">
+      <div class="intro">
+        <span class="label">Capture</span>
+        <h2 id="capture-h">Quote a book without typing it.</h2>
+        <p class="body">The lens opens out of the Dynamic Island. Take the page, Live Text reads it in place, and you drag across the passage. Add the page number and why it landed, and Shadowfax files it to the book’s page in your Library and to mymind. In Shelf mode, it reads a row of spines and sorts the new books from the known ones.</p>
+      </div>
+      <div class="capture">
+        <div class="page-photo" aria-label="A photographed page of Walden with a passage selected">
+          <div class="running">WALDEN</div>
+          <p><mark>I went to the woods because I wished to live deliberately, to front only the essential facts of life, and see if I could not learn what it had to teach, and not, when I came to die, discover that I had not lived.</mark> I did not wish to live what was not life, living is so dear; nor did I wish to practise resignation, unless it was quite necessary. I wanted to live deep and suck out all the marrow of life.</p>
+          <div class="folio">90</div>
+        </div>
+        <form class="card" id="quote-form" autocomplete="off">
+          <span class="label">Quote</span>
+          <blockquote class="pull" style="font-size:17px">I went to the woods because I wished to live deliberately, to front only the essential facts of life, and see if I could not learn what it had to teach.”</blockquote>
+          <div class="field-row"><span class="k">Book</span><span>Walden · Henry David Thoreau</span></div>
+          <div class="field-row"><label class="k" for="q-page">p.</label><input class="input num" id="q-page" value="90" inputmode="numeric" style="max-width:90px"></div>
+          <label class="sr" for="q-why" style="position:absolute;left:-9999px">Why it landed</label>
+          <input class="input" id="q-why" placeholder="Why it landed (optional)">
+          <button class="action" type="submit" id="q-file"><span data-glyph="tray.and.arrow.down" data-pitch="2.6"></span><span>File quote</span></button>
+          <div class="filed-note" id="q-note"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Library -->
+  <section class="feature" id="library" aria-labelledby="library-h">
+    <div class="wrap">
+      <div class="intro">
+        <span class="label">Library</span>
+        <h2 id="library-h">Everything it files, ready to read.</h2>
+        <p class="body">Pages Shadowfax files land in the Library with a one-line summary. Open one to read it. Select a passage and ask about it without leaving the page. Search covers every thread and every page.</p>
+      </div>
+      <div class="panel reader">
+        <div class="meta">Thoreau · Reading · <span class="num">Page 112 of 352</span> · 1 min read</div>
+        <h3>Walden</h3>
+        <p>Our life is frittered away by detail. An honest man has hardly need to count more than his ten fingers, or in extreme cases he may add his ten toes, and lump the rest. <span class="sel">Simplicity, simplicity, simplicity! I say, let your affairs be as two or three, and not a hundred or a thousand.</span></p>
+        <div class="ask">
+          <div class="ask-head"><b>Ask Shadowfax</b><span class="label">About a passage in Walden</span></div>
+          <div class="q">What is he actually arguing for?</div>
+          <p class="a">He’s arguing for subtraction as the method, not the reward. You don’t simplify after the work; the simplifying is the work.</p>
+        </div>
+      </div>
+      <div class="inbox" aria-label="Library inbox">
+        <div class="inbox-row"><b>Collaborative Steering</b><span class="s">LukeW on why teams running separate agents drift apart, and shared context files as the fix.</span><span class="m">Research · 2d · 1 min read</span><span class="d">Discuss</span></div>
+        <div class="inbox-row"><b>VisionKit capture idea</b><span class="s">Camera to on-device text to a quote card: the reading workflow’s real bottleneck, costed.</span><span class="m">Research · 5d · 2 min read</span><span class="d">Discuss</span></div>
+        <div class="inbox-row" style="border-bottom:0.7px solid var(--line)"><b>Walden</b><span class="s">Thoreau. Reading now, page 112. Two quotes and a marginal note from this week.</span><span class="m">Books · today · 1 min read</span><span class="d">Discuss</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Beyond the app -->
+  <section class="feature" id="away" aria-labelledby="away-h">
+    <div class="wrap">
+      <div class="intro">
+        <span class="label">Beyond the app</span>
+        <h2 id="away-h">It finds you where you are.</h2>
+        <p class="body">Ask from Siri or the Action Button and he rides in the Dynamic Island until the answer lands. Replies that come after you’ve left arrive as notifications, some as voice notes. Controls, a widget, a StandBy clock, and the share sheet keep a door open everywhere else.</p>
+      </div>
+      <div class="away">
+        <figure class="tile">
+          <div class="stage night">
+            <div class="island" id="island">
+              <div class="island-top"><span id="island-mark"></span><span class="num" id="island-time">0:00</span></div>
+              <div class="island-status" id="island-status">Reading this week’s inbox.</div>
+              <canvas id="island-ride" aria-hidden="true"></canvas>
+            </div>
+          </div>
+          <figcaption><b>Dynamic Island</b><span>An Ask from Siri, riding until the answer lands.</span></figcaption>
+        </figure>
+        <figure class="tile">
+          <div class="stage night"><div class="clock"><canvas id="clock" aria-label="Clock"></canvas></div></div>
+          <figcaption><b>StandBy clock</b><span>The time in the horse’s dots, with him on the road below.</span></figcaption>
+        </figure>
+        <figure class="tile">
+          <div class="stage">
+            <div class="note">
+              <div class="player">
+                <button type="button" id="vn-play" aria-label="Play voice note"><span id="vn-glyph"></span></button>
+                <canvas class="wave" id="vn-wave" width="150" height="22" aria-hidden="true"></canvas>
+                <span class="num" id="vn-time">0:32</span>
+              </div>
+              <p>Quick one while you’re out. Your hold on Dune Messiah came in at the library, and they’ll keep it at the front desk until Saturday. The Kickr has a firmware update waiting, so give it five minutes before tomorrow’s ride. Nothing else needs you before lunch.</p>
+            </div>
+          </div>
+          <figcaption><b>Voice notes</b><span>Long-press the notification to play it and read along.</span></figcaption>
+        </figure>
+        <figure class="tile">
+          <div class="stage">
+            <div class="controls">
+              <div class="control"><span class="ring"><span data-glyph="waveform" data-pitch="3.4"></span></span>Talk to Shadowfax</div>
+              <div class="control"><span class="ring"><span data-glyph="text.quote" data-pitch="3.4"></span></span>Book Quote</div>
+              <div class="control"><span class="ring"><span id="mic-glyph"></span></span>Voice Memo</div>
+            </div>
+          </div>
+          <figcaption><b>Controls</b><span>Control Center, the Lock Screen, and the Action Button.</span></figcaption>
+        </figure>
+        <figure class="tile">
+          <div class="stage">
+            <ul class="phrases">
+              <li>“Ask Shadowfax”</li>
+              <li>“Capture a quote with Shadowfax”</li>
+              <li>“Add Dune to Read Next in Shadowfax”</li>
+              <li class="answer">Added Dune to Read Next.</li>
+            </ul>
+          </div>
+          <figcaption><b>Siri and Shortcuts</b><span>Lists update without opening the app.</span></figcaption>
+        </figure>
+        <figure class="tile">
+          <div class="stage">
+            <form class="share" id="share-form" autocomplete="off">
+              <div class="share-link"><span class="fav"><span data-glyph="link" data-pitch="3"></span></span><span>Collaborative Steering<small>lukew.com</small></span></div>
+              <label for="share-note" style="position:absolute;left:-9999px">Add a note</label>
+              <input class="input" id="share-note" placeholder="Add a note">
+              <button class="action" type="submit" id="share-btn"><span data-glyph="paperplane.fill" data-pitch="1.4"></span><span>Send to Shadowfax</span></button>
+            </form>
+          </div>
+          <figcaption><b>Share sheet</b><span>A link, some text, or up to four photos, with a note.</span></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Palettes -->
+  <section class="feature" id="palettes" aria-labelledby="pal-h">
+    <div class="wrap">
+      <div class="intro">
+        <span class="label">Palettes</span>
+        <h2 id="pal-h">Five places, by day and by night.</h2>
+        <p class="body">Each palette comes from how Andrew Lesnie graded a place in the films, sampled from their frames. Dark mode is the same place after dark. Pick one and this page changes the way the app does, widgets and the Dynamic Island included.</p>
+      </div>
+      <div class="palettes" id="palette-list" role="group" aria-label="Palettes"></div>
+    </div>
+  </section>
+
+  <!-- Icons -->
+  <section class="feature" id="icons" aria-labelledby="icons-h">
+    <div class="wrap">
+      <div class="intro">
+        <span class="label">Icon</span>
+        <h2 id="icons-h">Four moments of one stride.</h2>
+        <p class="body">The icon is the dot horse at one frame of the gallop, in white glass over Fangorn at night. Stride ships as the default. Gathered, Reach, and Stretch are the others.</p>
+      </div>
+      <div class="icons">
+        <figure><img src="icons/stride.png" width="180" height="180" alt="Stride app icon"><figcaption><b>Stride</b>Default</figcaption></figure>
+        <figure><img src="icons/gathered.png" width="180" height="180" alt="Gathered app icon"><figcaption><b>Gathered</b>Frame 1</figcaption></figure>
+        <figure><img src="icons/reach.png" width="180" height="180" alt="Reach app icon"><figcaption><b>Reach</b>Frame 5</figcaption></figure>
+        <figure><img src="icons/stretch.png" width="180" height="180" alt="Stretch app icon"><figcaption><b>Stretch</b>Frame 7</figcaption></figure>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span id="foot-mark"></span>
+    <p>Shadowfax for iPhone, by Kris Puckett. Named for the lord of all horses, who comes when called.</p>
+  </div>
+</footer>
+
+<script>window.SFX_DATA = {"hd":[["0000000000000000000000000000000000078998700000","0000000000000000000000000000000000399999970000","0000000000000000000000000000464589999999997000","0000000000000000000002346899999999999999999400","0000000000001699988799999999999999999999999910","0020000000059999999999999999999999969400398880","0199999998999999999999999999999998243000002780","0299997794299999999999999999999999681000000100","0289920001599999899999999999999999950000000000","0047100000499999999999999999999988800000000000","0000000000089999999999999999999987100000000000","0000000000006999999499999999999795000000000000","0000000000000799996005999999999991000000000000","0000000000003997991000036999999930000000000000","0000000000069702960000000169999200000000000000","0000000000089104920000000039998000000000000000","0000000000003849910000000089229400000000000000","0000000000000059982000000394001700000000000000","0000000000000002636851000870000350000000000000","0000000000000000010068003991004810000000000000","0000000000000000034689769315972000000000000000","0000000000000000000012211000000000000000000000","0000000000000000000000000000000000000000000000","0000000000000000000000000000000000000000000000"],["0000000000000000000000000000000000089999940000","0000000000000000000000000000000143799999994000","0000000000000000000000000134798999999999999100","0000000000000033221146789999999999999999999700","0000000000004999999999999999999999999988999940","0022111000179999999999999999999998978500278993","0899999988999999999999999999999995665000001763","0899978660599999999999999999999999791000000100","0398400030599999999999999999999999950000000000","0060000000599999999999999999999986800000000000","0000000000089999999999999999999988400000000000","0000000000004999999799999999999998000000000000","0000000000000059999028999999999992000000000000","0000000000000049999000268999999940000000000000","0000000000000197099000000289999940000000000000","0000000000000892088000000049835896000000000000","0000000000000688499200000059400005800000000000","0000000000000002689561000069000000810000000000","0000000000000000015958400087000003500000000000","0000000000000000000289982083000016000000000000","0000000000000000000001797890000391000000000000","0000000000000000000000046110015420000000000000","0000000000000000000000000300000000000000000000","0000000000000000000000000000000000000000000000"],["0000000000000000000000000000000000169999910000","0000000000000000000000000000000026899986781000","0000000000000000000000000012686899999999998000","0000000000000000000024668999999999999999998500","0000000000001699999899999999999999999999999910","0002111000039999999999999999999999999822699970","0599999975799999999999999999999998966000026784","0999999996799999999999999999999999894000000541","0499946382499999999999999999999999970000000000","0089200000499999999999999999999997910000000000","0012000000199999999999999999999996600000000000","0000000000018999999999999999999999200000000000","0000000000000499999389999999999996000000000000","0000000000000016999102589999999992000000000000","0000000000000001999200000499999999400000000000","0000000000000003999400000008975568893000000000","0000000000000007999400011003950000038000000000","0000000000000003699997217000960000014000000000","0000000000000000029936914300480000032000000000","0000000000000000002870230964390000060000000000","0000000000000000000078120024760000090000000000","0000000000000000000005830000000000420000000000","0000000000000000000000494000000001400000000000","0000000000000000000000017200000000000000000000"],["0000000000000000000000000000000000024569920000","0000000000000000000000000000000005899999981000","0000000000000000000000000000011359999999998000","0000000000000000000000000234899999899999999400","0000000000000023222246889999999998999999999900","0000000000002899999999999999999999998965999950","0016666410059999998999999999999999958200289991","0099999999999999899999999999999999895000014995","0099968291299999999999999999999999980000000221","0049510020299999999999999999999997930000000000","0004000000199999999999999999999996900000000000","0000000000059999999999999999999999500000000000","0000000000006999999999999999899998000000000000","0000000000000699999237899999999994000000000000","0000000000000069999200013699998999830000000000","0000000000000004999200000002699767899600000000","0000000000000000999400000000039800003810000000","0000000000000000999830000003001670000330000000","0000000000000000995689875006500081000050000000","0000000000000000990000248900645860000060000000","0000000000000000491000000310263000000060000000","0000000000000000067000000000000000000020000000","0000000000000000008600000000000000000000000000","0000000000000000001940000000000000000000000000"],["0000000000000000000000000000000000000230550000","0000000000000000000000000000000000247899996000","0000000000000000000000000000000016999999999200","0000000000000000000000000000289899999999999800","0000000000000000000002366899999999999999999920","0000000000000379888899999999999999999999999960","0006766410007999999999999999999999998930299990","0069999998699999999999999999999999999500028993","0049986275289999999999999999999999995000000695","0019700020099999999999999999999999990000000241","0002000000099999999999999999999999950000000000","0000000000069999999999999999999999920000000000","0000000000029999999999999999999999800000000000","0000000000007999999647999999999999300000000000","0000000000003999899600003578999999940000000000","0000000000000699849900000000156899998510000000","0000000000000499209910000000000001496992000000","0000000000000997006940000000000000070067000000","0000000000005991003981000000000000610005500000","0000000000009420000179500000003247200000740000","0000000000009700000002794000002444000000290000","0000000000005600000000037830000000000000035000","0000000000001800000000000230000000000000015000","0000000000000720000000000000000000000000000000"],["0000000000000000000000000000000000000003014000","0000000000000000000000000000000000005899889700","0000000000000000000000000000000005679999999930","0000000000000000000000000000025689999999999990","0000000000000000000000014456999999999999999993","0000000000000146655568999999999999799999999996","0027986520005999999999999999999999798782049999","0069999999899999999999999999999999999910114999","0049987395299999999999999999999999999200000199","0029600020199999999999999999999999993000000047","0001000000299999999999999999999999980000000000","0000000000399999999999999999999999960000000000","0000000000299999999999999999999999950000000000","0000000000199999999236899999999999950000000000","0000000000099999998000002467899999999810000000","0000000000089996998000000000001433699930000000","0000000000399940399000000000000000028960000000","0000000004999200099000000000000000002897000000","0000000069971000099000000000000000007128600000","0000000089500000089200000000000000026000570000","0000000086000000049500000000000000160000068100","0000000083000000002950000000000000310000004720","0000000082000000000087000000000000000000000351","0000000082000000000006820000000000000000000000"],["0000000000000000000000000000000000000002100000","0000000000000000000000000000000000002699948800","0000000000000000000000000000000001579999999950","0000000000000000000000000000001249999999999991","0000000000000000000000000015899999999999999994","0000000000000024321235679999999999999999999998","0079988643136999999999999999999999999896269999","0099999999899999999999999999999998999940237999","0099965550499999999999999999999999999300001799","0077100000899999999999999999999999995000000089","0000000002999999999999999999999999992000000044","0000000004999999999999999999999999970000000000","0000000006999999999999999999999999940000000000","0000000006999999971357999999799999975310000000","0000000007999999950000002467788999999992000000","0000000019998899910000000000000143996165000000","0000000289940299600000000000000000199252000000","0000003998200499000000000000000000029880000000","0000019950000896000000000000000000003990000000","0000059400003991000000000000000000000394000000","0000092000005970000000000000000000000069100000","0000750000001960000000000000000000000252810000","0004900001000490000000000000000000000000592000","0009400000000066000000000000000000000000038500"],["0000000000000000000000000000000000000001000000","0000000000000000000000000000000000003699920500","0000000000000000000000000000000002699999999940","0000000000000000000000000000000009999999999980","0000000000000000000000000002467899999999999992","0001100000000001100001245689999998699799999996","0399999997547999998899999999999998898695359998","0399999996599999999999999999999996999930005999","0099844000699999999999999999999999899200000699","0053000002999999999999999999999999995000000079","0000000006999999999999999999999999992000000025","0000000009999999999999999999999999980000000000","0000000019999999999999999999999999920000000000","0000000049999999500246899999999999973100000000","0000000089999998000000001286644499999973000000","0000000699799993000000000000000018911338300000","0000018981599920000000000000000003920000500000","0000099605998100000000000000000000850000300000","0000694079950000000000000000000000180000050000","0003920089200000000000000000000000064000060000","0019300075000000000000000000000000028000010000","0183000055000000000000000000000000003300050000","4950000026000000000000000000000000000600000000","4000000019000000000000000000000000000250000000"],["0000000000000000000000000000000000000012200000","0000000000000000000000000000000000057999950600","0000000000000000000000000000000003999999999920","0000000000000000000000000000000029999999999960","0000000000000000000000000004689999999999999991","0131001110000123100013456899999999999899999993","0499999999799999998899999999999998997485569996","0399998962199999999999999999999994799940007998","0198400000899999999999999999999999669400001799","0000000004999999999999999999999999996000000089","0000000006999999999999999999999999992000000024","0000000009999999999999999999999999992000000000","0000000019999999989999999999999999980000000000","0000000059999995200247999969999999993000000000","0000000399999810000000002466548999999610000000","0000036999996100000000000000005940136994000000","0000699999720000000000000000003910000038800000","0006979994000000000000000000003800000000460000","0175039600000000000000000000002500000000045000","6920074000000000000000000000003500000000004400","6100170000000000000000000000002800000000000610","0000630000000000000000000000000600000000000040","0000900000000000000000000000000400000000000000","0004800000000000000000000000000500000000000000"],["0000000000000000000000000000000000001221300000","0000000000000000000000000000000000589997632400","0000000000000000000000000000000001899999999920","0000000000000000000000000000001227998999999980","0000000000000000000000000026899999989989999992","0552124554345566421145678999999999999999999995","0899999995699999999999999999999999894145779997","0999976820799999999999999999999996999971007999","0653000005999999999999999999999994288600002699","0000000009999999999999999999999999584000000069","0000000019999999999999999999999999980000000013","0000000049999999999999999999999999970000000000","0000000079999998679999999999989999970000000000","0000000199999710000258999889964899950000000000","0000256999998000000000022778999769992000000000","0004999997200000000000000000970002699200000000","0079569940000000000000000004900000029910000000","4960299400000000000000000007500000001881000000","9301981000000000000000000017000000000079100000","0008600000000000000000000056000000000004710000","0066000000000000000000000064000000000000282000","0670000000000000000000000060000000000000018520","8810000000000000000000000060000000000000000365","4000000000000000000000000340000000000000000001"],["0000000000000000000000000000000000000210000000","0000000000000000000000000000000000329985703400","0000000000000000000000000000000001799999999900","0000000000000000000000000000025672884399999960","0000000000000000000000002456999999825469999891","0272114555566788754468999999999998799899999993","0899999995499999999999999999999995691046469996","0999984941899999999999999999999995795781003999","0453200107999999999999999999999995449700000369","0000000009999999999999999999999998086000000013","0000000029999999999999999999999999720000000000","0000000049999999999999999999999999940000000000","0000000059999997447999999999999999950000000000","0000078699999950000036799879963999900000000000","0000399999999600000000000489999699920000000000","0000999996310000000000000069610017970000000000","0006999500000000000000000496000000692000000000","0029950000000000000000000840000000087000000000","3585000000000000000000007200000000019500000000","9920000000000000000000048000000000001920000000","7100000000000000000000071000000000000370000000","0000000000000000000000510000000000000034000000","0000000000000000000003300000000000000006200000","0000000000000000000008000000000000000000710000"],["0000000000000000000000000000000000000330034000","0000000000000000000000000000000001359996269000","0000000000000000000000000000000003999999999500","0000000000000000000000000000005654999999999910","0000000000000000000000002456899999979999999970","0010000001246767754468999999999999999999999990","0056324898434369699999999999999998696873179995","0079999893336799898799999999999998995820005998","0089862240999999999999999999999994999200000399","0000000002999999999999999999999997992000000046","0000000000999999999999999999999999930000000000","0000000000899999989999999999999999910000000000","0000000100799999504799999999999999800000000000","0000003999999996000014679999999999400000000000","0000039999999961000000000399999997000000000000","0000399866652100000000000059953996000000000000","0004842300000000000000000299200495000000000000","1067000300000000000000000892000293000000000000","5840000200000000000000006810000093000000000000","0000018200000000000000059100000075000000000000","0000272000000000000000392000000046000000000000","0000000000000000000356300000000028000000000000","0000000000000000076640000000000006100000000000","0000000000000000000000000000000004300000000000"],["0000000000000000000000000000000000000100520000","0000000000000000000000000000000001248954980000","0000000000000000000000000000000005989999996000","0000000000000000000000000000057769999999999400","0000000000000012000000124678999998699999999800","0000000001347554876689999999999999999999999930","0062003786300266995899999999999994997930399980","0089999994123999896999999999999997935300026994","0299994162999999999999999999999999996000000572","0022200000997799999999999999999999980000000000","0000000000893469999999999999999999810000000000","0000000000498999959999999999999999200000000000","0000002400299999501599999999999998000000000000","0000008999999996100002589959999991000000000000","0000039579889990000000002499999940000000000000","0000060062012000000000000089993000000000000000","0000340006000000000000000399980000000000000000","0000700006000000000000000892950000000000000000","0039100002400000000000002930920000000000000000","0010000001600000035530008500900000000000000000","0000000006100000000487888002800000000000000000","0000000003000000000000010000700000000000000000","0000000000000000000000000001600000000000000000","0000000000000000000000000002500000000000000000"],["0000000000000000000000000000000000001104920000","0000000000000000000000000000000000029969991000","0000000000000000000000000000000001899999999100","0000000000000000000000000000289788999999999600","0000000000000123000002346899999999999999999910","0000000000257998888799999999999999999996899970","0110000268877699996799999999999995999920069995","0396578990147999998999999999999996968300023794","0699998786999999999999999999999999996000000100","0899960046999889999999999999999999970000000000","0112000001999999999999999999999999810000000000","0000000000599999939999999999999996000000000000","0000000200199999911599999999999991000000000000","0000001998999999200015799997999980000000000000","0000000999999997000000003799999710000000000000","0000000729952300000000000089952000000000000000","0000000700820000000000000099200000000000000000","0000000600182000000000000497000000000000000000","0000000600018200000630000893000000000000000000","0000000800002900000047205990000000000000000000","0000006500000700000004889960000000000000000000","0000033000003400000000038410000000000000000000","0000000000001000000000082000000000000000000000","0000000000000000000000470000000000000000000000"],["0000000000000000000000000000000000002039910000","0000000000000000000000000000000000079998791000","0000000000000000000000000000011014899999999000","0000000000000000000000000234799999899999999500","0000000000000355421146789999999996899999999900","0000000000158998899999999999999999999943799970","0000000036999999999899999999999994947300168883","0753336993799999999999999999999996535000000640","0899999994999989999999999999999999780000000000","0599984157999999999999999999999994920000000000","0597300000899998999999999999999996300000000000","0000000000399998969999999999999965000000000000","0000000000069999950489999999999990000000000000","0000000002489999930003689996999950000000000000","0000000089999997000000001599999500000000000000","0000000059789930000000000059941000000000000000","0000000007799500000000000399900000000000000000","0000000000726950000000002998900000000000000000","0000000000180278200001549812900000000000000000","0000000000055004920000598100710000000000000000","0000000000025000440000699666910000000000000000","0000000000011000020028503333100000000000000000","0000000000020000000494000000000000000000000000","0000000000000000000830000000000000000000000000"]],"glyphs":{"xmark":["X...X",".X.X.","..X..",".X.X.","X...X"],"plus":["..X..","..X..","XXXXX","..X..","..X.."],"line.3.horizontal":["XXXXX",".....","XXXXX"],"arrow.up":["..X..",".XXX.","X.X.X","..X..","..X.."],"stop.fill":["XXX","XXX","XXX"],"play.fill":["X....","XXX..","XXXXX","XXX..","X...."],"pause.fill":["XX.XX","XX.XX","XX.XX","XX.XX","XX.XX"],"music.note":["..XX.","..X.X","..X..","XXX..","XX..."],"arrow.right":["..X..","...X.","XXXXX","...X.","..X.."],"arrow.left":["..X..",".X...","XXXXX",".X...","..X.."],"chevron.left":["..X",".X.","X..",".X.","..X"],"arrow.counterclockwise":["XXXX.","XX..X","X...X","....X",".XXX."],"waveform":["..X..","X.X.X","X.X.X","X.X.X","..X.."],"text.quote":["XX..XX","XX..XX",".X...X","X...X."],"camera":[".XX..","XXXXX","X.X.X","XXXXX"],"photo.on.rectangle":["XXXXX","X..XX","X.X.X","XXXXX"],"doc":["XXX.","X..X","X..X","X..X","XXXX"],"link":["XX.XX","X.X.X","XX.XX"],"mappin.and.ellipse":[".XXX.","XX.XX",".XXX.","..X..","..X.."],"message":["XXXXX","X...X","X...X","XXXXX",".X..."],"text.bubble":["XXXXX","X...X","X.X.X","XXXXX",".X..."],"circle":[".XXX.","X...X","X...X","X...X",".XXX."],"checkmark.circle.fill":[".XXX.","XXXXX","XXXXX","XXXXX",".XXX."],"checkmark":["....X","...X.","X.X..",".X..."],"tray.and.arrow.down":["..X..","X.X.X",".XXX.","..X..","XXXXX"],"tray.and.arrow.up":["..X..",".XXX.","X.X.X","..X..","XXXXX"],"square.and.arrow.up":["..X..",".XXX.","X.X.X","..X..","XXXXX"],"pencil":["..XX",".XX.","XX..","X..."],"exclamationmark.circle":[".XXX.","X.X.X","X...X","X.X.X",".XXX."],"sun.max":["X.X.X",".XXX.","XXXXX",".XXX.","X.X.X"],"moon":[".XXX","XX..","X...","XX..",".XXX"],"circle.lefthalf.filled":[".XXX.","XXX.X","XXX.X","XXX.X",".XXX."],"heart.fill":[".X.X.","XXXXX","XXXXX",".XXX.","..X.."],"hand.thumbsup.fill":[".X...",".XX..","XXXXX","XXXXX","XXXX."],"hand.thumbsdown.fill":["XXXX.","XXXXX","XXXXX",".XX..",".X..."],"face.smiling":[".X.X.",".....","XXXXX","X...X",".XXX."],"exclamationmark.2":["X.X","X.X","X.X","...","X.X"],"questionmark":[".XXX.","X...X","...X.","..X..",".....","..X.."],"arrow.triangle.branch":["X...X","X..X.","X.X..","XX...","X...."]},"pixels":{"magnifyingglass":["..XXXX.....",".X....X....","X......X...","X......X...","X......X...","X......X...",".X....XX...","..XXXX.XX..","........XX.",".........XX"],"text.bubble":[".XXXXXXXXX.","X.........X","X.XXXXXXX.X","X.........X","X.XXXXX...X","X.........X",".XXXXXXXXX.","..XX.......","..X........"],"arrow.up.right":["..XXXXX",".....XX","....X.X","...X..X","..X...X",".X.....","X......"],"arrow.up.left":["XXXXX..","XX.....","X.X....","X..X...","X...X..",".....X.","......X"],"books.vertical":["..XXXXXXXXXX.","..X.X......X.","XXXXXXXXXXXX.","X.......X.X..","XXXXXXXXXXXXX",".X..X.......X",".X..X.......X",".XXXXXXXXXXXX"],"paperplane.fill":["...........X",".........XXX",".......XXXX.",".....XXXXXX.","...XXXXXXX..",".XXXXXX.XX..","...XXX..X...",".....X.XX...","......XX....",".......X...."],"gearshape":["....XXX....",".XX.XXX.XX.",".XXXXXXXXX.","..XX...XX..","XXX.....XXX","XXX.....XXX","XXX.....XXX","..XX...XX..",".XXXXXXXXX.",".XX.XXX.XX.","....XXX...."],"pin.fill":[".XXXXX.","..XXX..","..XXX..","..XXX..",".XXXXX.","XXXXXXX","...X...","...X...","...X...","...X..."],"pin":[".XXXXX.","..X.X..","..X.X..","..X.X..",".X...X.","XXXXXXX","...X...","...X...","...X...","...X..."],"exclamationmark":["XX","XX","XX","XX","XX","XX","..","XX"],"trash":["....XXX....","XXXXXXXXXXX","...........",".XXXXXXXXX.",".X.X.X.X.X.",".X.X.X.X.X.",".X.X.X.X.X.",".X.X.X.X.X.","..XXXXXXX.."],"archivebox":["XXXXXXXXXXX","X.........X","XXXXXXXXXXX",".X.......X.",".X..XXX..X.",".X.......X.",".X.......X.",".XXXXXXXXX."],"archivebox.fill":["XXXXXXXXXXX","XXXXXXXXXXX","...........",".XXXXXXXXX.",".XXX...XXX.",".XXXXXXXXX.",".XXXXXXXXX.",".XXXXXXXXX."],"chevron.down":["X.....X",".X...X.","..X.X..","...X..."],"chevron.up.chevron.down":["..X..",".X.X.","X...X",".....",".....","X...X",".X.X.","..X.."],"book":[".XXX...XXX.","X...X.X...X","X....X....X","X....X....X","X....X....X","X....X....X","XXX..X..XXX","...XXXXX..."],"book.closed":[".XXXXXXX","X.X....X","X.X....X","X.X....X","X.X....X","X.X....X","X.XXXXXX","X.X....X",".XXXXXXX"],"text.viewfinder":["XX.....XX","X.......X","..XXXXX..",".........","..XXXX...",".........","..XXXXX..","X.......X","XX.....XX"],"paintpalette":["..XXXXXX..",".X......X.","X..X..X..X","X........X","X.X....XX.","X.....X...","X......X..",".X......X.","..XXXXXX.."],"safari":["..XXXXX..",".X.....X.","X.....XXX","X....XX.X","X...X...X","X.XX....X","XXX.....X",".X.....X.","..XXXXX.."],"play.rectangle":["XXXXXXXXXXX","X.........X","X...X.....X","X...XX....X","X...XXX...X","X...XX....X","X...X.....X","X.........X","XXXXXXXXXXX"],"platter.filled.top.iphone":["XXXXXXX","X.XXX.X","X.....X","X.....X","X.....X","X.....X","X.....X","X.....X","XXXXXXX"],"arrow.right":["....X....",".....X...","......X..",".......X.","XXXXXXXXX",".......X.","......X..",".....X...","....X...."],"arrow.left":["....X....","...X.....","..X......",".X.......","XXXXXXXXX",".X.......","..X......","...X.....","....X...."],"bell":["....XXX....","...X...X...","..X.....X..","..X.....X..","..X.....X..",".X.......X.",".X.......X.","X.........X","XXXXXXXXXXX","....XXX...."],"calendar":["..X.....X..","XXXXXXXXXXX","XXXXXXXXXXX","X.........X","X.X.X.X.X.X","X.........X","X.X.X.XXX.X","X.....XXX.X","X.........X","XXXXXXXXXXX"],"ringwraith":[".....X.....","....X.X....","...X...X...","..X.XXX.X..","..X.XXX.X..",".X..XXX..X.",".X.......X.","X.........X","X.........X","XXXXXXXXXXX"]},"digits":{"0":[".XXX.","X...X","X...X","X...X","X...X","X...X","X...X","X...X",".XXX."],"1":["..X..",".XX..","..X..","..X..","..X..","..X..","..X..","..X..",".XXX."],"2":[".XXX.","X...X","....X","....X","...X.","..X..",".X...","X....","XXXXX"],"3":[".XXX.","X...X","....X","....X","..XX.","....X","....X","X...X",".XXX."],"4":["...X.","..XX.",".X.X.","X..X.","X..X.","XXXXX","...X.","...X.","...X."],"5":["XXXXX","X....","X....","XXXX.","....X","....X","....X","X...X",".XXX."],"6":[".XXX.","X...X","X....","X....","XXXX.","X...X","X...X","X...X",".XXX."],"7":["XXXXX","....X","....X","...X.","...X.","..X..","..X..","..X..","..X.."],"8":[".XXX.","X...X","X...X","X...X",".XXX.","X...X","X...X","X...X",".XXX."],"9":[".XXX.","X...X","X...X","X...X",".XXXX","....X","....X","X...X",".XXX."]},"lo":[["00000000000000000599600","00000000000134779999940","00000169989999999984792","19987799999999999510021","07300799999999998500000","00000299989999997000000","00000059911599993000000","00000372600007950000000","00000037700018150000000","00000000345054031000000","00000000025431400000000","00000000000000000000000"],["00000000000000001699800","00000001002356999999960","01000289999999999984694","49985899999999998710022","06100799999999998500000","00000289999999998000000","00000007952699993000000","00000027540008785000000","00000014762007101400000","00000000047506002100000","00000000000552032000000","00000000000000000000000"],["00000000000000002698600","00000000001245889999950","00000069999999999995992","39997899999999999820044","19422699999999999600000","01000299999999998200000","00000006964899996000000","00000001960016978600000","00000002984121700130000","00000000074442600200000","00000000004401300400000","00000000000330000000000"],["00000000000000001478700","00000000000001458999950","00000026667999999997991","06875699999999999840286","08523599999999999700000","01000499999999998300000","00000059987999998000000","00000005960025988740000","00000000981000061031000","00000000935551433003000","00000000520000100002000","00000000051000000000000"],["00000000000000000145710","00000000000000246999970","00000004445789999999991","05875499999999999980395","06623499999999999910025","00000399999999999600000","00000099987999999200000","00000049790023689830000","00000039091000000546000","00000073036100012201400","00000060000451011000310","00000030000000000000010"],["00000000000000000035450","00000000000000025899992","00000002324578999999997","06986589999999999983189","06624599999999999930007","00000699999999999800000","00000599977999999700000","00000498940013466991000","00001870640000000075000","00008500450000000032400","00006000161000000300150","00005000005300000000001"],["00000000000000000025340","00000000000000003899993","00000001112357999999998","09987699999999999995399","08421799999999999940029","00001999999999999900002","00003999957999999720000","00004999600013346966000","00039419100000000374000","00181056000000000046000","00500062000000000005300","03300005000000000000440"],["00000000000000000025310","00000000000000003899992","00000000000135799999997","19998699999999998984189","07310899999999999940019","00003999999999999900002","00006999557999999710000","00019997000003217755100","00383870000000000600200","00619400000000000410200","05005000000000000030100","41005000000000000021000"],["00000000000000000145410","00000000000000003999991","01000001001246899999995","29997699999999998974298","04101999999999999850029","00003999999999999910001","00006998447999999900000","00059960000013285584000","01898200000000060002400","44250000000000030000030","10400000000000030000011","01400000000000020000000"],["00000000000000000355310","00000000000000002999992","12122223102357999999996","49984899999999998964399","12003999999999998650028","00006999999999999800001","00009994358999879700000","00799520000023944830000","35681000000003400072000","32600000000005000005200","15000000000004000000240","50000000000012000000003"],["00000000000000000153220","00000000000000022879991","02022334324568999769995","49984899999999997835288","12004999999999998460015","00006999999999999500000","00238995147999989500000","00898530000018636700000","04830000000035000620000","64000000000040000060000","10000000000300000003000","00000000003000000001300"],["00000000000000000255230","00000000000000023999980","00000133324568999999994","07677359889999999963188","04311999999999997930007","00000999999999999600000","00045998126899999200000","00498751000008878000000","04320000000027016000000","31030000000160006000000","00200000003300005000000","00000000120000002100000"],["00000000000000000142600","00000000000000135999940","00000233435679999999990","07577138979999997860395","05512989999999999910012","00000868899999999300000","00065899115898997000000","00236452000019950000000","00303000000038800000000","03001200120061600000000","00002000003420400000000","00000000000001300000000"],["00000000000000000054800","00000000000000234999960","00000256445789999999992","14356579989999997870277","39846999999999999910000","01000899899999999200000","00035799216999994000000","00047864000029840000000","00030500000019000000000","00030050013065000000000","00030030000471000000000","00000000000400000000000"],["00000000000000000257700","00000000000001456999950","00000157657999998996991","22145999999999997530153","39966999999999998700000","14100899999999997000000","00000499615899993000000","00008894000018840000000","00001771000049500000000","00000325300560500000000","00000010202554300000000","00000000034000000000000"]]};</script>
+<script>/* Shadowfax landing: the dot engine.
+   Every dot is the house dot: 76% of its pitch, corners 24% of the dot
+   (design/fonts/make_shadowfax_clock.py). The gallop is HorseField.swift's,
+   ported line for line: Muybridge's 1887 frames at twice the field's
+   resolution, folded into the field's rows, a dot filling by degrees as he
+   moves onto it. */
+(function () {
+  "use strict";
+  const D = window.SFX_DATA;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const DOT = 0.76, CORNER = 0.24;
+
+  /* ---------- Palettes: Theme.swift's swatches, day and night ---------- */
+  const P = {
+    fangorn: { name: "Fangorn", note: "Parchment and forest ink. Rohan gold is spent once, on the quote rule. Night is Fangorn at night, never a neutral grey.",
+      paper: [[246,242,230],[17,23,19]], ink: [[27,36,29],[236,238,226]], quiet: [[98,108,92],[150,164,146]],
+      bubble: [[232,234,219],[31,41,33]], accent: [[92,118,84],[146,176,134]], panelLine: [[221,224,206],[52,64,54]],
+      panelWash: [[236,237,224],[38,49,40]], quoteRule: [[158,124,56],[208,172,100]] },
+    shire: { name: "Shire", note: "Golds and greens in full sun. Night is blue moonlight on charcoal, with lantern amber only in small pools.",
+      paper: [[250,246,229],[17,25,29]], ink: [[32,38,22],[238,226,196]], quiet: [[104,104,74],[150,170,184]],
+      bubble: [[228,236,206],[34,53,47]], accent: [[72,128,52],[196,138,70]], panelLine: [[222,228,198],[46,66,78]],
+      panelWash: [[238,241,219],[27,39,44]], quoteRule: [[196,150,48],[224,182,112]] },
+    bagEnd: { name: "Bag End", note: "Cream plaster and honey oak, with Bilbo’s terracotta as the one accent. Night is the hearth: amber and cream in olive-black.",
+      paper: [[245,236,214],[25,27,24]], ink: [[46,34,22],[236,214,168]], quiet: [[128,106,78],[172,150,116]],
+      bubble: [[234,218,186],[50,51,37]], accent: [[155,79,53],[201,137,57]], panelLine: [[226,210,180],[60,58,44]],
+      panelWash: [[240,229,204],[38,38,31]], quoteRule: [[160,120,70],[222,170,96]] },
+    rivendell: { name: "Rivendell", note: "The autumn afternoon of the Council. Night is ink blue and silver, with lavender kept to one quiet note.",
+      paper: [[248,242,228],[11,21,30]], ink: [[42,31,24],[226,233,239]], quiet: [[116,100,86],[146,164,180]],
+      bubble: [[241,229,210],[30,50,70]], accent: [[166,104,56],[132,168,196]], panelLine: [[232,220,200],[40,58,76]],
+      panelWash: [[244,234,216],[20,34,48]], quoteRule: [[184,138,62],[164,164,200]] },
+    gondor: { name: "Gondor", note: "White stone and pewter, cool and graphic. Night is moonlit stone lit by candle-gold windows.",
+      paper: [[245,245,242],[19,26,32]], ink: [[24,28,36],[230,235,238]], quiet: [[104,110,120],[140,160,172]],
+      bubble: [[230,232,234],[29,44,55]], accent: [[78,98,124],[199,170,119]], panelLine: [[222,224,228],[46,62,74]],
+      panelWash: [[236,237,238],[26,36,45]], quoteRule: [[180,146,70],[212,184,130]] }
+  };
+  const KEYS = ["paper","ink","quiet","bubble","accent","panelLine","panelWash","quoteRule"];
+  const css = (c) => `rgb(${c[0]} ${c[1]} ${c[2]})`;
+  const cssVar = (k) => "--" + k.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
+
+  // Every palette as tokens, night included, so a palette change is one attribute.
+  (function writePaletteCSS() {
+    let s = "";
+    for (const id in P) {
+      const day = KEYS.map((k) => `${cssVar(k)}:${css(P[id][k][0])};`).join("");
+      const night = KEYS.map((k) => `${cssVar(k)}:${css(P[id][k][1])};`).join("");
+      s += `:root[data-palette="${id}"]{${day}}`;
+      s += `@media (prefers-color-scheme: dark){:root[data-palette="${id}"]:not([data-theme="light"]){${night}}}`;
+      s += `:root[data-palette="${id}"][data-theme="dark"]{${night}}`;
+    }
+    const el = document.createElement("style");
+    el.textContent = s;
+    document.head.appendChild(el);
+  })();
+
+  const root = document.documentElement;
+  const isNight = () => {
+    const t = root.getAttribute("data-theme");
+    if (t === "dark") return true;
+    if (t === "light") return false;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  };
+  const palette = () => P[root.getAttribute("data-palette")] || P.fangorn;
+  const tone = (k, night) => palette()[k][(night ?? isNight()) ? 1 : 0];
+  const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+
+  /* ---------- Glyphs: the app's own dot icons ---------- */
+  function glyphSVG(rows, pitch) {
+    const h = rows.length, w = Math.max(...rows.map((r) => r.length));
+    const cell = pitch * DOT, r = cell * CORNER;
+    let out = `<svg class="glyph" viewBox="0 0 ${w * pitch - (pitch - cell)} ${h * pitch - (pitch - cell)}" width="${w * pitch - (pitch - cell)}" height="${h * pitch - (pitch - cell)}" aria-hidden="true">`;
+    rows.forEach((line, y) => [...line].forEach((ch, x) => {
+      if (ch === "X" || ch === "o")
+        out += `<rect x="${x * pitch}" y="${y * pitch}" width="${cell}" height="${cell}" rx="${r}"${ch === "o" ? ' opacity=".5"' : ""}/>`;
+    }));
+    return out + "</svg>";
+  }
+  document.querySelectorAll("[data-glyph]").forEach((el) => {
+    const name = el.getAttribute("data-glyph");
+    const rows = D.glyphs[name] || D.pixels[name];
+    if (!rows) return;
+    const pitch = parseFloat(el.getAttribute("data-pitch") || (D.glyphs[name] ? "3" : "1.67"));
+    el.innerHTML = glyphSVG(rows, pitch);
+  });
+
+  /* ---------- The gallop (HorseField.swift) ---------- */
+  const smooth = (t) => { t = Math.min(1, Math.max(0, t)); return t * t * (3 - 2 * t); };
+  const fade = (i, n, share) => { const x = i + 0.5; return smooth(Math.min(x, n - x) / (n * share)); };
+  const LO_ROWS = 12, LO_COLS = 23;
+  // HD frames, row pairs folded: [frame][row][hdColumn] in 0..1
+  const coverage = D.hd.map((lines) => {
+    const d = lines.map((l) => [...l].map((c) => +c / 10));
+    const out = [];
+    for (let r = 0; r < d.length - 1; r += 2) out.push(d[r].map((v, i) => (v + d[r + 1][i]) / 2));
+    return out;
+  });
+  function cover(line, start) {
+    const end = start + 2;
+    let sum = 0, k = Math.floor(start);
+    while (k < end) {
+      if (k >= 0 && k < line.length) sum += line[k] * (Math.min(end, k + 1) - Math.max(start, k));
+      k++;
+    }
+    return sum / 2;
+  }
+  function roundRect(ctx, x, y, s) {
+    const r = s * CORNER;
+    ctx.moveTo(x + r, y); ctx.arcTo(x + s, y, x + s, y + s, r); ctx.arcTo(x + s, y + s, x, y + s, r);
+    ctx.arcTo(x, y + s, x, y, r); ctx.arcTo(x, y, x + s, y, r); ctx.closePath();
+  }
+
+  class Run {
+    constructor(opts) { this.distance = opts.start ?? 4; this.pace = opts.pace ?? 16; this.last = null; this.stride = 30; }
+    advance(now, target, columns) {
+      const dt = this.last == null ? 0 : Math.min(0.1, (now - this.last) / 1000);
+      this.last = now;
+      this.pace += (target - this.pace) * Math.min(1, dt * 1.5);
+      this.distance += this.pace * dt;
+      return this.pose(columns);
+    }
+    still(columns) { return { x: Math.floor((columns - LO_COLS) / 2), frame: 8 }; }
+    pose(columns) {
+      const lap = columns + LO_COLS;
+      const x = (this.distance % lap) - LO_COLS;
+      const frame = Math.floor((this.distance / this.stride) * 15) % 15;
+      return { x, frame };
+    }
+  }
+
+  const fields = [];
+  class Field {
+    constructor(canvas, opts) {
+      this.c = canvas; this.ctx = canvas.getContext("2d");
+      this.pitch = opts.pitch || 10; this.rows = LO_ROWS + 4;
+      this.target = opts.pace || 22; this.run = new Run({ pace: this.target });
+      this.visible = true; this.onFrame = opts.onFrame;
+      this.resize();
+      new ResizeObserver(() => this.resize()).observe(canvas);
+      new IntersectionObserver((e) => { this.visible = e[0].isIntersecting; }).observe(canvas);
+      fields.push(this);
+    }
+    resize() {
+      const dpr = Math.min(3, window.devicePixelRatio || 1);
+      const w = this.c.clientWidth;
+      const pitchAttr = parseFloat(getComputedStyle(this.c).getPropertyValue("--pitch")) || this.pitch;
+      this.pitch = pitchAttr;
+      const h = this.rows * this.pitch;
+      this.c.style.height = h + "px";
+      this.c.width = Math.round(w * dpr); this.c.height = Math.round(h * dpr);
+      this.dpr = dpr; this.w = w; this.h = h;
+      this.columns = Math.max(1, Math.floor((w + this.pitch * (1 - DOT)) / this.pitch));
+      this.x0 = (w - (this.columns * this.pitch - this.pitch * (1 - DOT))) / 2;
+      this.fieldCache = null;
+      this.draw(performance.now(), true);
+    }
+    drawField() {
+      // The field is mist, never a box: every edge fades out. On paper he rides over a
+      // meadow (accent deepened toward ink) so he reads white; at night a faint ghost grid.
+      const night = isNight();
+      const col = night ? tone("quiet") : mix(tone("accent"), tone("ink"), 0.45);
+      const base = night ? 0.13 : 0.72;
+      const off = document.createElement("canvas");
+      off.width = this.c.width; off.height = this.c.height;
+      const g = off.getContext("2d"); g.scale(this.dpr, this.dpr);
+      const cell = this.pitch * DOT;
+      const levels = new Map();
+      for (let r = 0; r < this.rows; r++) {
+        const fy = fade(r, this.rows, 0.34);
+        for (let c = 0; c < this.columns; c++) {
+          const a = base * fade(c, this.columns, 0.16) * fy;
+          if (a <= 0.004) continue;
+          const key = Math.round(a * 40);
+          if (!levels.has(key)) levels.set(key, []);
+          levels.get(key).push([this.x0 + c * this.pitch, r * this.pitch]);
+        }
+      }
+      for (const [k, pts] of levels) {
+        g.beginPath(); pts.forEach(([x, y]) => roundRect(g, x, y, cell));
+        g.fillStyle = rgba(col, k / 40); g.fill();
+      }
+      this.fieldCache = off;
+    }
+    draw(now, force) {
+      if (!force && !this.visible) return;
+      if (!this.fieldCache) this.drawField();
+      const ctx = this.ctx;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, this.c.width, this.c.height);
+      ctx.drawImage(this.fieldCache, 0, 0);
+      ctx.scale(this.dpr, this.dpr);
+      const pose = reduce.matches ? this.run.still(this.columns) : this.run.advance(now, this.target, this.columns);
+      this.onFrame && this.onFrame(this.run);
+      const frame = coverage[pose.frame % coverage.length];
+      const cell = this.pitch * DOT, top = (this.rows - LO_ROWS) / 2;
+      const first = Math.max(0, Math.floor(pose.x) - 1), last = Math.min(this.columns - 1, Math.ceil(pose.x) + LO_COLS);
+      const tint = isNight() ? [255, 255, 255] : [255, 255, 255];
+      const erase = [], paint = new Map();
+      frame.forEach((line, hr) => {
+        const row = top + hr, y = row * this.pitch;
+        for (let c = first; c <= last; c++) {
+          const start = 2 * (c - pose.x);
+          if (start <= -2 || start >= line.length) continue;
+          const cv = cover(line, start), his = smooth(cv * 1.5);
+          if (his <= 0.01) continue;
+          const x = this.x0 + c * this.pitch;
+          erase.push([x, y, his]);
+          const a = (0.62 + 0.36 * Math.min(1, cv * 1.3)) * fade(c, this.columns, 0.16) * his;
+          const key = row * 100 + Math.round(a * 40);
+          if (!paint.has(key)) paint.set(key, []);
+          paint.get(key).push([x, y]);
+        }
+      });
+      // The field goes from under him, as much as he covers each dot.
+      ctx.globalCompositeOperation = "destination-out";
+      for (const [x, y, a] of erase) { ctx.beginPath(); roundRect(ctx, x, y, cell); ctx.fillStyle = `rgba(0,0,0,${a})`; ctx.fill(); }
+      ctx.globalCompositeOperation = "source-over";
+      for (const [key, pts] of paint) {
+        const a = (key % 100) / 40, y = Math.floor(key / 100) * this.pitch;
+        const grad = ctx.createLinearGradient(0, y, 0, y + cell);
+        grad.addColorStop(0, rgba(tint, a)); grad.addColorStop(1, rgba(tint, a * 0.62));
+        ctx.beginPath(); pts.forEach(([x, yy]) => roundRect(ctx, x, yy, cell));
+        ctx.fillStyle = grad; ctx.fill();
+      }
+    }
+  }
+
+  /* ---------- StandBy clock: the 34-dot face (StandByClock.swift) ---------- */
+  const GALLOP = [0, 2, 3, 5, 6, 8, 9, 11, 12, 14], NEAR = [0, 13, 27], FAR = [6, 20, 33];
+  const COLON = [".", ".", ".", "X", ".", "X", ".", ".", "."];
+  function clockFace(canvas) {
+    const ctx = canvas.getContext("2d");
+    const FACE = 34, GROUND = 30;
+    let size = 0, dpr = 1;
+    function fit() {
+      dpr = Math.min(3, window.devicePixelRatio || 1);
+      size = canvas.clientWidth;
+      canvas.width = canvas.height = Math.round(size * dpr);
+      drawn = false;
+    }
+    let visible = true, drawn = false;
+    fit(); new ResizeObserver(() => { fit(); draw(0); }).observe(canvas);
+    new IntersectionObserver((e) => { visible = e[0].isIntersecting; }).observe(canvas);
+    function draw(now) {
+      if (!visible && drawn) return;
+      drawn = true;
+      const p = size / FACE, cell = p * DOT;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, size, size);
+      const ink = tone("ink", true), quiet = tone("quiet", true);
+      const dot = (r, c, col, a) => { ctx.beginPath(); roundRect(ctx, c * p, r * p, cell); ctx.fillStyle = rgba(col, a); ctx.fill(); };
+      // Unlit field in rings fading to the edge; the outermost ring stays dark.
+      const ringA = [0, 0.05, 0.08, 0.11, 0.13];
+      for (let r = 0; r < FACE; r++) for (let c = 0; c < FACE; c++) {
+        const e = Math.min(r, c, FACE - 1 - r, FACE - 1 - c, 4);
+        if (e > 0) dot(r, c, quiet, ringA[e]);
+      }
+      const d = new Date();
+      const h = d.getHours() % 12 || 12, m = String(d.getMinutes()).padStart(2, "0");
+      const glyphs = [...String(h)].map((x) => D.digits[x]).concat([COLON], [...m].map((x) => D.digits[x]));
+      const width = glyphs.reduce((s, g) => s + g[0].length + 1, 0) - 1;
+      let col = Math.floor((FACE - width) / 2);
+      for (const g of glyphs) {
+        g.forEach((line, r) => [...line].forEach((ch, c) => { if (ch === "X") dot(4 + r, col + c, ink, 1); }));
+        col += g[0].length + 1;
+      }
+      const tenth = reduce.matches ? 5 : Math.floor((now || 0) / 100) % 10;
+      const fr = D.lo[GALLOP[tenth]];
+      fr.forEach((line, r) => [...line].forEach((ch, c) => {
+        const v = +ch;
+        if (v >= 4) dot(18 + r, 5 + c, ink, 1);
+        else if (v >= 2) dot(18 + r, 5 + c, ink, 0.55);
+      }));
+      for (let c = 1; c < FACE - 1; c++) dot(GROUND, c, quiet, [0, 0.08, 0.14, 0.2][Math.min(c, FACE - 1 - c, 3)]);
+      for (let c = 2; c < FACE - 2; c++) {
+        const w = (c + tenth * 4) % 40;
+        if (NEAR.includes(w)) dot(GROUND, c, quiet, 0.6);
+        if (FAR.includes(w)) dot(GROUND + 1, c, quiet, 0.45);
+      }
+    }
+    return draw;
+  }
+
+  /* ---------- Small horse mark (header avatar: HorseMark on the low-res frames) ---------- */
+  function markSVG(frame, pitch) {
+    const rows = D.lo[frame], cell = pitch * DOT, r = cell * CORNER;
+    const w = LO_COLS * pitch, h = LO_ROWS * pitch;
+    let s = `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">`;
+    rows.forEach((line, y) => [...line].forEach((ch, x) => {
+      const v = +ch;
+      if (v >= 4) s += `<rect x="${x * pitch}" y="${y * pitch}" width="${cell}" height="${cell}" rx="${r}"/>`;
+      else if (v >= 2) s += `<rect x="${x * pitch}" y="${y * pitch}" width="${cell}" height="${cell}" rx="${r}" opacity=".45"/>`;
+    }));
+    return s + "</svg>";
+  }
+
+  window.SFX = { P, KEYS, Field, fields, clockFace, markSVG, glyphSVG, tone, isNight, reduce, css };
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  const { P, Field, fields, clockFace, markSVG, glyphSVG, isNight, reduce, css } = window.SFX;
+  const D = window.SFX_DATA;
+  const $ = (s) => document.querySelector(s);
+  const root = document.documentElement;
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  };
+  const MIC = [".XXX.", ".XXX.", ".XXX.", "X.X.X", ".XXX.", "..X..", ".XXX."];
+  $("#mic-glyph").innerHTML = glyphSVG(MIC, 3.4);
+
+  /* ---------- Marks ---------- */
+  $("#brand-mark").innerHTML = markSVG(8, 1.25);
+  $("#foot-mark").innerHTML = markSVG(8, 2);
+  $("#island-mark").innerHTML = markSVG(8, 0.9);
+
+  /* ---------- Palette + appearance ---------- */
+  const ids = Object.keys(P);
+  root.setAttribute("data-palette", ids.includes(store.get("sfx-palette")) ? store.get("sfx-palette") : "fangorn");
+  const savedTheme = store.get("sfx-theme");
+  if (savedTheme === "dark" || savedTheme === "light") root.setAttribute("data-theme", savedTheme);
+
+  const navSw = $("#nav-swatches"), list = $("#palette-list");
+  ids.forEach((id) => {
+    const p = P[id];
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "swatch"; b.dataset.id = id; b.setAttribute("aria-label", p.name);
+    navSw.appendChild(b);
+
+    const row = document.createElement("button");
+    row.type = "button"; row.className = "pal"; row.dataset.id = id;
+    const chips = (i) => ["paper", "bubble", "accent", "ink", "quoteRule"].map((k) => `<i style="background:${css(p[k][i])}"></i>`).join("");
+    row.innerHTML = `<b>${p.name}${glyphSVG(D.glyphs.checkmark, 2.2)}</b><p>${p.note}</p>
+      <span class="strips" aria-hidden="true"><span class="strip" style="background:${css(p.paper[0])}">${chips(0)}</span><span class="strip" style="background:${css(p.paper[1])}">${chips(1)}</span></span>`;
+    list.appendChild(row);
+  });
+  function paintSwatches() {
+    const n = isNight() ? 1 : 0;
+    navSw.querySelectorAll(".swatch").forEach((b) => {
+      b.style.setProperty("--sw-paper", css(P[b.dataset.id].paper[n]));
+      b.style.setProperty("--sw-accent", css(P[b.dataset.id].accent[n]));
+    });
+  }
+  function refresh() {
+    const cur = root.getAttribute("data-palette");
+    document.querySelectorAll("[data-id]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.id === cur)));
+    const night = isNight();
+    const mg = $("#mode-glyph");
+    mg.innerHTML = glyphSVG(night ? D.glyphs["sun.max"] : D.glyphs["moon"], 3);
+    $("#mode").setAttribute("aria-label", night ? "Switch to day" : "Switch to night");
+    $("#island").style.setProperty("--i-ink", css(P[cur].ink[1]));
+    paintSwatches();
+    fields.forEach((f) => { f.fieldCache = null; f.draw(performance.now(), true); });
+    drawClock && drawClock(0);
+    drawWave();
+  }
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-id]");
+    if (!b) return;
+    root.setAttribute("data-palette", b.dataset.id);
+    store.set("sfx-palette", b.dataset.id);
+    refresh();
+  });
+  $("#mode").addEventListener("click", () => {
+    const next = isNight() ? "light" : "dark";
+    root.setAttribute("data-theme", next); store.set("sfx-theme", next); refresh();
+  });
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", refresh);
+
+  const nav = $("#nav");
+  const onScroll = () => nav.classList.toggle("scrolled", window.scrollY > 8);
+  window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
+
+  /* ---------- Fields ---------- */
+  const hero = new Field($("#hero-field"), { pace: 20 });
+  const talkField = new Field($("#talk-field"), { pace: 12 });
+
+  /* ---------- StandBy clock ---------- */
+  const drawClock = clockFace($("#clock"));
+
+  /* ---------- Chat replay ---------- */
+  const STEPS = [
+    ["Reading this week’s inbox.", "vault_inbox", 1],
+    ["Opening Collaborative Steering, filed Tuesday.", "Read", 7],
+    ["Checking the link digests from the weekend.", "Read", 14],
+    ["Searching memory for what you asked me to keep.", "memory_search", 21],
+    ["Cross-checking open loops.", "Bash", 28],
+    ["Writing it up.", "", 34]
+  ];
+  const RIDE = ["Riding for Minas Tirith", "Crossing the Ford of Bruinen", "Searching the archives of Gondor", "Running with the Mearas", "Taking counsel in Rivendell", "Crossing the fields of Rohan", "Following the Great East Road", "Galloping to Edoras", "Waiting on the Ents"];
+  const stepsEl = $("#steps"), trail = $("#trail"), trailText = $("#trail-text"), chev = $("#trail-chev");
+  stepsEl.innerHTML = STEPS.map(([t, tool, s]) => `<div class="step"><span>${t}</span>${tool ? `<span class="tool">${tool}</span>` : ""}<span class="t">${s}s</span></div>`).join("");
+  trail.addEventListener("click", () => {
+    if (trail.classList.contains("live")) return;
+    const open = trail.getAttribute("aria-expanded") !== "true";
+    trail.setAttribute("aria-expanded", String(open)); stepsEl.hidden = !open;
+  });
+  const replyText = $("#reply-text"), FULL = replyText.textContent;
+  const reveals = ["#reply-table", "#reply-loop", "#reply-cards"].map((s) => $(s));
+  const replay = $("#replay");
+  let running = false;
+  replay.addEventListener("click", () => {
+    if (running) return;
+    running = true; replay.disabled = true;
+    trail.setAttribute("aria-expanded", "false"); stepsEl.hidden = true;
+    trail.classList.add("live"); chev.hidden = true;
+    replyText.textContent = ""; reveals.forEach((el) => el.classList.add("out"));
+    replyText.classList.remove("out");
+    const speed = 5, t0 = performance.now(), ride = RIDE[Math.floor(Math.random() * RIDE.length)];
+    (function tick() {
+      const sim = (performance.now() - t0) / 1000 * speed;
+      if (sim < 40) {
+        const cur = STEPS.filter((s) => s[2] <= sim).pop();
+        const words = cur ? cur[0] : ride;
+        trailText.textContent = sim >= 8 ? `${words}\u2003${Math.floor(sim)}s` : words;
+        requestAnimationFrame(tick);
+        return;
+      }
+      trail.classList.remove("live"); chev.hidden = false;
+      trailText.textContent = "Worked for 40 seconds · 6 steps";
+      const words = FULL.split(" ");
+      let i = 0;
+      const stream = () => {
+        i = reduce.matches ? words.length : Math.min(words.length, i + 2);
+        replyText.textContent = words.slice(0, i).join(" ");
+        if (i < words.length) return setTimeout(stream, 45);
+        reveals.forEach((el, k) => setTimeout(() => el.classList.remove("out"), 160 * (k + 1)));
+        setTimeout(() => { running = false; replay.disabled = false; }, 700);
+      };
+      stream();
+    })();
+  });
+
+  /* ---------- Cards ---------- */
+  function undoPair(btnSel, stateSel, a, b) {
+    const btn = $(btnSel), st = $(stateSel);
+    let on = true;
+    btn.addEventListener("click", () => {
+      on = !on;
+      st.textContent = on ? a[0] : b[0]; btn.textContent = on ? a[1] : b[1];
+    });
+  }
+  undoPair("#rem-btn", "#rem-state", ["In Reminders", "Undo"], ["Not in Reminders", "Add"]);
+  undoPair("#mv-btn", "#mv-state", ["In Reminders", "Undo"], ["Undone", "Redo"]);
+  const loop = $("#loop");
+  $("#loop-btn").addEventListener("click", () => {
+    const open = loop.classList.toggle("open");
+    $("#loop-state").textContent = open ? "Open" : "Closed";
+    $("#loop-btn").textContent = open ? "Close" : "Reopen";
+  });
+  document.querySelectorAll(".options").forEach((g) => g.addEventListener("click", (e) => {
+    const b = e.target.closest(".option"); if (!b) return;
+    const was = b.getAttribute("aria-pressed") === "true";
+    g.querySelectorAll(".option").forEach((o) => o.setAttribute("aria-pressed", "false"));
+    b.setAttribute("aria-pressed", String(!was));
+    g.classList.toggle("chosen", !was);
+  }));
+  const listEl = $("#list");
+  const countOpen = () => {
+    const n = listEl.querySelectorAll('[aria-checked="false"]').length;
+    $("#list-count").textContent = n ? `${n} open` : "Nothing open.";
+  };
+  listEl.addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    const on = b.getAttribute("aria-checked") !== "true";
+    b.setAttribute("aria-checked", String(on));
+    b.querySelector(".tick").innerHTML = glyphSVG(D.glyphs[on ? "checkmark.circle.fill" : "circle"], 3.2);
+    countOpen();
+  });
+  document.querySelectorAll("[data-save]").forEach((b) => b.addEventListener("click", () => {
+    if (b.classList.contains("done") || b.classList.contains("waiting")) return;
+    const label = b.lastElementChild;
+    b.classList.add("waiting"); label.textContent = "Saving";
+    setTimeout(() => {
+      b.classList.remove("waiting"); b.classList.add("done"); label.textContent = "Saved to mymind";
+      b.firstElementChild.innerHTML = glyphSVG(D.glyphs.checkmark, 2.6);
+    }, 900);
+  }));
+
+  /* ---------- Talk ---------- */
+  const SCRIPTS = [
+    ["What’s the weather Saturday?", "Dry until about 2, then wind. High of 71.", "0:04"],
+    ["Add oat milk to the list.", "Added to Groceries.", "0:02"],
+    ["What time is sunset?", "7:04pm.", "0:01"],
+    ["How many pages did I read this week?", "142 pages across two books. Most of it was Walden on Sunday.", "0:05"]
+  ];
+  let sIdx = 1, held = false, wordTimer = null, spoken = [];
+  $("#first-audio").insertAdjacentHTML("afterbegin", glyphSVG(D.glyphs["play.fill"], 2) + "<span>Spoken reply</span>");
+  const tb = $("#talk-btn"), tw = $("#talk-words"), ts = $("#talk-state"), log = $("#talk-log");
+  function start(e) {
+    if (held) return; held = true;
+    if (e && e.pointerId != null) tb.setPointerCapture(e.pointerId);
+    tb.classList.add("held"); ts.textContent = "Listening";
+    tw.classList.remove("hint"); tw.textContent = ""; spoken = [];
+    const words = SCRIPTS[sIdx][0].split(" ");
+    talkField.target = 40;
+    let i = 0;
+    const next = () => {
+      if (!held || i >= words.length) return;
+      spoken.push(words[i++]); tw.textContent = spoken.join(" ");
+      talkField.target = 30 + 16 * Math.random();
+      wordTimer = setTimeout(next, 260 + Math.random() * 140);
+    };
+    wordTimer = setTimeout(next, 220);
+  }
+  function end() {
+    if (!held) return; held = false; clearTimeout(wordTimer);
+    tb.classList.remove("held"); talkField.target = 12;
+    if (!spoken.length) { ts.textContent = "Ready"; tw.classList.add("hint"); tw.textContent = "Hold a little longer"; return; }
+    const [, answer, len] = SCRIPTS[sIdx];
+    const said = spoken.join(" ");
+    sIdx = (sIdx + 1) % SCRIPTS.length;
+    ts.textContent = "Sent"; tw.classList.add("hint"); tw.textContent = "Hold the button and he picks up the pace";
+    log.innerHTML = `<div class="me">${said}</div>`;
+    setTimeout(() => {
+      log.insertAdjacentHTML("beforeend", `<div class="him"><span class="label">Shadowfax</span><p class="reply" style="margin:0">${answer}</p><span class="audio">${glyphSVG(D.glyphs["play.fill"], 2)}<span>Spoken reply</span><span class="num">${len}</span></span></div>`);
+      ts.textContent = "Ready";
+    }, 900);
+  }
+  tb.addEventListener("pointerdown", (e) => { e.preventDefault(); start(e); });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach((t) => tb.addEventListener(t, end));
+  tb.addEventListener("contextmenu", (e) => e.preventDefault());
+  tb.addEventListener("keydown", (e) => { if ((e.key === " " || e.key === "Enter") && !e.repeat) { e.preventDefault(); start(); } });
+  tb.addEventListener("keyup", (e) => { if (e.key === " " || e.key === "Enter") end(); });
+
+  /* ---------- Capture ---------- */
+  $("#quote-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const b = $("#q-file"), label = b.lastElementChild;
+    if (b.classList.contains("waiting")) return;
+    if (b.classList.contains("done")) {
+      b.classList.remove("done"); label.textContent = "File quote"; $("#q-note").textContent = "";
+      b.firstElementChild.innerHTML = glyphSVG(D.glyphs["tray.and.arrow.down"], 2.6); return;
+    }
+    b.classList.add("waiting"); label.textContent = "Filing";
+    setTimeout(() => {
+      b.classList.remove("waiting"); b.classList.add("done"); label.textContent = "Filed";
+      b.firstElementChild.innerHTML = glyphSVG(D.glyphs.checkmark, 2.6);
+      $("#q-note").textContent = "Filed to Walden and mymind";
+    }, 1100);
+  });
+
+  /* ---------- Share ---------- */
+  $("#share-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const b = $("#share-btn"), label = b.lastElementChild;
+    if (b.classList.contains("waiting")) return;
+    if (b.classList.contains("done")) { b.classList.remove("done"); label.textContent = "Send to Shadowfax"; return; }
+    b.classList.add("waiting"); label.textContent = "Sending";
+    setTimeout(() => { b.classList.remove("waiting"); b.classList.add("done"); label.textContent = "Sent"; }, 1000);
+  });
+
+  /* ---------- Voice note ---------- */
+  const wave = $("#vn-wave"), wctx = wave.getContext("2d");
+  const BARS = Array.from({ length: 30 }, (_, i) => 1 + Math.round(2 + 2.2 * Math.sin(i * 0.9) * Math.sin(i * 0.37 + 1) + 1.4 * Math.sin(i * 2.3)));
+  let vnPlaying = false, vnPos = 0, vnLast = 0;
+  const LEN = 32;
+  function drawWave() {
+    const dpr = Math.min(3, window.devicePixelRatio || 1), W = 150, H = 22, p = 5, c = p * 0.76;
+    if (wave.width !== W * dpr) { wave.width = W * dpr; wave.height = H * dpr; wave.style.width = W + "px"; wave.style.height = H + "px"; }
+    wctx.setTransform(dpr, 0, 0, dpr, 0, 0); wctx.clearRect(0, 0, W, H);
+    const ink = getComputedStyle(root).getPropertyValue("--ink").trim();
+    BARS.forEach((h, i) => {
+      const n = Math.max(1, Math.min(4, h)), played = i / BARS.length < vnPos / LEN;
+      wctx.fillStyle = ink; wctx.globalAlpha = played ? 1 : 0.35;
+      for (let k = 0; k < n; k++) {
+        const y = H / 2 - (n * p) / 2 + k * p + (p - c) / 2;
+        wctx.beginPath(); wctx.roundRect ? wctx.roundRect(i * p, y, c, c, c * 0.24) : wctx.rect(i * p, y, c, c); wctx.fill();
+      }
+    });
+    wctx.globalAlpha = 1;
+    const left = Math.ceil(LEN - vnPos);
+    $("#vn-time").textContent = `0:${String(left).padStart(2, "0")}`;
+  }
+  const vnGlyph = () => { $("#vn-glyph").innerHTML = glyphSVG(D.glyphs[vnPlaying ? "pause.fill" : "play.fill"], 2.4); $("#vn-play").setAttribute("aria-label", vnPlaying ? "Pause voice note" : "Play voice note"); };
+  $("#vn-play").addEventListener("click", () => { vnPlaying = !vnPlaying; if (vnPos >= LEN) vnPos = 0; vnLast = performance.now(); vnGlyph(); });
+  vnGlyph();
+
+  /* ---------- Island ---------- */
+  const isl = $("#island-ride"), ictx = isl.getContext("2d");
+  const ISL_STEPS = [["Reading this week’s inbox.", 1], ["Opening Collaborative Steering, filed Tuesday.", 7], ["Searching memory for what you asked me to keep.", 21], ["Writing it up.", 34]];
+  const STARS = Array.from({ length: 22 }, (_, i) => [((i * 53) % 97) / 97, ((i * 29) % 7) / 7 * 0.4, 0.2 + ((i * 17) % 5) / 10]);
+  let islStart = performance.now();
+  function drawIsland(now) {
+    const dpr = Math.min(3, window.devicePixelRatio || 1);
+    const W = isl.clientWidth, H = 54;
+    if (!W) return;
+    if (isl.width !== Math.round(W * dpr)) { isl.width = Math.round(W * dpr); isl.height = Math.round(H * dpr); }
+    ictx.setTransform(dpr, 0, 0, dpr, 0, 0); ictx.clearRect(0, 0, W, H);
+    const pal = P[root.getAttribute("data-palette")] || P.fangorn;
+    const q = pal.quiet[1], acc = pal.accent[1];
+    const p = 3, c = p * 0.76, cols = Math.floor(W / p), rows = Math.floor(H / p);
+    const cycle = 11000, t = reduce.matches ? 3000 : (now - islStart) % cycle;
+    const sim = t / 1000 * 5;
+    const done = sim >= 40;
+    const ridden = reduce.matches ? 0 : (now - islStart) / 1000;
+    const dot = (x, y, col, a) => { ictx.fillStyle = `rgba(${col[0]},${col[1]},${col[2]},${a})`; ictx.beginPath(); ictx.roundRect ? ictx.roundRect(x * p, y * p, c, c, c * .24) : ictx.rect(x * p, y * p, c, c); ictx.fill(); };
+    const edge = (x) => Math.min(1, Math.min(x, cols - 1 - x) / 6);
+    STARS.forEach(([sx, sy, a]) => { const x = Math.floor(((sx * cols - ridden * 0.6) % cols + cols) % cols); dot(x, Math.floor(sy * rows), [255, 255, 255], a * edge(x)); });
+    for (let x = 0; x < cols; x++) {
+      const wx = x + ridden * 2.2;
+      const h = Math.round(4 + 2.4 * Math.sin(wx * 0.11) + 1.6 * Math.sin(wx * 0.27 + 2));
+      for (let y = rows - 3 - h; y < rows - 3; y++) dot(x, y, y === rows - 3 - h ? [255, 255, 255] : acc, (y === rows - 3 - h ? 0.28 : 0.22) * edge(x));
+      const w = Math.floor(x + ridden * 8) % 9;
+      dot(x, rows - 2, q, (w === 0 ? 0.6 : 0.12) * edge(x));
+    }
+    const frame = done ? 8 : Math.floor(now / 1000 * 11) % 15, fr = D.lo[frame];
+    const hx = Math.floor(cols * 0.3) - 11, hy = rows - 2 - 12;
+    fr.forEach((line, r) => [...line].forEach((ch, k) => {
+      const v = +ch; if (v < 2) return;
+      dot(hx + k, hy + r, done ? acc : [255, 255, 255], v >= 4 ? 1 : 0.55);
+    }));
+    const cur = ISL_STEPS.filter((s) => s[1] <= sim).pop();
+    const status = done ? "Seven pages this week. Four are worth your time." : (cur ? cur[0] : "Riding for Minas Tirith");
+    const st = $("#island-status"); if (st.textContent !== status) st.textContent = status;
+    const s = Math.min(40, Math.floor(sim));
+    $("#island-time").textContent = (done ? "✓ " : "") + `0:${String(s).padStart(2, "0")}`;
+  }
+
+  /* ---------- One loop for everything ---------- */
+  let lastTenth = -1;
+  function frame(now) {
+    fields.forEach((f) => f.draw(now));
+    const tenth = Math.floor(now / 100);
+    if (tenth !== lastTenth) { lastTenth = tenth; drawClock(now); }
+    drawIsland(now);
+    if (vnPlaying) {
+      vnPos = Math.min(LEN, vnPos + (now - vnLast) / 1000); vnLast = now; drawWave();
+      if (vnPos >= LEN) { vnPlaying = false; vnGlyph(); }
+    }
+    requestAnimationFrame(frame);
+  }
+  refresh();
+  requestAnimationFrame(frame);
+})();
+</script>
+
+</body>
+</html>
