@@ -4,350 +4,277 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Shadowfax</title>
-<meta name="description" content="Shadowfax for iPhone: an assistant that runs on your own Mac, with its door on your phone.">
+<meta name="description" content="Shadowfax for iPhone. My assistant lives on a Mac mini at home. This is his door on my phone.">
 <style>
 :root {
   --paper: #F6F2E6; --ink: #1B241D; --quiet: #626C5C; --bubble: #E8EADB; --accent: #5C7654;
   --panel-line: #DDE0CE; --panel-wash: #ECEDE0; --quote-rule: #9E7C38;
   --line: color-mix(in srgb, var(--quiet) 17%, transparent);
-  --card-fill: color-mix(in srgb, var(--bubble) 38%, transparent);
-  --strong-fill: color-mix(in srgb, var(--bubble) 60%, transparent);
-  --glass: color-mix(in srgb, var(--paper) 80%, transparent);
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.05);
+  --soft: color-mix(in srgb, var(--ink) 74%, var(--paper));
+  --stage: color-mix(in srgb, var(--bubble) 62%, var(--paper));
+  --surface: color-mix(in srgb, var(--bubble) 30%, var(--paper));
+  --glass: color-mix(in srgb, var(--paper) 78%, transparent);
+  --lift: 0 0 0 0.7px var(--line), 0 1px 2px rgb(20 30 20 / 0.04), 0 24px 48px -24px rgb(20 30 20 / 0.22);
+  --lift-sm: 0 0 0 0.7px var(--line), 0 1px 2px rgb(20 30 20 / 0.04), 0 10px 24px -14px rgb(20 30 20 / 0.18);
   --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --book: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-  --r-card: 24px; --r-panel: 28px; --r-field: 29px; --r-action: 18px;
-  --col: 680px;
   --ease: cubic-bezier(.2, .8, .2, 1);
+  --max: 1080px;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --paper: #111713; --ink: #ECEEE2; --quiet: #96A492; --bubble: #1F2921; --accent: #92B086;
     --panel-line: #344036; --panel-wash: #263128; --quote-rule: #D0AC64;
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
+    --lift: 0 0 0 0.7px var(--line), 0 24px 48px -24px rgb(0 0 0 / 0.6);
+    --lift-sm: 0 0 0 0.7px var(--line), 0 10px 24px -14px rgb(0 0 0 / 0.5);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --paper: #111713; --ink: #ECEEE2; --quiet: #96A492; --bubble: #1F2921; --accent: #92B086;
   --panel-line: #344036; --panel-wash: #263128; --quote-rule: #D0AC64;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
+  --lift: 0 0 0 0.7px var(--line), 0 24px 48px -24px rgb(0 0 0 / 0.6);
+  --lift-sm: 0 0 0 0.7px var(--line), 0 10px 24px -14px rgb(0 0 0 / 0.5);
   color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 body {
   margin: 0; background: var(--paper); color: var(--ink);
   font: 17px/1.47 var(--sans); font-kerning: normal;
   -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
-  transition: background-color .4s var(--ease), color .4s var(--ease);
+  transition: background-color .5s var(--ease), color .5s var(--ease);
 }
 ::selection { background: color-mix(in srgb, var(--accent) 28%, transparent); }
 a { color: inherit; }
-button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 8px; }
 .glyph { display: block; fill: currentColor; flex: none; }
 .num { font-variant-numeric: tabular-nums; }
-
-.wrap { width: 100%; max-width: calc(var(--col) + 40px); margin-inline: auto; padding-inline: 20px; }
+.wrap { width: 100%; max-width: calc(var(--max) + 48px); margin-inline: auto; padding-inline: 24px; }
+@media (max-width: 520px) { .wrap { padding-inline: 18px; } }
 
 /* ---------- Nav ---------- */
 .nav {
   position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
   background: var(--glass);
-  -webkit-backdrop-filter: saturate(1.4) blur(18px); backdrop-filter: saturate(1.4) blur(18px);
-  border-bottom: 0.5px solid transparent; transition: border-color .3s;
+  -webkit-backdrop-filter: saturate(1.5) blur(20px); backdrop-filter: saturate(1.5) blur(20px);
+  box-shadow: 0 0.5px 0 transparent; transition: box-shadow .3s;
 }
-.nav.scrolled { border-bottom-color: var(--line); }
+.nav.scrolled { box-shadow: 0 0.5px 0 var(--line); }
 .nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 56px; }
-.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 600; letter-spacing: -0.01em; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 600; font-size: 16px; letter-spacing: -0.015em; }
 .brand svg { fill: currentColor; }
-.prefs { display: flex; align-items: center; gap: 14px; }
-.swatches { display: flex; gap: 8px; }
-.swatch {
-  width: 18px; height: 18px; border-radius: 50%; position: relative;
-  background: var(--sw-paper); box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / .18);
-  overflow: hidden;
-}
-.swatch::after { content: ""; position: absolute; inset: 50% 0 0 0; background: var(--sw-accent); }
-.swatch[aria-pressed="true"] { box-shadow: 0 0 0 1.5px var(--paper), 0 0 0 2.5px var(--ink); }
-.mode {
-  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
-  border: 1px solid var(--panel-line); color: var(--ink);
-}
+.prefs { display: flex; align-items: center; gap: 12px; }
+.swatches { display: flex; gap: 2px; }
+.swatch { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; transition: box-shadow .2s var(--ease), background-color .2s; }
+.swatch i { width: 14px; height: 14px; border-radius: 50%; display: block; overflow: hidden; position: relative; background: var(--sw-paper); box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / .2); }
+.swatch i::after { content: ""; position: absolute; inset: 50% 0 0 0; background: var(--sw-accent); }
+.swatch[aria-pressed="true"] { box-shadow: inset 0 0 0 1.25px var(--ink); }
+.mode { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; color: var(--ink); box-shadow: inset 0 0 0 0.7px var(--panel-line); transition: background-color .2s; }
+.mode:hover, .swatch:hover { background: var(--panel-wash); }
 
 /* ---------- Type ---------- */
 .label { font-size: 13px; font-weight: 500; color: var(--quiet); }
-h1, h2, h3 { margin: 0; font-family: var(--display); font-weight: 600; text-wrap: balance; }
-h1 { font-size: clamp(42px, 8vw, 68px); line-height: 1.02; letter-spacing: -0.035em; }
-h2 { font-size: clamp(28px, 4.4vw, 36px); line-height: 1.1; letter-spacing: -0.022em; }
-h3 { font-size: 19px; line-height: 1.25; letter-spacing: -0.012em; }
-.lede { font-size: 19px; line-height: 1.5; max-width: 34em; margin: 0; }
-.body { color: color-mix(in srgb, var(--ink) 78%, var(--paper)); margin: 0; max-width: 36em; text-wrap: pretty; }
+h1, h2 { margin: 0; font-family: var(--display); font-weight: 600; text-wrap: balance; }
+h1 { font-size: clamp(48px, 8.4vw, 92px); line-height: 0.98; letter-spacing: -0.034em; }
+h2 { font-size: clamp(30px, 3.6vw, 38px); line-height: 1.08; letter-spacing: -0.024em; }
+h3 { margin: 0; font-size: 19px; line-height: 1.25; font-weight: 600; letter-spacing: -0.014em; text-wrap: balance; }
+p { margin: 0; }
+.copy { color: var(--soft); max-width: 30em; text-wrap: pretty; }
 
 /* ---------- Hero ---------- */
-.hero { padding-block: 72px 0; }
-.hero .wrap { display: grid; gap: 22px; }
-.gallop { display: block; width: 100%; max-width: 1280px; margin: 56px auto 0; --pitch: 12; }
-.gallop canvas { display: block; width: 100%; }
-.hero-caption { margin-top: 18px; }
-.hero-caption p { margin: 0; }
-@media (max-width: 560px) { .gallop { --pitch: 8; } .hero { padding-top: 48px; } }
+.hero { padding-block: clamp(56px, 9vw, 112px) 0; }
+.hero-top { display: grid; grid-template-columns: 1fr minmax(0, 400px); gap: 24px 48px; align-items: end; }
+.hero-top .label { grid-column: 1 / -1; margin-bottom: -4px; }
+.lede { font-size: 19px; line-height: 1.45; color: var(--soft); text-wrap: pretty; }
+@media (max-width: 820px) { .hero-top { grid-template-columns: 1fr; } }
+.night {
+  position: relative; margin-top: clamp(40px, 6vw, 64px); background: #000; overflow: hidden;
+  height: clamp(190px, 23vw, 280px); border-radius: clamp(28px, 4vw, 48px);
+  box-shadow: 0 0 0 0.7px rgb(255 255 255 / 0.06), 0 30px 60px -30px rgb(0 0 0 / .45);
+}
+.night canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent); }
+.night-meta { display: flex; justify-content: space-between; gap: 16px; margin-top: 16px; }
+.ride-line { transition: opacity .3s var(--ease); }
+@media (max-width: 520px) { .night-meta { flex-direction: column; gap: 4px; } }
+.ride-line.fading { opacity: 0; }
 
 /* ---------- Sections ---------- */
-section.feature { padding-block: 112px 0; }
-.intro { display: grid; gap: 14px; margin-bottom: 36px; }
-.fine { font-size: 13px; color: var(--quiet); margin: 16px 0 0; max-width: 40em; }
+.feature { padding-block: clamp(96px, 13vw, 168px) 0; }
+.split { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 72px; align-items: start; }
+.intro { display: grid; gap: 14px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 104px); }
+.intro .aside { font-size: 13px; color: var(--quiet); margin-top: 4px; }
+.head { display: grid; gap: 14px; margin-bottom: 40px; max-width: 36em; }
+@media (max-width: 880px) {
+  .split { grid-template-columns: 1fr; gap: 32px; }
+  .intro { position: static; }
+}
+.stage { background: var(--stage); border-radius: 36px; padding: clamp(18px, 4.5vw, 52px); display: grid; justify-items: center; gap: 20px; transition: background-color .5s var(--ease); }
 
-/* ---------- Shared surfaces ---------- */
-.panel {
-  background: var(--card-fill); border: 0.7px solid var(--line); border-radius: var(--r-panel);
-}
-.card {
-  background: var(--card-fill); border: 0.7px solid var(--line); border-radius: var(--r-card);
-  padding: 22px; display: grid; gap: 14px; break-inside: avoid;
-}
+/* ---------- App surfaces ---------- */
+.screen { width: 100%; max-width: 400px; background: var(--paper); border-radius: 40px; overflow: hidden; box-shadow: var(--lift); }
+.card { background: var(--surface); border-radius: 24px; padding: 22px; display: grid; gap: 14px; box-shadow: var(--lift-sm); break-inside: avoid; }
 .card-head { display: grid; grid-template-columns: 1fr 20px; gap: 12px; align-items: start; }
-.card-head .glyph { color: var(--quiet); justify-self: center; margin-top: 4px; }
-.card h3 { font-size: 19px; }
-.card .sub { color: var(--quiet); font-size: 15px; }
-.card-foot {
-  display: flex; justify-content: space-between; align-items: center; gap: 12px;
-  border-top: 0.7px solid var(--line); padding-top: 14px; font-size: 13px;
-}
+.card-head > span:last-child { color: var(--quiet); justify-self: center; margin-top: 4px; }
+.sub { color: var(--quiet); font-size: 15px; margin-top: 2px; }
+.card-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: 0.7px solid var(--line); padding-top: 12px; font-size: 13px; }
 .card-foot .state { color: var(--quiet); }
-.link-btn { font-weight: 600; font-size: 13px; min-height: 32px; }
+.link-btn { font-weight: 600; font-size: 13px; min-height: 30px; padding-inline: 2px; }
 .action {
   display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; width: 100%;
-  font-size: 13px; font-weight: 500; border-radius: var(--r-action); padding: 11px 13px;
-  background: var(--ink); color: var(--paper); border: 1px solid var(--ink);
-  transition: opacity .12s, background-color .2s, color .2s;
+  font-size: 13px; font-weight: 500; border-radius: 18px; padding: 11px 13px;
+  background: var(--ink); color: var(--paper); box-shadow: inset 0 0 0 1px var(--ink);
+  transition: opacity .12s, background-color .25s var(--ease), color .25s var(--ease), box-shadow .25s;
 }
 .action:active { opacity: .72; }
-.action.done { background: transparent; color: var(--ink); border-color: var(--panel-line); }
-.action.waiting { background: var(--panel-wash); color: var(--quiet); border-color: var(--panel-line); }
-.glassbtn {
-  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; flex: none;
-  background: var(--glass); border: 0.7px solid var(--panel-line); box-shadow: var(--shadow);
-}
+.action.done { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--panel-line); }
+.action.waiting { background: var(--panel-wash); color: var(--quiet); box-shadow: inset 0 0 0 1px var(--panel-line); }
+.pull { position: relative; margin: 0; font-size: 18px; line-height: 1.45; }
+.pull::before { content: "\201C"; position: absolute; left: -0.46em; top: 0; color: var(--quote-rule); }
+.pull cite { display: block; font-style: normal; font-size: 13px; color: var(--quiet); margin-top: 8px; }
+.me { justify-self: end; max-width: 82%; background: var(--bubble); border-radius: 23px; padding: 11px 17px; line-height: 1.4; }
+.him { display: grid; gap: 10px; }
+.reply { font-size: 19px; line-height: 1.42; letter-spacing: -0.01em; }
+.replay { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--quiet); min-height: 36px; padding: 0 14px; border-radius: 999px; transition: background-color .2s, color .2s, opacity .2s; }
+.replay:hover:not(:disabled) { background: var(--panel-wash); color: var(--ink); }
+.replay:disabled { opacity: .4; cursor: default; }
 
-/* ---------- Chat demo ---------- */
-.chat { overflow: hidden; }
-.chat-head {
-  display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 12px;
-  padding: 14px 16px; border-bottom: 0.7px solid var(--line);
-}
-.chat-head .title { text-align: center; font-weight: 600; font-size: 20px; letter-spacing: -0.02em; line-height: 1.1; }
-.chat-head .status { display: block; font-size: 12px; font-weight: 400; color: var(--quiet); letter-spacing: 0; min-height: 15px; }
-.thread { padding: 28px 26px 22px; display: grid; gap: 29px; }
-.me { justify-self: end; max-width: 80%; background: var(--bubble); border-radius: 23px; padding: 13px 18px; line-height: 1.4; }
-.him { display: grid; gap: 12px; }
+/* Chat */
+.chat-head { display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; padding: 14px 14px 10px; }
+.chat-head .title { text-align: center; font-weight: 600; font-size: 19px; letter-spacing: -0.02em; }
+.glassbtn { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--glass); box-shadow: 0 0 0 0.7px var(--panel-line), 0 4px 10px -6px rgb(0 0 0 / .15); }
+.thread { padding: 18px 22px 22px; display: grid; gap: 24px; min-height: 500px; align-content: start; }
 .trail { justify-self: start; display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--quiet); min-height: 20px; text-align: left; }
 .trail .glyph { transition: transform .25s var(--ease); }
 .trail[aria-expanded="true"] .glyph { transform: rotate(180deg); }
 .trail.live { font-size: 15px; }
-.steps { display: grid; gap: 8px; font-size: 13px; padding-left: 2px; }
-.steps[hidden] { display: none; }
-.step { display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; }
-.step .tool { color: var(--quiet); grid-column: 1; }
+.steps { display: grid; gap: 9px; font-size: 13px; padding: 0 0 4px 2px; }
+.step { display: grid; grid-template-columns: 1fr auto; gap: 1px 16px; }
+.step .tool { color: var(--quiet); }
 .step .t { color: var(--quiet); grid-row: 1 / span 2; grid-column: 2; font-variant-numeric: tabular-nums; }
-.reply { font-size: 19px; line-height: 1.45; margin: 0; }
 .reply-table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.35; }
 .reply-table th { text-align: left; font-weight: 600; padding: 0 12px 8px 0; border-bottom: 0.7px solid var(--line); }
 .reply-table td { padding: 9px 12px 9px 0; border-bottom: 0.7px solid var(--line); vertical-align: top; }
-.reply-table td:nth-child(2) { color: var(--quiet); white-space: nowrap; }
-.table-wrap { overflow-x: auto; }
-.reply-cards { display: grid; gap: 12px; }
-.page-card { grid-template-columns: 1fr 20px; display: grid; gap: 4px 12px; padding: 18px 22px; }
-.page-card .glyph { color: var(--quiet); grid-row: 1 / span 2; grid-column: 2; align-self: center; justify-self: center; }
-.page-card .meta { font-size: 13px; color: var(--quiet); }
-.page-card b, .page-card .meta { grid-column: 1; }
-.composer {
-  margin: 0 16px 16px; display: flex; align-items: center; justify-content: space-between;
-  min-height: 56px; padding: 0 20px; border-radius: var(--r-field);
-  background: var(--glass); border: 0.7px solid var(--panel-line); color: var(--quiet); box-shadow: var(--shadow);
-}
+.reply-table td:first-child { font-weight: 500; width: 44%; }
+.reply-table td:last-child { color: var(--soft); }
+.page-card { grid-template-columns: 1fr 20px; gap: 3px 12px; padding: 16px 20px; }
+.page-card b { font-weight: 600; grid-column: 1; }
+.page-card .meta { font-size: 13px; color: var(--quiet); grid-column: 1; }
+.page-card > span:last-child { grid-row: 1 / span 2; grid-column: 2; align-self: center; justify-self: center; color: var(--quiet); }
+.composer { margin: 0 14px 14px; display: flex; align-items: center; justify-content: space-between; min-height: 54px; padding: 0 20px; border-radius: 29px; background: var(--glass); color: var(--quiet); box-shadow: 0 0 0 0.7px var(--panel-line), 0 8px 20px -12px rgb(0 0 0 / .2); }
 .composer .glyph { color: var(--ink); }
-.demo-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 14px; }
-.textbtn { font-size: 15px; font-weight: 500; color: var(--ink); display: inline-flex; gap: 8px; align-items: center; min-height: 40px; }
-.textbtn:disabled { color: var(--quiet); cursor: default; }
-.reveal { transition: opacity .45s var(--ease), transform .45s var(--ease); }
+.reveal { transition: opacity .5s var(--ease), transform .5s var(--ease); }
 .reveal.out { opacity: 0; transform: translateY(6px); }
 
-/* ---------- Pull quote ---------- */
-.pull { position: relative; margin: 0; font-size: 18px; line-height: 1.45; }
-.pull::before { content: "\201C"; position: absolute; left: -0.46em; top: 0; color: var(--quote-rule); }
-.pull cite { display: block; font-style: normal; font-size: 13px; color: var(--quiet); margin-top: 8px; }
-
-/* ---------- Cards grid ---------- */
-.cards { columns: 2 300px; column-gap: 16px; }
+/* Cards */
+.cards { columns: 2 250px; column-gap: 16px; width: 100%; }
 .cards > .card { margin-bottom: 16px; }
 .options { display: grid; gap: 8px; }
 .option {
   display: flex; justify-content: space-between; align-items: center; gap: 12px; text-align: left;
-  min-height: 46px; padding: 12px 16px; border-radius: 16px; border: 1px dashed color-mix(in srgb, var(--quiet) 45%, transparent);
-  font-size: 15px; transition: opacity .2s, border-color .2s, background-color .2s;
+  min-height: 44px; padding: 10px 16px; border-radius: 16px; font-size: 15px;
+  border: 1px dashed color-mix(in srgb, var(--quiet) 42%, transparent);
+  transition: opacity .25s var(--ease), border-color .25s var(--ease);
 }
-.option .glyph { opacity: 0; }
+.option .glyph { opacity: 0; transition: opacity .2s; }
 .option[aria-pressed="true"] { border-style: solid; border-color: var(--ink); }
 .option[aria-pressed="true"] .glyph { opacity: 1; }
-.options.chosen .option[aria-pressed="false"] { opacity: .45; }
-.list { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.options.chosen .option[aria-pressed="false"] { opacity: .4; }
+.list { display: grid; margin: 0; padding: 0; list-style: none; }
 .list button { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; min-height: 40px; font-size: 15px; }
-.tick { width: 16px; height: 16px; flex: none; color: var(--quiet); }
+.tick { color: var(--quiet); display: grid; place-items: center; width: 16px; }
 .list [aria-checked="true"] { color: var(--quiet); }
-.list [aria-checked="true"] span { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--quiet) 60%, transparent); }
+.list [aria-checked="true"] .t { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--quiet) 55%, transparent); }
 .list [aria-checked="true"] .tick { color: var(--accent); }
-.loop-text { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--quiet) 60%, transparent); }
-.loop.open .loop-text { text-decoration: none; }
-.also { margin-top: 8px; }
 
-/* ---------- Talk demo ---------- */
-.talk { padding: 22px; display: grid; gap: 18px; }
-.talk-log { display: grid; gap: 18px; min-height: 124px; align-content: end; }
-.talk-log .him { gap: 8px; }
-.audio {
-  display: inline-flex; align-items: center; gap: 12px; padding: 10px 16px; border-radius: 999px;
-  background: var(--panel-wash); justify-self: start; font-size: 12px; color: var(--quiet);
-}
+/* Talk */
+.talk { padding: 22px 16px 16px; display: grid; gap: 20px; }
+.talk-log { display: grid; gap: 16px; padding-inline: 6px; min-height: 150px; align-content: end; }
+.audio { display: inline-flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 999px; background: var(--panel-wash); justify-self: start; font-size: 12px; color: var(--quiet); }
 .audio .glyph { color: var(--ink); }
-.wave { display: block; }
-.talk-field {
-  border-radius: var(--r-field); background: var(--glass); border: 0.7px solid var(--panel-line);
-  box-shadow: var(--shadow); padding: 14px 10px 10px 20px; display: grid; gap: 6px;
-}
-.talk-row { display: flex; align-items: center; gap: 12px; }
-.talk-words { flex: 1; min-height: 26px; font-size: 17px; }
+.talk-field { border-radius: 29px; background: var(--glass); box-shadow: 0 0 0 0.7px var(--panel-line), 0 8px 20px -12px rgb(0 0 0 / .2); padding: 14px 8px 8px 18px; display: grid; gap: 4px; }
+.talk-words { min-height: 25px; font-size: 17px; padding-right: 10px; }
 .talk-words.hint { color: var(--quiet); }
-.talk-strip { --pitch: 6; margin-right: 10px; }
+.talk-strip { --pitch: 5; margin: 2px 10px 0 -8px; }
 .talk-strip canvas { display: block; width: 100%; }
+.talk-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.talk-state { font-size: 13px; color: var(--quiet); }
 .talk-btn {
-  width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; flex: none;
   background: color-mix(in srgb, var(--accent) 38%, transparent); color: var(--ink);
   touch-action: none; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none;
-  transition: background-color .25s, transform .2s var(--ease);
+  transition: background-color .25s var(--ease), color .25s, transform .25s var(--ease);
 }
-.talk-btn.held { background: var(--accent); color: var(--paper); transform: scale(1.06); }
-.talk-state { font-size: 13px; color: var(--quiet); min-width: 64px; }
+.talk-btn.held { background: var(--accent); color: var(--paper); transform: scale(1.08); }
 
-/* ---------- Capture demo ---------- */
-.capture { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
-@media (max-width: 640px) { .capture { grid-template-columns: 1fr; } }
+/* Capture */
+.capture { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; width: 100%; align-items: center; }
+@media (max-width: 600px) { .capture { grid-template-columns: 1fr; } }
 .page-photo {
-  border-radius: 18px; padding: 28px 24px 30px; color: #2a2620;
-  background: linear-gradient(135deg, #F0E8D6, #D6CCB8); transform: rotate(-1.2deg);
-  box-shadow: 0 1px 2px rgb(0 0 0 / .08), 0 12px 32px rgb(0 0 0 / .12);
-  font: 14px/1.6 var(--book); display: grid; gap: 14px;
+  border-radius: 14px; padding: 26px 22px 24px; color: #2a2620;
+  background: linear-gradient(135deg, #F2EBDA, #D8CEBA); transform: rotate(-1.4deg);
+  box-shadow: 0 1px 2px rgb(0 0 0 / .08), 0 22px 44px -22px rgb(0 0 0 / .35);
+  font: 14px/1.62 var(--book); display: grid; gap: 14px;
 }
 .page-photo .running { font-size: 10px; letter-spacing: 0.3em; text-align: center; }
-.page-photo p { margin: 0; text-align: justify; hyphens: auto; }
-.page-photo mark { background: color-mix(in srgb, #5C7654 26%, transparent); color: inherit; border-radius: 2px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
-.page-photo .folio { font-size: 11px; text-align: center; opacity: .7; }
-.field-row { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; font-size: 15px; }
-.field-row .k { color: var(--quiet); font-size: 13px; }
-.input {
-  width: 100%; font: inherit; font-size: 15px; color: var(--ink); background: var(--panel-wash);
-  border: 1px solid var(--panel-line); border-radius: 14px; padding: 11px 14px;
-}
-.input::placeholder { color: var(--quiet); }
-.filed-note { font-size: 13px; color: var(--quiet); text-align: center; min-height: 18px; }
+.page-photo p { text-align: justify; hyphens: auto; }
+.page-photo mark { background: rgb(92 118 84 / .24); color: inherit; border-radius: 2px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.page-photo .folio { font-size: 11px; text-align: center; opacity: .65; }
+.meta-row { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--quiet); }
+.meta-row b { color: var(--ink); font-weight: 500; }
+.filed { font-size: 13px; color: var(--quiet); text-align: center; min-height: 18px; margin-top: -4px; }
 
-/* ---------- Library demo ---------- */
-.reader { padding: 34px 28px 22px; display: grid; gap: 18px; position: relative; }
-.reader .meta { font-size: 13px; color: var(--quiet); }
-.reader h3 { font-size: 39px; letter-spacing: -0.044em; line-height: 1.05; }
-.reader p { margin: 0; font-size: 18px; line-height: 1.55; }
-.reader .sel { background: color-mix(in srgb, var(--accent) 22%, transparent); border-radius: 3px; }
-.ask {
-  margin-top: 6px; border-radius: var(--r-panel); background: var(--glass); border: 0.7px solid var(--panel-line);
-  box-shadow: var(--shadow); padding: 18px 20px; display: grid; gap: 12px;
-}
-.ask-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-.ask-head b { font-weight: 600; font-size: 15px; }
-.ask .q { justify-self: end; max-width: 85%; background: var(--bubble); border-radius: 20px; padding: 10px 16px; font-size: 15px; }
-.ask .a { font-size: 17px; line-height: 1.45; margin: 0; }
-.inbox { display: grid; margin-top: 16px; }
-.inbox-row { display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; padding: 16px 0; border-top: 0.7px solid var(--line); }
-.inbox-row b { font-weight: 600; }
-.inbox-row .s { color: color-mix(in srgb, var(--ink) 78%, var(--paper)); font-size: 15px; grid-column: 1; }
-.inbox-row .m { color: var(--quiet); font-size: 13px; grid-column: 1; }
-.inbox-row .d { grid-row: 1 / span 3; grid-column: 2; align-self: center; font-size: 13px; font-weight: 500; border: 1px solid var(--panel-line); border-radius: 999px; padding: 6px 14px; }
-
-/* ---------- Away grid ---------- */
-.away { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-@media (max-width: 640px) { .away { grid-template-columns: 1fr; } }
-.tile { margin: 0; min-width: 0; display: grid; grid-template-rows: 1fr auto; gap: 14px; }
-.tile .stage {
-  border-radius: var(--r-card); background: var(--card-fill); border: 0.7px solid var(--line);
-  min-height: 250px; display: grid; place-items: center; padding: 22px; overflow: hidden;
-}
-.tile .stage.night { background: #0B0F0C; border-color: transparent; }
-.tile figcaption { display: grid; gap: 2px; padding-inline: 4px; }
-.tile figcaption b { font-weight: 600; font-size: 15px; }
+/* Everywhere else */
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 820px) { .tiles { grid-template-columns: 1fr; } }
+.tile { margin: 0; display: grid; gap: 16px; min-width: 0; }
+.tile .stage { min-height: 300px; padding: 24px; place-items: center; align-content: center; }
+.tile .stage.dark { background: #0A0D0B; }
+.tile figcaption { display: grid; gap: 3px; padding-inline: 6px; }
+.tile figcaption b { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
 .tile figcaption span { font-size: 13px; color: var(--quiet); }
-.island {
-  width: 100%; max-width: 300px; background: #000; border-radius: 40px; padding: 18px 20px 16px; color: var(--i-ink, #ECEEE2);
-  display: grid; gap: 10px;
-}
-.island-top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
-.island-top svg { fill: currentColor; }
-.island-status { font-size: 14px; line-height: 1.35; min-height: 38px; font-weight: 500; }
-.island canvas { display: block; width: 100%; height: 54px; }
-.clock { width: min(220px, 100%); aspect-ratio: 1; border-radius: 36px; background: #000; display: grid; place-items: center; padding: 14px; }
+.clock { width: min(220px, 100%); aspect-ratio: 1; border-radius: 38px; background: #000; padding: 14px; box-shadow: 0 0 0 0.7px rgb(255 255 255 / .06); }
 .clock canvas { width: 100%; aspect-ratio: 1; display: block; }
-.note {
-  width: 100%; max-width: 320px; background: var(--paper); border-radius: 26px; padding: 16px 18px 18px;
-  box-shadow: var(--shadow); display: grid; gap: 12px; font-size: 14px; line-height: 1.45; border: 0.7px solid var(--line);
-}
-.note .player { display: flex; align-items: center; gap: 12px; background: var(--panel-wash); border-radius: 999px; padding: 8px 14px; color: var(--ink); font-size: 12px; }
-.note .player .num { color: var(--quiet); margin-left: auto; }
-.note p { margin: 0; }
-.controls { display: flex; gap: 22px; flex-wrap: wrap; justify-content: center; }
-.control { display: grid; justify-items: center; gap: 10px; font-size: 12px; color: var(--quiet); width: 76px; text-align: center; }
-.control .ring { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--panel-wash); border: 0.7px solid var(--panel-line); color: var(--ink); }
-.phrases { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; width: 100%; max-width: 300px; }
-.phrases li { padding: 11px 16px; border-radius: 16px; background: var(--panel-wash); font-size: 15px; }
-.phrases li.answer { background: none; color: var(--quiet); font-size: 13px; padding: 0 16px; }
-.share { width: 100%; max-width: 320px; display: grid; gap: 12px; }
-.share-link { display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: center; font-size: 14px; }
-.share-link .fav { width: 40px; height: 40px; border-radius: 10px; background: var(--panel-wash); display: grid; place-items: center; color: var(--quiet); }
-.share-link small { display: block; color: var(--quiet); font-size: 12px; }
+.note { width: 100%; max-width: 300px; background: var(--paper); border-radius: 24px; padding: 14px 16px 16px; box-shadow: var(--lift-sm); display: grid; gap: 12px; font-size: 14px; line-height: 1.45; }
+.player { display: flex; align-items: center; gap: 10px; background: var(--panel-wash); border-radius: 999px; padding: 7px 12px; font-size: 12px; }
+.player .num { color: var(--quiet); margin-left: auto; }
+.player button { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; }
+.controls { display: grid; grid-template-columns: repeat(3, auto); gap: 14px; justify-content: center; }
+.control { display: grid; justify-items: center; gap: 10px; font-size: 12px; line-height: 1.3; color: var(--quiet); width: 72px; text-align: center; }
+.control .ring { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; background: var(--paper); color: var(--ink); box-shadow: var(--lift-sm); }
 
-/* ---------- Palettes ---------- */
-.palettes { display: grid; gap: 8px; }
-.pal {
-  display: grid; grid-template-columns: 1fr auto; gap: 6px 24px; align-items: center; text-align: left; width: 100%;
-  padding: 18px 20px; border-radius: 20px; border: 0.7px solid transparent; transition: background-color .25s, border-color .25s;
-}
-.pal:hover { background: var(--card-fill); }
-.pal[aria-pressed="true"] { background: var(--card-fill); border-color: var(--line); }
-.pal b { font-weight: 600; font-size: 17px; display: flex; gap: 10px; align-items: center; }
-.pal b .glyph { opacity: 0; }
-.pal[aria-pressed="true"] b .glyph { opacity: 1; }
-.pal p { margin: 0; font-size: 13px; color: var(--quiet); grid-column: 1; max-width: 34em; }
-.strips { grid-row: 1 / span 2; grid-column: 2; display: grid; gap: 6px; }
-.strip { display: flex; gap: 3px; padding: 4px; border-radius: 8px; }
-.strip i { width: 14px; height: 14px; border-radius: 3.4px; display: block; box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / .12); }
-@media (max-width: 520px) { .pal { grid-template-columns: 1fr; } .strips { grid-row: auto; grid-column: 1; grid-auto-flow: column; justify-content: start; } }
+/* Palettes */
+.palettes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 820px) { .palettes { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .palettes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pal { display: grid; gap: 12px; text-align: left; }
+.pal .swatch-card { display: grid; grid-template-rows: 1fr 1fr; aspect-ratio: 4 / 5; border-radius: 22px; overflow: hidden; box-shadow: 0 0 0 0.7px var(--line); transition: box-shadow .25s var(--ease), transform .25s var(--ease); }
+.pal:hover .swatch-card { transform: translateY(-2px); }
+.pal[aria-pressed="true"] .swatch-card { box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--ink); }
+.half { padding: 14px 14px 12px; display: flex; flex-direction: column; justify-content: space-between; }
+.half .aa { font-family: var(--display); font-weight: 600; font-size: 24px; letter-spacing: -0.03em; line-height: 1; }
+.half .chips { display: flex; gap: 5px; align-items: center; }
+.half .chips i { width: 10px; height: 10px; border-radius: 2.4px; display: block; }
+.pal-name { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding-inline: 4px; }
+.pal-name b { font-weight: 600; font-size: 15px; }
+.pal-name span { font-size: 12px; color: var(--quiet); }
+.pal-note { margin-top: 24px; font-size: 15px; color: var(--soft); max-width: 40em; min-height: 3em; }
 
-/* ---------- Icons ---------- */
-.icons { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-@media (max-width: 520px) { .icons { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.icons figure { margin: 0; display: grid; justify-items: center; gap: 10px; }
-.icons img { width: 100%; max-width: 132px; height: auto; display: block; }
-.icons figcaption { font-size: 13px; color: var(--quiet); text-align: center; }
-.icons figcaption b { color: var(--ink); font-weight: 500; display: block; font-size: 15px; }
-
-/* ---------- Footer ---------- */
-footer { padding-block: 128px 64px; }
-footer .wrap { display: grid; gap: 14px; }
-footer svg { fill: var(--ink); }
-footer p { margin: 0; font-size: 13px; color: var(--quiet); }
+/* Footer */
+footer { padding-block: clamp(120px, 14vw, 180px) 72px; }
+footer .wrap { display: grid; justify-items: start; gap: 18px; }
+footer img { width: 72px; height: 72px; display: block; }
+footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
 
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: 0s !important; }
 }
 </style>
@@ -367,326 +294,214 @@ footer p { margin: 0; font-size: 13px; color: var(--quiet); }
 <main id="top">
   <header class="hero">
     <div class="wrap">
-      <span class="label">Shadowfax for iPhone</span>
-      <h1>Comes when called.</h1>
-      <p class="lede">Shadowfax is an assistant that runs on your own Mac and keeps your library, reminders, and open loops. This app is its door on iPhone. Ask in words or out loud, hand it a photo or a page from a book, and it files, reminds, and answers.</p>
-    </div>
-    <div class="gallop" aria-hidden="true"><canvas id="hero-field"></canvas></div>
-    <div class="wrap hero-caption">
-      <p class="label">Muybridge’s gallop, 1887, traced into dots with the rider removed. The same frames run under your words while you talk.</p>
+      <div class="hero-top">
+        <span class="label">Shadowfax for iPhone</span>
+        <h1>Comes when called.</h1>
+        <p class="lede">Shadowfax is my assistant. He lives on a Mac mini at home, keeps my library and reminders, and remembers the loops I drop. This is his door on my phone.</p>
+      </div>
+      <div class="night" role="img" aria-label="Shadowfax, a white horse drawn in dots, galloping past mountains and trees at night">
+        <canvas id="night"></canvas>
+      </div>
+      <div class="night-meta">
+        <span class="label ride-line" id="ride-line" aria-hidden="true">Riding for Minas Tirith</span>
+        <span class="label">Muybridge, 1887. Rider removed.</span>
+      </div>
     </div>
   </header>
 
-  <!-- Chat -->
-  <section class="feature" id="chat" aria-labelledby="chat-h">
-    <div class="wrap">
+  <section class="feature" aria-labelledby="chat-h">
+    <div class="wrap split">
       <div class="intro">
         <span class="label">Chat</span>
-        <h2 id="chat-h">Ask, then watch it work.</h2>
-        <p class="body">While a turn runs, the status line says what Shadowfax is doing in plain words. When it finishes, the trail folds into a single line you can open. Replies come back as text, tables, and cards.</p>
+        <h2 id="chat-h">Ask. Watch him work.</h2>
+        <p class="copy">Every turn shows its steps while it runs, then folds into one line. Answers come back as tables and cards I can tap.</p>
       </div>
-
-      <div class="panel chat">
-        <div class="chat-head">
-          <span class="glassbtn" aria-hidden="true"><span data-glyph="line.3.horizontal" data-pitch="3"></span></span>
-          <div class="title">Shadowfax<span class="status" id="chat-status"></span></div>
-          <span class="glassbtn" aria-hidden="true"><span data-glyph="plus" data-pitch="3"></span></span>
-        </div>
-        <div class="thread" aria-live="polite">
-          <div class="me">What did we file this week?</div>
-          <div class="him">
-            <span class="label">Shadowfax</span>
-            <button class="trail" id="trail" type="button" aria-expanded="false" aria-controls="steps">
-              <span id="trail-text">Worked for 40 seconds · 6 steps</span><span data-glyph="chevron.down" id="trail-chev"></span>
-            </button>
-            <div class="steps" id="steps" hidden></div>
-            <p class="reply reveal" id="reply-text">Seven pages this week. Four are worth your time; three are link drops I filed without comment.</p>
-            <div class="table-wrap reveal" id="reply-table">
-              <table class="reply-table">
-                <thead><tr><th>Page</th><th>Filed</th><th>Why it matters</th></tr></thead>
+      <div class="stage">
+        <div class="screen">
+          <div class="chat-head">
+            <span class="glassbtn" aria-hidden="true"><span data-glyph="line.3.horizontal" data-pitch="2.8"></span></span>
+            <div class="title">Shadowfax</div>
+            <span class="glassbtn" aria-hidden="true"><span data-glyph="plus" data-pitch="2.8"></span></span>
+          </div>
+          <div class="thread" aria-live="polite">
+            <div class="me">What did we file this week?</div>
+            <div class="him">
+              <span class="label">Shadowfax</span>
+              <button class="trail" id="trail" type="button" aria-expanded="false" aria-controls="steps">
+                <span id="trail-text">Worked for 40 seconds · 6 steps</span><span id="trail-chev" data-glyph="chevron.down"></span>
+              </button>
+              <div class="steps" id="steps" hidden></div>
+              <p class="reply reveal" id="reply-text">Seven pages this week. Four are worth your time.</p>
+              <table class="reply-table reveal" id="reply-table">
+                <thead><tr><th>Page</th><th>Why it matters</th></tr></thead>
                 <tbody>
-                  <tr><td>Collaborative Steering</td><td>Tue</td><td>Shared context files, and what keeping them current costs</td></tr>
-                  <tr><td>LongRunningIntent</td><td>Wed</td><td>The Live Activity seam for this app</td></tr>
-                  <tr><td>VisionKit capture idea</td><td>Mon</td><td>Your photograph-then-type bottleneck, costed</td></tr>
-                  <tr><td>Silent failure pattern</td><td>Sat</td><td>Why the bookmark sync died quietly for a week</td></tr>
+                  <tr><td>Collaborative Steering</td><td>Shared context, and what it costs to keep current</td></tr>
+                  <tr><td>VisionKit capture idea</td><td>The photograph-then-type bottleneck, costed</td></tr>
+                  <tr><td>Silent failure pattern</td><td>Why the bookmark sync died quietly for a week</td></tr>
                 </tbody>
               </table>
-            </div>
-            <p class="reply reveal" id="reply-loop" style="font-size:17px"><b>One open loop is past due:</b> you said you’d name the capture flow by Monday. I haven’t raised it over iMessage because nothing waits on it.</p>
-            <div class="reply-cards reveal" id="reply-cards">
-              <div class="card page-card">
+              <div class="card page-card reveal" id="reply-card">
                 <b>Collaborative Steering</b>
                 <span class="meta">Research · 2 min read</span>
                 <span data-glyph="arrow.up.right"></span>
               </div>
-              <div class="card">
-                <blockquote class="pull">The maintenance cost of shared context is the price of coherence.”<cite>Collaborative Steering</cite></blockquote>
-                <button class="action" type="button" data-save><span data-glyph="tray.and.arrow.down" data-pitch="2.6"></span><span>Save to mymind</span></button>
-              </div>
             </div>
           </div>
+          <div class="composer"><span>Message Shadowfax</span><span data-glyph="waveform" data-pitch="3.2"></span></div>
         </div>
-        <div class="composer"><span>Message Shadowfax</span><span data-glyph="waveform" data-pitch="3.4"></span></div>
-      </div>
-      <div class="demo-bar">
-        <span class="label">Sample thread, played five times faster than it ran.</span>
-        <button class="textbtn" id="replay" type="button"><span data-glyph="arrow.counterclockwise" data-pitch="2.6"></span>Replay the turn</button>
+        <button class="replay" id="replay" type="button"><span data-glyph="arrow.counterclockwise" data-pitch="2.4"></span>Replay</button>
       </div>
     </div>
   </section>
 
-  <!-- Cards -->
-  <section class="feature" id="cards" aria-labelledby="cards-h">
-    <div class="wrap">
+  <section class="feature" aria-labelledby="cards-h">
+    <div class="wrap split">
       <div class="intro">
         <span class="label">Cards</span>
-        <h2 id="cards-h">Answers you can act on.</h2>
-        <p class="body">When a reply needs a decision, a list, or a place, it arrives as a card with the action built in. Reminders go straight into Apple Reminders, and every change can be undone.</p>
+        <h2 id="cards-h">Answers I can tap.</h2>
+        <p class="copy">Reminders land in Apple Reminders. Lists check off. Quotes go to mymind. Every change has an undo.</p>
       </div>
-      <div class="cards">
-        <article class="card">
-          <div class="card-head">
-            <div><h3>Read the capture idea page</h3><div class="sub">Tonight, 8:00 PM</div></div>
-            <span data-glyph="bell"></span>
-          </div>
-          <div style="font-size:15px">VisionKit capture idea, in the Library</div>
-          <div class="card-foot"><span class="state" id="rem-state">In Reminders</span><button class="link-btn" type="button" id="rem-btn">Undo</button></div>
-        </article>
-
-        <article class="card">
-          <h3>Want a reminder?</h3>
-          <div class="options" role="group" aria-label="Want a reminder?">
-            <button class="option" type="button" aria-pressed="false">Friday night<span data-glyph="checkmark"></span></button>
-            <button class="option" type="button" aria-pressed="false">Saturday 6:30am<span data-glyph="checkmark"></span></button>
-            <button class="option" type="button" aria-pressed="false">No reminder<span data-glyph="checkmark"></span></button>
-          </div>
-        </article>
-
-        <article class="card">
-          <blockquote class="pull">Our life is frittered away by detail. Simplify, simplify.”<cite>Walden, Henry David Thoreau</cite></blockquote>
-          <button class="action" type="button" data-save><span data-glyph="tray.and.arrow.down" data-pitch="2.6"></span><span>Save to mymind</span></button>
-        </article>
-
-        <article class="card">
-          <div class="card-head">
-            <div><h3>Read Next</h3><div class="sub" id="list-count">3 open</div></div>
-            <span data-glyph="books.vertical"></span>
-          </div>
-          <ul class="list" id="list">
-            <li><button type="button" role="checkbox" aria-checked="false"><span class="tick" data-glyph="circle" data-pitch="3.2"></span><span>The Count of Monte Cristo</span></button></li>
-            <li><button type="button" role="checkbox" aria-checked="true"><span class="tick" data-glyph="checkmark.circle.fill" data-pitch="3.2"></span><span>How Fiction Works</span></button></li>
-            <li><button type="button" role="checkbox" aria-checked="false"><span class="tick" data-glyph="circle" data-pitch="3.2"></span><span>Thinking in Systems</span></button></li>
-            <li><button type="button" role="checkbox" aria-checked="true"><span class="tick" data-glyph="checkmark.circle.fill" data-pitch="3.2"></span><span>The Hero with a Thousand Faces</span></button></li>
-            <li><button type="button" role="checkbox" aria-checked="false"><span class="tick" data-glyph="circle" data-pitch="3.2"></span><span>The Peace of Wild Things</span></button></li>
-          </ul>
-        </article>
-
-        <article class="card loop" id="loop">
-          <div class="card-head">
-            <div><h3 class="loop-text">Return the library copy of Walden</h3></div>
-            <span data-glyph="checkmark"></span>
-          </div>
-          <div class="sub" style="font-size:15px">The library emailed Tuesday: returned, nothing owed.</div>
-          <div class="card-foot"><span class="state" id="loop-state">Closed</span><button class="link-btn" type="button" id="loop-btn">Reopen</button></div>
-        </article>
-
-        <article class="card">
-          <div class="card-head">
-            <div><h3>Moved: Read the capture idea page to tomorrow, 9:00 AM</h3><div class="sub">Your evening is booked; tomorrow at 9 is open.</div></div>
-            <span data-glyph="calendar"></span>
-          </div>
-          <div class="card-foot"><span class="state" id="mv-state">In Reminders</span><button class="link-btn" type="button" id="mv-btn">Undo</button></div>
-        </article>
+      <div class="stage">
+        <div class="cards">
+          <article class="card">
+            <div class="card-head"><div><h3>Read the capture idea page</h3><div class="sub">Tonight, 8:00 PM</div></div><span data-glyph="bell"></span></div>
+            <div class="card-foot"><span class="state" id="rem-state">In Reminders</span><button class="link-btn" type="button" id="rem-btn">Undo</button></div>
+          </article>
+          <article class="card">
+            <h3>Want a reminder?</h3>
+            <div class="options" role="group" aria-label="Want a reminder?">
+              <button class="option" type="button" aria-pressed="false">Friday night<span data-glyph="checkmark"></span></button>
+              <button class="option" type="button" aria-pressed="false">Saturday 6:30am<span data-glyph="checkmark"></span></button>
+              <button class="option" type="button" aria-pressed="false">No reminder<span data-glyph="checkmark"></span></button>
+            </div>
+          </article>
+          <article class="card">
+            <blockquote class="pull">Our life is frittered away by detail. Simplify, simplify.”<cite>Walden, Henry David Thoreau</cite></blockquote>
+            <button class="action" type="button" data-save><span data-glyph="tray.and.arrow.down" data-pitch="2.4"></span><span>Save to mymind</span></button>
+          </article>
+          <article class="card">
+            <div class="card-head"><div><h3>Read Next</h3><div class="sub" id="list-count">3 open</div></div><span data-glyph="books.vertical"></span></div>
+            <ul class="list" id="list">
+              <li><button type="button" role="checkbox" aria-checked="false"><span class="tick"></span><span class="t">The Count of Monte Cristo</span></button></li>
+              <li><button type="button" role="checkbox" aria-checked="true"><span class="tick"></span><span class="t">How Fiction Works</span></button></li>
+              <li><button type="button" role="checkbox" aria-checked="false"><span class="tick"></span><span class="t">Thinking in Systems</span></button></li>
+              <li><button type="button" role="checkbox" aria-checked="false"><span class="tick"></span><span class="t">The Peace of Wild Things</span></button></li>
+            </ul>
+          </article>
+        </div>
       </div>
-      <p class="body also" style="font-size:15px">Other kinds: pages and links from the Library, decisions with the deciding fact under each option, purchases you approve, songs and playlists for Apple Music, a photographed bookshelf sorted into new and known, and thread renames you can undo.</p>
     </div>
   </section>
 
-  <!-- Talk -->
-  <section class="feature" id="talk" aria-labelledby="talk-h">
-    <div class="wrap">
+  <section class="feature" aria-labelledby="talk-h">
+    <div class="wrap split">
       <div class="intro">
         <span class="label">Talk</span>
-        <h2 id="talk-h">Hold to talk. Let go to send.</h2>
-        <p class="body">Speech is transcribed on the phone. While you hold, he gallops under your words and your voice sets the pace: a full gallop when you speak up, a lope when you go quiet. The reply is spoken back. Tap instead to dictate, slide up to lock a hands-free voice memo, or slide left to cancel.</p>
+        <h2 id="talk-h">Hold to talk.</h2>
+        <p class="copy">Speech stays on the phone. He gallops under my words, and my voice sets the pace. Let go and the answer comes back out loud.</p>
+        <p class="aside">The words are scripted here. Hold longer and he runs harder.</p>
       </div>
-      <div class="panel talk">
-        <div class="talk-log" id="talk-log" aria-live="polite"><div class="me">What’s the weather Saturday?</div><div class="him"><span class="label">Shadowfax</span><p class="reply" style="margin:0">Dry until about 2, then wind. High of 71.</p><span class="audio" id="first-audio"><span class="num">0:04</span></span></div></div>
-        <div class="talk-field">
-          <div class="talk-row">
-            <div class="talk-words hint" id="talk-words">Hold the button and he picks up the pace</div>
+      <div class="stage">
+        <div class="screen talk">
+          <div class="talk-log" id="talk-log" aria-live="polite">
+            <div class="me">What’s the weather Saturday?</div>
+            <div class="him"><span class="label">Shadowfax</span><p class="reply">Dry until about 2, then wind. High of 71.</p><span class="audio" id="first-audio"><span class="num">0:04</span></span></div>
           </div>
-          <div class="talk-strip" aria-hidden="true"><canvas id="talk-field"></canvas></div>
-          <div class="talk-row" style="justify-content:space-between">
-            <span class="talk-state" id="talk-state">Ready</span>
-            <button class="talk-btn" id="talk-btn" type="button" aria-label="Hold to talk"><span data-glyph="waveform" data-pitch="3.6"></span></button>
-          </div>
-        </div>
-      </div>
-      <p class="fine">The words are scripted here; the pace follows how long you hold, not a microphone. In the app, the pace comes from 64 bands of your voice.</p>
-    </div>
-  </section>
-
-  <!-- Capture -->
-  <section class="feature" id="capture" aria-labelledby="capture-h">
-    <div class="wrap">
-      <div class="intro">
-        <span class="label">Capture</span>
-        <h2 id="capture-h">Quote a book without typing it.</h2>
-        <p class="body">The lens opens out of the Dynamic Island. Take the page, Live Text reads it in place, and you drag across the passage. Add the page number and why it landed, and Shadowfax files it to the book’s page in your Library and to mymind. In Shelf mode, it reads a row of spines and sorts the new books from the known ones.</p>
-      </div>
-      <div class="capture">
-        <div class="page-photo" aria-label="A photographed page of Walden with a passage selected">
-          <div class="running">WALDEN</div>
-          <p><mark>I went to the woods because I wished to live deliberately, to front only the essential facts of life, and see if I could not learn what it had to teach, and not, when I came to die, discover that I had not lived.</mark> I did not wish to live what was not life, living is so dear; nor did I wish to practise resignation, unless it was quite necessary. I wanted to live deep and suck out all the marrow of life.</p>
-          <div class="folio">90</div>
-        </div>
-        <form class="card" id="quote-form" autocomplete="off">
-          <span class="label">Quote</span>
-          <blockquote class="pull" style="font-size:17px">I went to the woods because I wished to live deliberately, to front only the essential facts of life, and see if I could not learn what it had to teach.”</blockquote>
-          <div class="field-row"><span class="k">Book</span><span>Walden · Henry David Thoreau</span></div>
-          <div class="field-row"><label class="k" for="q-page">p.</label><input class="input num" id="q-page" value="90" inputmode="numeric" style="max-width:90px"></div>
-          <label class="sr" for="q-why" style="position:absolute;left:-9999px">Why it landed</label>
-          <input class="input" id="q-why" placeholder="Why it landed (optional)">
-          <button class="action" type="submit" id="q-file"><span data-glyph="tray.and.arrow.down" data-pitch="2.6"></span><span>File quote</span></button>
-          <div class="filed-note" id="q-note"></div>
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <!-- Library -->
-  <section class="feature" id="library" aria-labelledby="library-h">
-    <div class="wrap">
-      <div class="intro">
-        <span class="label">Library</span>
-        <h2 id="library-h">Everything it files, ready to read.</h2>
-        <p class="body">Pages Shadowfax files land in the Library with a one-line summary. Open one to read it. Select a passage and ask about it without leaving the page. Search covers every thread and every page.</p>
-      </div>
-      <div class="panel reader">
-        <div class="meta">Thoreau · Reading · <span class="num">Page 112 of 352</span> · 1 min read</div>
-        <h3>Walden</h3>
-        <p>Our life is frittered away by detail. An honest man has hardly need to count more than his ten fingers, or in extreme cases he may add his ten toes, and lump the rest. <span class="sel">Simplicity, simplicity, simplicity! I say, let your affairs be as two or three, and not a hundred or a thousand.</span></p>
-        <div class="ask">
-          <div class="ask-head"><b>Ask Shadowfax</b><span class="label">About a passage in Walden</span></div>
-          <div class="q">What is he actually arguing for?</div>
-          <p class="a">He’s arguing for subtraction as the method, not the reward. You don’t simplify after the work; the simplifying is the work.</p>
-        </div>
-      </div>
-      <div class="inbox" aria-label="Library inbox">
-        <div class="inbox-row"><b>Collaborative Steering</b><span class="s">LukeW on why teams running separate agents drift apart, and shared context files as the fix.</span><span class="m">Research · 2d · 1 min read</span><span class="d">Discuss</span></div>
-        <div class="inbox-row"><b>VisionKit capture idea</b><span class="s">Camera to on-device text to a quote card: the reading workflow’s real bottleneck, costed.</span><span class="m">Research · 5d · 2 min read</span><span class="d">Discuss</span></div>
-        <div class="inbox-row" style="border-bottom:0.7px solid var(--line)"><b>Walden</b><span class="s">Thoreau. Reading now, page 112. Two quotes and a marginal note from this week.</span><span class="m">Books · today · 1 min read</span><span class="d">Discuss</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Beyond the app -->
-  <section class="feature" id="away" aria-labelledby="away-h">
-    <div class="wrap">
-      <div class="intro">
-        <span class="label">Beyond the app</span>
-        <h2 id="away-h">It finds you where you are.</h2>
-        <p class="body">Ask from Siri or the Action Button and he rides in the Dynamic Island until the answer lands. Replies that come after you’ve left arrive as notifications, some as voice notes. Controls, a widget, a StandBy clock, and the share sheet keep a door open everywhere else.</p>
-      </div>
-      <div class="away">
-        <figure class="tile">
-          <div class="stage night">
-            <div class="island" id="island">
-              <div class="island-top"><span id="island-mark"></span><span class="num" id="island-time">0:00</span></div>
-              <div class="island-status" id="island-status">Reading this week’s inbox.</div>
-              <canvas id="island-ride" aria-hidden="true"></canvas>
+          <div class="talk-field">
+            <div class="talk-words hint" id="talk-words">Hold to talk</div>
+            <div class="talk-strip" aria-hidden="true"><canvas id="talk-field"></canvas></div>
+            <div class="talk-row">
+              <span class="talk-state" id="talk-state">Ready</span>
+              <button class="talk-btn" id="talk-btn" type="button" aria-label="Hold to talk"><span data-glyph="waveform" data-pitch="3.4"></span></button>
             </div>
           </div>
-          <figcaption><b>Dynamic Island</b><span>An Ask from Siri, riding until the answer lands.</span></figcaption>
-        </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="feature" aria-labelledby="capture-h">
+    <div class="wrap split">
+      <div class="intro">
+        <span class="label">Capture</span>
+        <h2 id="capture-h">Quote a book in one pass.</h2>
+        <p class="copy">Camera on the page. Drag across the passage. It files to the book in my Library and to mymind. Zero typing.</p>
+      </div>
+      <div class="stage">
+        <div class="capture">
+          <div class="page-photo" aria-label="A photographed page of Walden with a passage selected">
+            <div class="running">WALDEN</div>
+            <p><mark>I went to the woods because I wished to live deliberately, to front only the essential facts of life, and see if I could not learn what it had to teach.</mark> I did not wish to live what was not life, living is so dear; nor did I wish to practise resignation, unless it was quite necessary.</p>
+            <div class="folio">90</div>
+          </div>
+          <form class="card" id="quote-form" autocomplete="off">
+            <span class="label">Quote</span>
+            <blockquote class="pull" style="font-size:17px">I went to the woods because I wished to live deliberately.”</blockquote>
+            <div class="meta-row"><b>Walden</b><span class="num">p. 90</span></div>
+            <button class="action" type="submit" id="q-file"><span data-glyph="tray.and.arrow.down" data-pitch="2.4"></span><span>File quote</span></button>
+            <div class="filed" id="q-note">Files to Walden and mymind</div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="feature" aria-labelledby="away-h">
+    <div class="wrap">
+      <div class="head">
+        <span class="label">Everywhere else</span>
+        <h2 id="away-h">Out of the app, too.</h2>
+        <p class="copy">Siri, the Action Button, Control Center, StandBy. Ask from anywhere and he rides in the Dynamic Island until the answer lands.</p>
+      </div>
+      <div class="tiles">
         <figure class="tile">
-          <div class="stage night"><div class="clock"><canvas id="clock" aria-label="Clock"></canvas></div></div>
-          <figcaption><b>StandBy clock</b><span>The time in the horse’s dots, with him on the road below.</span></figcaption>
+          <div class="stage dark"><div class="clock"><canvas id="clock" aria-label="Clock"></canvas></div></div>
+          <figcaption><b>StandBy</b><span>The clock, in his dots.</span></figcaption>
         </figure>
         <figure class="tile">
           <div class="stage">
             <div class="note">
               <div class="player">
                 <button type="button" id="vn-play" aria-label="Play voice note"><span id="vn-glyph"></span></button>
-                <canvas class="wave" id="vn-wave" width="150" height="22" aria-hidden="true"></canvas>
+                <canvas id="vn-wave" aria-hidden="true"></canvas>
                 <span class="num" id="vn-time">0:32</span>
               </div>
-              <p>Quick one while you’re out. Your hold on Dune Messiah came in at the library, and they’ll keep it at the front desk until Saturday. The Kickr has a firmware update waiting, so give it five minutes before tomorrow’s ride. Nothing else needs you before lunch.</p>
+              <p>Quick one while you’re out. Your hold on Dune Messiah came in at the library. The Kickr has a firmware update waiting, so give it five minutes before tomorrow’s ride.</p>
             </div>
           </div>
-          <figcaption><b>Voice notes</b><span>Long-press the notification to play it and read along.</span></figcaption>
+          <figcaption><b>Voice notes</b><span>Replies that land after I leave, read to me.</span></figcaption>
         </figure>
         <figure class="tile">
           <div class="stage">
             <div class="controls">
-              <div class="control"><span class="ring"><span data-glyph="waveform" data-pitch="3.4"></span></span>Talk to Shadowfax</div>
-              <div class="control"><span class="ring"><span data-glyph="text.quote" data-pitch="3.4"></span></span>Book Quote</div>
+              <div class="control"><span class="ring"><span data-glyph="waveform" data-pitch="3.2"></span></span>Talk</div>
+              <div class="control"><span class="ring"><span data-glyph="text.quote" data-pitch="3.2"></span></span>Book Quote</div>
               <div class="control"><span class="ring"><span id="mic-glyph"></span></span>Voice Memo</div>
             </div>
           </div>
-          <figcaption><b>Controls</b><span>Control Center, the Lock Screen, and the Action Button.</span></figcaption>
-        </figure>
-        <figure class="tile">
-          <div class="stage">
-            <ul class="phrases">
-              <li>“Ask Shadowfax”</li>
-              <li>“Capture a quote with Shadowfax”</li>
-              <li>“Add Dune to Read Next in Shadowfax”</li>
-              <li class="answer">Added Dune to Read Next.</li>
-            </ul>
-          </div>
-          <figcaption><b>Siri and Shortcuts</b><span>Lists update without opening the app.</span></figcaption>
-        </figure>
-        <figure class="tile">
-          <div class="stage">
-            <form class="share" id="share-form" autocomplete="off">
-              <div class="share-link"><span class="fav"><span data-glyph="link" data-pitch="3"></span></span><span>Collaborative Steering<small>lukew.com</small></span></div>
-              <label for="share-note" style="position:absolute;left:-9999px">Add a note</label>
-              <input class="input" id="share-note" placeholder="Add a note">
-              <button class="action" type="submit" id="share-btn"><span data-glyph="paperplane.fill" data-pitch="1.4"></span><span>Send to Shadowfax</span></button>
-            </form>
-          </div>
-          <figcaption><b>Share sheet</b><span>A link, some text, or up to four photos, with a note.</span></figcaption>
+          <figcaption><b>Controls</b><span>One press from the Lock Screen or the Action Button.</span></figcaption>
         </figure>
       </div>
     </div>
   </section>
 
-  <!-- Palettes -->
-  <section class="feature" id="palettes" aria-labelledby="pal-h">
+  <section class="feature" aria-labelledby="pal-h">
     <div class="wrap">
-      <div class="intro">
+      <div class="head">
         <span class="label">Palettes</span>
-        <h2 id="pal-h">Five places, by day and by night.</h2>
-        <p class="body">Each palette comes from how Andrew Lesnie graded a place in the films, sampled from their frames. Dark mode is the same place after dark. Pick one and this page changes the way the app does, widgets and the Dynamic Island included.</p>
+        <h2 id="pal-h">Five places. Day and night.</h2>
+        <p class="copy">Pulled from how Andrew Lesnie graded Middle-earth. Night is the same place after sundown. Tap one and this whole page follows.</p>
       </div>
       <div class="palettes" id="palette-list" role="group" aria-label="Palettes"></div>
-    </div>
-  </section>
-
-  <!-- Icons -->
-  <section class="feature" id="icons" aria-labelledby="icons-h">
-    <div class="wrap">
-      <div class="intro">
-        <span class="label">Icon</span>
-        <h2 id="icons-h">Four moments of one stride.</h2>
-        <p class="body">The icon is the dot horse at one frame of the gallop, in white glass over Fangorn at night. Stride ships as the default. Gathered, Reach, and Stretch are the others.</p>
-      </div>
-      <div class="icons">
-        <figure><img src="icons/stride.png" width="180" height="180" alt="Stride app icon"><figcaption><b>Stride</b>Default</figcaption></figure>
-        <figure><img src="icons/gathered.png" width="180" height="180" alt="Gathered app icon"><figcaption><b>Gathered</b>Frame 1</figcaption></figure>
-        <figure><img src="icons/reach.png" width="180" height="180" alt="Reach app icon"><figcaption><b>Reach</b>Frame 5</figcaption></figure>
-        <figure><img src="icons/stretch.png" width="180" height="180" alt="Stretch app icon"><figcaption><b>Stretch</b>Frame 7</figcaption></figure>
-      </div>
+      <p class="pal-note" id="pal-note" aria-live="polite"></p>
     </div>
   </section>
 </main>
 
 <footer>
   <div class="wrap">
-    <span id="foot-mark"></span>
-    <p>Shadowfax for iPhone, by Kris Puckett. Named for the lord of all horses, who comes when called.</p>
+    <img src="icons/stride.png" width="180" height="180" alt="The Shadowfax app icon">
+    <p class="sign">Shadowfax. Built by Kris Puckett. Named for the lord of all horses.</p>
   </div>
 </footer>
 
@@ -973,6 +788,268 @@ footer p { margin: 0; font-size: 13px; color: var(--quiet); }
     return draw;
   }
 
+
+  /* ---------- The night ride (NightScene.swift's IslandScene) ----------
+     Stars, a crescent moon, the Misty Mountains with snow on the high peaks, hills,
+     saplings along the ridge, the near wood in the palette's night accent, and the
+     road. Each layer drifts at its own depth. Where the app moves layers a whole dot
+     at a time, here a layer between two dots lights both by how far it has come
+     (HorseField's trick), so the land glides instead of stepping. */
+  function hash(n) {
+    // splitmix-style, as the Swift: x * 0x9E3779B97F4A7C15, x ^= x >> 31, % 100000
+    let x = BigInt.asUintN(64, BigInt(n) * 0x9E3779B97F4A7C15n);
+    x ^= x >> 31n;
+    return Number(x % 100000n);
+  }
+  const hashCache = new Map();
+  const H = (n) => { let v = hashCache.get(n); if (v === undefined) { v = hash(n); if (hashCache.size > 50000) hashCache.clear(); hashCache.set(n, v); } return v; };
+  function sprite(lines) {
+    const dots = [];
+    lines.forEach((line, r) => [...line].forEach((ch, c) => { if (ch === "X") dots.push([c, r, c + 1 >= line.length || line[c + 1] !== "X"]); }));
+    return { w: lines[0].length, h: lines.length, dots };
+  }
+  const SAPLINGS = [sprite([".X.", "XXX", ".X."])];
+  const WOOD = [
+    sprite(["...X...", "..XXX..", ".XXXXX.", "..XXX..", ".XXXXX.", "XXXXXXX", "...X...", "...X..."]),
+    sprite([".XXXXX.", "XXXXXXX", "XXXXXXX", "XXXXXXX", ".XXXXX.", "...X...", "...X...", "...X..."]),
+    sprite(["..X..", ".XXX.", "..X..", ".XXX.", "XXXXX", "..X..", ".XXX.", "XXXXX", "..X..", "..X.."]),
+    sprite([".XXX.", "XXXXX"]),
+  ];
+  const STAND = 13;
+  function poseRows(frame, dip) {
+    const rows = D.lo[((frame % 15) + 15) % 15].map((l) => [...l].map(Number));
+    if (!dip) return rows;
+    const g = rows.map((r) => r.slice());
+    for (let c = dip >= 2 ? 20 : 21; c < LO_COLS; c++) {
+      for (let r = 4; r >= 1; r--) g[r][c] = g[r - 1][c];
+      g[0][c] = 0;
+    }
+    return g;
+  }
+  const POSES = [0, 1, 2].map((dip) => Array.from({ length: 15 }, (_, f) => poseRows(f, dip)));
+  function mountain(x) {
+    const block = 19, k0 = Math.floor(x / block);
+    let best = 0;
+    for (let k = k0 - 2; k <= k0 + 2; k++) {
+      const h = H(k * 7 + 1);
+      const center = k * block + (h % 11);
+      const height = 7 + Math.floor(h / 11) % 11;
+      const slope = 0.7 + (Math.floor(h / 121) % 6) * 0.12;
+      best = Math.max(best, height - Math.abs(x - center) * slope);
+    }
+    return best;
+  }
+
+  function nightRide(canvas, opts) {
+    const ctx = canvas.getContext("2d");
+    const ROWS = opts.rows || 58;
+    const V = 110 / 1.7;             // ground speed in dots a second, as in the island
+    const ENTER = 1.6, SLOWING = 0.9, APPROACH = 1.3, REST = 0.9, LEAVE = 0.7;
+    const CRUISE = opts.cruise || 9;  // seconds riding before the answer lands
+    const GAP = 1.1;                  // dark between rides
+    const LOOP = CRUISE + APPROACH + REST + LEAVE + GAP;
+    let W = 0, Hh = 0, dpr = 1, p = 6, cols = 0, rows = ROWS, visible = true, drawn = false;
+    let t0 = performance.now();
+    function fit() {
+      dpr = Math.min(3, window.devicePixelRatio || 1);
+      W = canvas.clientWidth; Hh = canvas.clientHeight;
+      p = Math.max(2, Math.round((Hh / ROWS) * dpr)) / dpr;
+      cols = Math.floor(W / p); rows = Math.floor(Hh / p);
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(Hh * dpr);
+      drawn = false;
+    }
+    fit();
+    new ResizeObserver(() => { fit(); draw(performance.now(), true); }).observe(canvas);
+    new IntersectionObserver((e) => { visible = e[0].isIntersecting; }).observe(canvas);
+
+    const hw = LO_COLS; // horse width in dots
+    const strideLen = (hw * 1.6) / 15;
+    const roadAt = (t) => (t < ENTER ? (V * t * t) / (2 * ENTER) : V * (t - ENTER / 2));
+    const roadSpeed = (t) => V * Math.min(1, t / ENTER);
+
+    // Where he is and how he stands at a moment of the loop (IslandScene.moment/ride).
+    function moment(t) {
+      const spot = cols * 0.3;
+      const place = (tt) => { const e = Math.min(tt, ENTER); return spot + V * e - roadAt(e) - (V * ENTER) / 2; };
+      const gallop = (hooves) => Math.floor(Math.max(0, hooves) / strideLen) % 15;
+      if (t < CRUISE) return { road: roadAt(t), x: place(t), frame: gallop(V * t), dip: 0, phase: "ride" };
+      const l = CRUISE, u = t - CRUISE, s = Math.min(u, SLOWING);
+      const world = roadAt(l) + roadSpeed(l) * (s - (s * s) / (2 * SLOWING));
+      const from = place(l), stop = cols * 0.86 - hw;
+      let x;
+      if (u < APPROACH) {
+        const a = u / APPROACH;
+        x = (2 * a ** 3 - 3 * a * a + 1) * from + (a ** 3 - 2 * a * a + a) * (V - roadSpeed(l)) * APPROACH + (3 * a * a - 2 * a ** 3) * stop;
+      } else if (u < APPROACH + REST) {
+        x = stop;
+        const n = u - APPROACH, nod = n >= 0.1 && n <= 0.6 ? ((n - 0.1) / 0.5 < 0.25 || (n - 0.1) / 0.5 > 0.75 ? 1 : 2) : 0;
+        return { road: world, x, frame: STAND, dip: nod, phase: "rest" };
+      } else {
+        const a = Math.min(1, (u - APPROACH - REST) / LEAVE);
+        x = stop + (cols + 4 - stop) * a * a;
+      }
+      return { road: world, x, frame: gallop(V * l + (world - roadAt(l)) + (x - from)), dip: 0, phase: u < APPROACH ? "land" : "leave" };
+    }
+
+    // Inks: 0 white, 1 tree, 2 far tree, 3 quiet, 4 moonlight, 5 black (solid, draws nothing)
+    let inks = [];
+    function readInks() {
+      const acc = tone("accent", true), q = tone("quiet", true);
+      inks = [[255, 255, 255], acc, mix(acc, q, 0.5), q, [247, 240, 214], null];
+    }
+    const WHITE = 0, TREE = 1, FAR = 2, QUIET = 3, MOON = 4, SOLID = 5;
+    let grid = null, gridA = null;
+
+    function draw(now, force) {
+      if (!force && !visible && drawn) return;
+      if (!cols || !rows) return;
+      drawn = true;
+      readInks();
+      const t = reduce.matches ? ENTER + 1 : ((now - t0) / 1000) % LOOP;
+      const m = moment(t);
+      const d = m.road, ground = rows - 4, clock = now / 1000;
+      const n = cols * rows;
+      if (!grid || grid.length !== n) { grid = new Int8Array(n); gridA = new Float32Array(n); }
+      grid.fill(-1); gridA.fill(0);
+      // Nearer layers are drawn later and win the cell; a solid cell (5) blocks and draws nothing.
+      const put = (c, r, ink, a) => {
+        if (c < 0 || c >= cols || r < 0 || r >= rows) return;
+        const i = r * cols + c;
+        // A nearer layer's fading edge never dims a brighter dot behind it.
+        if (grid[i] >= 0 && a < gridA[i] && grid[i] !== ink) return;
+        grid[i] = ink; gridA[i] = a;
+      };
+      // A layer that glides: stamp it at its whole-dot shift with (1 - f), and one dot on with f.
+      const glide = (shift, stamp) => {
+        const s = Math.floor(shift), f = shift - s;
+        const acc = new Map();
+        const add = (c, r, ink, a) => {
+          if (c < -1 || c > cols || r < 0 || r >= rows || a <= 0) return;
+          const k = r * (cols + 2) + (c + 1), cur = acc.get(k);
+          if (cur) { cur[1] += a; if (a > cur[2]) { cur[0] = ink; cur[2] = a; } }
+          else acc.set(k, [ink, a, a]);
+        };
+        stamp(s, (c, r, ink, a) => add(c, r, ink, a * (1 - f)));
+        stamp(s + 1, (c, r, ink, a) => add(c - 0, r, ink, a * f), true);
+        for (const [k, [ink, a]] of acc) {
+          const r = Math.floor(k / (cols + 2)), c = (k % (cols + 2)) - 1;
+          if (a > 0.012) put(c, r, ink, Math.min(1, a));
+        }
+      };
+
+      // Stars, barely drifting, each on its own slow twinkle; a few sparkle.
+      const skyShift = Math.floor((d * 0.02));
+      for (let i = 0; i < Math.round(40 * cols / 120); i++) {
+        const h = H(i + 7);
+        const c = (((h % 997) - skyShift) % cols + cols) % cols;
+        const r = 1 + (Math.floor(h / 997) % Math.max(1, ground - 16));
+        const tw = 0.5 + 0.5 * Math.sin(clock * (0.8 + (h % 7) * 0.15) + (h % 13));
+        put(c, r, WHITE, 0.15 + 0.45 * tw);
+        if (i % 9 === 0 && tw > 0.8) {
+          for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) put(c + dc, r + dr, WHITE, 0.22 * tw);
+          put(c, r, WHITE, 0.95);
+        }
+      }
+      // The moon: a crescent lit on its right, with a faint halo.
+      const mc = Math.round(cols * 0.72), mr = 6;
+      for (const [dc, dr] of [[0, -1], [4, 1], [4, 2], [-1, 1], [-1, 2], [0, 4], [3, 4], [1, -2], [2, -2], [5, 2]]) put(mc + dc, mr + dr, MOON, 0.1);
+      for (const [dc, dr, a] of [[1, 0, .7], [2, 0, .95], [2, 1, 1], [3, 1, .95], [3, 2, .95], [2, 2, 1], [1, 3, .7], [2, 3, .9], [0, 1, .35], [0, 2, .35], [1, 1, .5], [1, 2, .5]]) put(mc + dc, mr + dr, MOON, a);
+
+      const hillAt = (hx) => ground - Math.floor(5 + 2.6 * Math.sin(hx * 0.07) + 1.6 * Math.sin(hx * 0.19 + 1.3));
+      const hillShift = d * 0.2;
+      // The Misty Mountains, slowest; snow on the high peaks, lit on the faces toward the moon.
+      glide(d * 0.06, (s, dot) => {
+        for (let c = -1; c <= cols; c++) {
+          const mx = c + s, peak = mountain(mx), top = ground - Math.floor(peak);
+          const lit = mountain(mx + 1) < mountain(mx - 1);
+          const stopAt = hillAt(c + hillShift);
+          for (let r = top; r < stopAt; r++) {
+            if (r === top) dot(c, r, peak > 13 ? MOON : QUIET, peak > 13 ? (lit ? 0.95 : 0.6) : (lit ? 0.6 : 0.35));
+            else if (peak > 13 && r < top + Math.floor(peak) - 12 && (mx + r) % 2 === 0) dot(c, r, MOON, lit ? 0.55 : 0.28);
+            else if ((((mx + r) % (lit ? 3 : 5)) + 5) % (lit ? 3 : 5) === 0) dot(c, r, QUIET, lit ? 0.16 : 0.08);
+          }
+        }
+      });
+      // Hills in front of them, then saplings along the hill line.
+      glide(hillShift, (s, dot) => {
+        for (let c = -1; c <= cols; c++) {
+          const hx = c + s, hill = hillAt(hx);
+          dot(c, hill, QUIET, 0.6);
+          for (let r = hill + 1; r < ground; r++) if ((hx + r) % 2 === 0) dot(c, r, QUIET, 0.2);
+        }
+      });
+      const stand = (sprites, block, shift, seed, often, base, leaf, alpha) => glide(shift, (s, dot) => {
+        for (let k = Math.floor(s / block) - 1; k <= Math.floor((s + cols) / block) + 1; k++) {
+          const h = H(k * 31 + seed);
+          if (h % 10 >= often) continue;
+          const sp = sprites[Math.floor(h / 10) % sprites.length];
+          const left = k * block + (Math.floor(h / 97) % Math.max(1, Math.floor(block / 2))) - s;
+          const foot = base(k * block + (Math.floor(h / 97) % Math.max(1, Math.floor(block / 2))) + Math.floor(sp.w / 2));
+          for (const [dc, dr, edge] of sp.dots) {
+            const row = foot - sp.h + dr;
+            const trunk = sp.h > 3 && dr >= sp.h - 2;
+            dot(left + dc, row, trunk ? QUIET : leaf, trunk ? 0.55 : (edge ? alpha : alpha * 0.84));
+          }
+        }
+      });
+      stand(SAPLINGS, 9, hillShift, 3, 5, (wx) => hillAt(wx), FAR, 0.7);
+      stand(WOOD, 17, d * 0.62, 11, 7, () => ground, TREE, 1);
+
+      // The road under his hooves, at full speed; his shadow dims the dots under him.
+      const roadShift = Math.floor(d);
+      const hx0 = Math.round(m.x);
+      for (let c = 0; c < cols; c++) {
+        const w = c + roadShift;
+        const shade = c >= hx0 + 4 && c <= hx0 + hw - 4 ? 0.4 : 1;
+        if (w % 3 === 0) put(c, ground, QUIET, 0.55 * shade);
+        if (w % 7 === 0) put(c, ground + 2, QUIET, 0.22 * shade);
+        if (H(w * 5 + 3) % 29 === 0) put(c, ground + 1, QUIET, 0.4 * shade);
+      }
+
+      // Shadowfax, white, the brightest thing here; solid against the land behind him.
+      const cells = POSES[Math.min(2, m.dip)][m.frame];
+      const top = ground - 12;
+      const fx = Math.floor(m.x), ff = reduce.matches || m.phase === "rest" ? 0 : m.x - fx;
+      const val = (v) => (v >= 4 ? 1 : v === 3 ? 0.62 : v === 2 ? 0.38 : 0);
+      cells.forEach((line, r) => {
+        let first = -1, last = -1;
+        line.forEach((v, c) => { if (v >= 2) { if (first < 0) first = c; last = c; } });
+        if (first < 0) return;
+        for (let c = first; c <= last + (ff > 0 ? 1 : 0); c++) {
+          const a = val(line[c] || 0) * (1 - ff) + val(line[c - 1] || 0) * ff;
+          const i = (top + r) * cols + fx + c;
+          if (fx + c < 0 || fx + c >= cols) continue;
+          grid[i] = a > 0.02 ? WHITE : SOLID; gridA[i] = a > 0.02 ? a : 1;
+        }
+      });
+
+      // One fill per color and brightness.
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, Hh);
+      const cell = p * DOT, rad = cell * CORNER;
+      const ox = (W - cols * p + (p - cell)) / 2, oy = (Hh - rows * p + (p - cell)) / 2;
+      const batches = new Map();
+      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+        const i = r * cols + c, ink = grid[i];
+        if (ink < 0 || ink === SOLID) continue;
+        const a = Math.round(gridA[i] * 24);
+        if (a < 1) continue;
+        const key = a * 8 + ink;
+        let path = batches.get(key);
+        if (!path) { path = new Path2D(); batches.set(key, path); }
+        const x = ox + c * p, y = oy + r * p;
+        if (path.roundRect) path.roundRect(x, y, cell, cell, rad); else path.rect(x, y, cell, cell);
+      }
+      for (const [key, path] of batches) {
+        const ink = inks[key % 8], a = Math.floor(key / 8) / 24;
+        ctx.fillStyle = `rgba(${ink[0]},${ink[1]},${ink[2]},${a})`;
+        ctx.fill(path);
+      }
+      if (opts.onMoment) opts.onMoment(m, t, LOOP, CRUISE);
+    }
+    return draw;
+  }
+
   /* ---------- Small horse mark (header avatar: HorseMark on the low-res frames) ---------- */
   function markSVG(frame, pitch) {
     const rows = D.lo[frame], cell = pitch * DOT, r = cell * CORNER;
@@ -986,13 +1063,13 @@ footer p { margin: 0; font-size: 13px; color: var(--quiet); }
     return s + "</svg>";
   }
 
-  window.SFX = { P, KEYS, Field, fields, clockFace, markSVG, glyphSVG, tone, isNight, reduce, css };
+  window.SFX = { P, KEYS, Field, fields, clockFace, nightRide, markSVG, glyphSVG, tone, isNight, reduce, css };
 })();
 </script>
 <script>
 (function () {
   "use strict";
-  const { P, Field, fields, clockFace, markSVG, glyphSVG, isNight, reduce, css } = window.SFX;
+  const { P, Field, fields, clockFace, nightRide, markSVG, glyphSVG, isNight, reduce, css } = window.SFX;
   const D = window.SFX_DATA;
   const $ = (s) => document.querySelector(s);
   const root = document.documentElement;
@@ -1000,17 +1077,14 @@ footer p { margin: 0; font-size: 13px; color: var(--quiet); }
     get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   };
-  const MIC = [".XXX.", ".XXX.", ".XXX.", "X.X.X", ".XXX.", "..X..", ".XXX."];
-  $("#mic-glyph").innerHTML = glyphSVG(MIC, 3.4);
-
-  /* ---------- Marks ---------- */
-  $("#brand-mark").innerHTML = markSVG(8, 1.25);
-  $("#foot-mark").innerHTML = markSVG(8, 2);
-  $("#island-mark").innerHTML = markSVG(8, 0.9);
+  const G = (name, pitch) => glyphSVG(D.glyphs[name] || D.pixels[name], pitch);
+  $("#mic-glyph").innerHTML = glyphSVG([".XXX.", ".XXX.", ".XXX.", "X.X.X", ".XXX.", "..X..", ".XXX."], 3.2);
+  $("#brand-mark").innerHTML = markSVG(13, 1.2);
 
   /* ---------- Palette + appearance ---------- */
   const ids = Object.keys(P);
-  root.setAttribute("data-palette", ids.includes(store.get("sfx-palette")) ? store.get("sfx-palette") : "fangorn");
+  const saved = store.get("sfx-palette");
+  root.setAttribute("data-palette", ids.includes(saved) ? saved : "fangorn");
   const savedTheme = store.get("sfx-theme");
   if (savedTheme === "dark" || savedTheme === "light") root.setAttribute("data-theme", savedTheme);
 
@@ -1019,33 +1093,30 @@ footer p { margin: 0; font-size: 13px; color: var(--quiet); }
     const p = P[id];
     const b = document.createElement("button");
     b.type = "button"; b.className = "swatch"; b.dataset.id = id; b.setAttribute("aria-label", p.name);
+    b.innerHTML = "<i></i>";
     navSw.appendChild(b);
-
-    const row = document.createElement("button");
-    row.type = "button"; row.className = "pal"; row.dataset.id = id;
-    const chips = (i) => ["paper", "bubble", "accent", "ink", "quoteRule"].map((k) => `<i style="background:${css(p[k][i])}"></i>`).join("");
-    row.innerHTML = `<b>${p.name}${glyphSVG(D.glyphs.checkmark, 2.2)}</b><p>${p.note}</p>
-      <span class="strips" aria-hidden="true"><span class="strip" style="background:${css(p.paper[0])}">${chips(0)}</span><span class="strip" style="background:${css(p.paper[1])}">${chips(1)}</span></span>`;
-    list.appendChild(row);
+    const half = (i) => `<span class="half" style="background:${css(p.paper[i])};color:${css(p.ink[i])}"><span class="aa">Aa</span><span class="chips"><i style="background:${css(p.accent[i])}"></i><i style="background:${css(p.bubble[i])};box-shadow:inset 0 0 0 .5px ${css(p.panelLine[i])}"></i><i style="background:${css(p.quoteRule[i])}"></i></span></span>`;
+    const tile = document.createElement("button");
+    tile.type = "button"; tile.className = "pal"; tile.dataset.id = id;
+    tile.innerHTML = `<span class="swatch-card" aria-hidden="true">${half(0)}${half(1)}</span><span class="pal-name"><b>${p.name}</b><span>Day · Night</span></span>`;
+    list.appendChild(tile);
   });
-  function paintSwatches() {
-    const n = isNight() ? 1 : 0;
-    navSw.querySelectorAll(".swatch").forEach((b) => {
-      b.style.setProperty("--sw-paper", css(P[b.dataset.id].paper[n]));
-      b.style.setProperty("--sw-accent", css(P[b.dataset.id].accent[n]));
-    });
-  }
+
+  let drawClock = null, drawNight = null;
   function refresh() {
-    const cur = root.getAttribute("data-palette");
+    const cur = root.getAttribute("data-palette"), night = isNight();
     document.querySelectorAll("[data-id]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.id === cur)));
-    const night = isNight();
-    const mg = $("#mode-glyph");
-    mg.innerHTML = glyphSVG(night ? D.glyphs["sun.max"] : D.glyphs["moon"], 3);
+    navSw.querySelectorAll(".swatch").forEach((b) => {
+      const i = b.firstElementChild, id = b.dataset.id;
+      i.style.setProperty("--sw-paper", css(P[id].paper[night ? 1 : 0]));
+      i.style.setProperty("--sw-accent", css(P[id].accent[night ? 1 : 0]));
+    });
+    $("#mode-glyph").innerHTML = G(night ? "sun.max" : "moon", 2.6);
     $("#mode").setAttribute("aria-label", night ? "Switch to day" : "Switch to night");
-    $("#island").style.setProperty("--i-ink", css(P[cur].ink[1]));
-    paintSwatches();
+    $("#pal-note").textContent = P[cur].note;
     fields.forEach((f) => { f.fieldCache = null; f.draw(performance.now(), true); });
-    drawClock && drawClock(0);
+    if (drawClock) drawClock(0);
+    if (drawNight) drawNight(performance.now(), true);
     drawWave();
   }
   document.addEventListener("click", (e) => {
@@ -1060,19 +1131,35 @@ footer p { margin: 0; font-size: 13px; color: var(--quiet); }
     root.setAttribute("data-theme", next); store.set("sfx-theme", next); refresh();
   });
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", refresh);
-
   const nav = $("#nav");
   const onScroll = () => nav.classList.toggle("scrolled", window.scrollY > 8);
   window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
 
-  /* ---------- Fields ---------- */
-  const hero = new Field($("#hero-field"), { pace: 20 });
+  /* ---------- The night ride ---------- */
+  const RIDE = ["Riding for Minas Tirith", "Crossing the Ford of Bruinen", "Searching the archives of Gondor", "Running with the Mearas", "Riding through the night", "Taking counsel in Rivendell", "Crossing the fields of Rohan", "Following the Great East Road", "Galloping to Edoras", "Waiting on the Ents"];
+  const rideLine = $("#ride-line");
+  let shown = rideLine.textContent, rideSeed = 0, lastT = 0;
+  function setLine(text) {
+    if (text === shown) return;
+    shown = text;
+    rideLine.classList.add("fading");
+    setTimeout(() => { rideLine.textContent = text; rideLine.classList.remove("fading"); }, 300);
+  }
+  drawNight = nightRide($("#night"), {
+    rows: 44, cruise: 10,
+    onMoment(m, t) {
+      if (t < lastT) rideSeed = (rideSeed + 3) % RIDE.length; // a new ride, a new line
+      lastT = t;
+      if (m.phase === "ride") setLine(RIDE[(rideSeed + Math.floor(t / 3.5)) % RIDE.length]);
+      else if (m.phase === "rest") setLine("Here.");
+    }
+  });
+
+  /* ---------- Talk field and clock ---------- */
   const talkField = new Field($("#talk-field"), { pace: 12 });
+  drawClock = clockFace($("#clock"));
 
-  /* ---------- StandBy clock ---------- */
-  const drawClock = clockFace($("#clock"));
-
-  /* ---------- Chat replay ---------- */
+  /* ---------- Chat ---------- */
   const STEPS = [
     ["Reading this week’s inbox.", "vault_inbox", 1],
     ["Opening Collaborative Steering, filed Tuesday.", "Read", 7],
@@ -1081,7 +1168,6 @@ footer p { margin: 0; font-size: 13px; color: var(--quiet); }
     ["Cross-checking open loops.", "Bash", 28],
     ["Writing it up.", "", 34]
   ];
-  const RIDE = ["Riding for Minas Tirith", "Crossing the Ford of Bruinen", "Searching the archives of Gondor", "Running with the Mearas", "Taking counsel in Rivendell", "Crossing the fields of Rohan", "Following the Great East Road", "Galloping to Edoras", "Waiting on the Ents"];
   const stepsEl = $("#steps"), trail = $("#trail"), trailText = $("#trail-text"), chev = $("#trail-chev");
   stepsEl.innerHTML = STEPS.map(([t, tool, s]) => `<div class="step"><span>${t}</span>${tool ? `<span class="tool">${tool}</span>` : ""}<span class="t">${s}s</span></div>`).join("");
   trail.addEventListener("click", () => {
@@ -1090,57 +1176,43 @@ footer p { margin: 0; font-size: 13px; color: var(--quiet); }
     trail.setAttribute("aria-expanded", String(open)); stepsEl.hidden = !open;
   });
   const replyText = $("#reply-text"), FULL = replyText.textContent;
-  const reveals = ["#reply-table", "#reply-loop", "#reply-cards"].map((s) => $(s));
+  const reveals = [$("#reply-table"), $("#reply-card")];
   const replay = $("#replay");
-  let running = false;
   replay.addEventListener("click", () => {
-    if (running) return;
-    running = true; replay.disabled = true;
+    replay.disabled = true;
     trail.setAttribute("aria-expanded", "false"); stepsEl.hidden = true;
     trail.classList.add("live"); chev.hidden = true;
     replyText.textContent = ""; reveals.forEach((el) => el.classList.add("out"));
-    replyText.classList.remove("out");
     const speed = 5, t0 = performance.now(), ride = RIDE[Math.floor(Math.random() * RIDE.length)];
     (function tick() {
-      const sim = (performance.now() - t0) / 1000 * speed;
+      const sim = ((performance.now() - t0) / 1000) * speed;
       if (sim < 40) {
         const cur = STEPS.filter((s) => s[2] <= sim).pop();
         const words = cur ? cur[0] : ride;
-        trailText.textContent = sim >= 8 ? `${words}\u2003${Math.floor(sim)}s` : words;
-        requestAnimationFrame(tick);
-        return;
+        trailText.textContent = sim >= 8 ? `${words} ${Math.floor(sim)}s` : words;
+        return requestAnimationFrame(tick);
       }
       trail.classList.remove("live"); chev.hidden = false;
       trailText.textContent = "Worked for 40 seconds · 6 steps";
       const words = FULL.split(" ");
       let i = 0;
       const stream = () => {
-        i = reduce.matches ? words.length : Math.min(words.length, i + 2);
+        i = reduce.matches ? words.length : Math.min(words.length, i + 1);
         replyText.textContent = words.slice(0, i).join(" ");
-        if (i < words.length) return setTimeout(stream, 45);
-        reveals.forEach((el, k) => setTimeout(() => el.classList.remove("out"), 160 * (k + 1)));
-        setTimeout(() => { running = false; replay.disabled = false; }, 700);
+        if (i < words.length) return setTimeout(stream, 55);
+        reveals.forEach((el, k) => setTimeout(() => el.classList.remove("out"), 180 * (k + 1)));
+        setTimeout(() => { replay.disabled = false; }, 600);
       };
       stream();
     })();
   });
 
   /* ---------- Cards ---------- */
-  function undoPair(btnSel, stateSel, a, b) {
-    const btn = $(btnSel), st = $(stateSel);
-    let on = true;
-    btn.addEventListener("click", () => {
-      on = !on;
-      st.textContent = on ? a[0] : b[0]; btn.textContent = on ? a[1] : b[1];
-    });
-  }
-  undoPair("#rem-btn", "#rem-state", ["In Reminders", "Undo"], ["Not in Reminders", "Add"]);
-  undoPair("#mv-btn", "#mv-state", ["In Reminders", "Undo"], ["Undone", "Redo"]);
-  const loop = $("#loop");
-  $("#loop-btn").addEventListener("click", () => {
-    const open = loop.classList.toggle("open");
-    $("#loop-state").textContent = open ? "Open" : "Closed";
-    $("#loop-btn").textContent = open ? "Close" : "Reopen";
+  let remOn = true;
+  $("#rem-btn").addEventListener("click", () => {
+    remOn = !remOn;
+    $("#rem-state").textContent = remOn ? "In Reminders" : "Not in Reminders";
+    $("#rem-btn").textContent = remOn ? "Undo" : "Add";
   });
   document.querySelectorAll(".options").forEach((g) => g.addEventListener("click", (e) => {
     const b = e.target.closest(".option"); if (!b) return;
@@ -1150,28 +1222,40 @@ footer p { margin: 0; font-size: 13px; color: var(--quiet); }
     g.classList.toggle("chosen", !was);
   }));
   const listEl = $("#list");
-  const countOpen = () => {
+  const paintList = () => {
+    listEl.querySelectorAll("button").forEach((b) => {
+      b.querySelector(".tick").innerHTML = G(b.getAttribute("aria-checked") === "true" ? "checkmark.circle.fill" : "circle", 3);
+    });
     const n = listEl.querySelectorAll('[aria-checked="false"]').length;
     $("#list-count").textContent = n ? `${n} open` : "Nothing open.";
   };
   listEl.addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b) return;
-    const on = b.getAttribute("aria-checked") !== "true";
-    b.setAttribute("aria-checked", String(on));
-    b.querySelector(".tick").innerHTML = glyphSVG(D.glyphs[on ? "checkmark.circle.fill" : "circle"], 3.2);
-    countOpen();
+    b.setAttribute("aria-checked", String(b.getAttribute("aria-checked") !== "true"));
+    paintList();
   });
-  document.querySelectorAll("[data-save]").forEach((b) => b.addEventListener("click", () => {
-    if (b.classList.contains("done") || b.classList.contains("waiting")) return;
-    const label = b.lastElementChild;
-    b.classList.add("waiting"); label.textContent = "Saving";
-    setTimeout(() => {
-      b.classList.remove("waiting"); b.classList.add("done"); label.textContent = "Saved to mymind";
-      b.firstElementChild.innerHTML = glyphSVG(D.glyphs.checkmark, 2.6);
-    }, 900);
-  }));
+  paintList();
+  // A primary action: idle, working, done. Tapping a finished one resets it.
+  function stateful(b, words, after) {
+    const label = b.lastElementChild, icon = b.firstElementChild;
+    return () => {
+      if (b.classList.contains("waiting")) return;
+      if (b.classList.contains("done")) {
+        b.classList.remove("done"); label.textContent = words[0]; icon.innerHTML = G("tray.and.arrow.down", 2.4); after && after(false); return;
+      }
+      b.classList.add("waiting"); label.textContent = words[1];
+      setTimeout(() => {
+        b.classList.remove("waiting"); b.classList.add("done"); label.textContent = words[2];
+        icon.innerHTML = G("checkmark", 2.4); after && after(true);
+      }, 1000);
+    };
+  }
+  document.querySelectorAll("[data-save]").forEach((b) => b.addEventListener("click", stateful(b, ["Save to mymind", "Saving", "Saved to mymind"])));
+  const fileQuote = stateful($("#q-file"), ["File quote", "Filing", "Filed"], (ok) => { $("#q-note").textContent = ok ? "Filed to Walden and mymind" : "Files to Walden and mymind"; });
+  $("#quote-form").addEventListener("submit", (e) => { e.preventDefault(); fileQuote(); });
 
   /* ---------- Talk ---------- */
+  $("#first-audio").insertAdjacentHTML("afterbegin", G("play.fill", 2) + "<span>Spoken reply</span>");
   const SCRIPTS = [
     ["What’s the weather Saturday?", "Dry until about 2, then wind. High of 71.", "0:04"],
     ["Add oat milk to the list.", "Added to Groceries.", "0:02"],
@@ -1179,35 +1263,35 @@ footer p { margin: 0; font-size: 13px; color: var(--quiet); }
     ["How many pages did I read this week?", "142 pages across two books. Most of it was Walden on Sunday.", "0:05"]
   ];
   let sIdx = 1, held = false, wordTimer = null, spoken = [];
-  $("#first-audio").insertAdjacentHTML("afterbegin", glyphSVG(D.glyphs["play.fill"], 2) + "<span>Spoken reply</span>");
   const tb = $("#talk-btn"), tw = $("#talk-words"), ts = $("#talk-state"), log = $("#talk-log");
   function start(e) {
     if (held) return; held = true;
-    if (e && e.pointerId != null) tb.setPointerCapture(e.pointerId);
+    if (e && e.pointerId != null) { try { tb.setPointerCapture(e.pointerId); } catch (_) {} }
     tb.classList.add("held"); ts.textContent = "Listening";
     tw.classList.remove("hint"); tw.textContent = ""; spoken = [];
     const words = SCRIPTS[sIdx][0].split(" ");
-    talkField.target = 40;
+    talkField.target = 38;
     let i = 0;
     const next = () => {
       if (!held || i >= words.length) return;
       spoken.push(words[i++]); tw.textContent = spoken.join(" ");
       talkField.target = 30 + 16 * Math.random();
-      wordTimer = setTimeout(next, 260 + Math.random() * 140);
+      wordTimer = setTimeout(next, 250 + Math.random() * 140);
     };
-    wordTimer = setTimeout(next, 220);
+    wordTimer = setTimeout(next, 200);
   }
   function end() {
     if (!held) return; held = false; clearTimeout(wordTimer);
     tb.classList.remove("held"); talkField.target = 12;
-    if (!spoken.length) { ts.textContent = "Ready"; tw.classList.add("hint"); tw.textContent = "Hold a little longer"; return; }
+    tw.classList.add("hint");
+    if (!spoken.length) { ts.textContent = "Ready"; tw.textContent = "Hold a little longer"; return; }
     const [, answer, len] = SCRIPTS[sIdx];
     const said = spoken.join(" ");
     sIdx = (sIdx + 1) % SCRIPTS.length;
-    ts.textContent = "Sent"; tw.classList.add("hint"); tw.textContent = "Hold the button and he picks up the pace";
+    ts.textContent = "Sent"; tw.textContent = "Hold to talk";
     log.innerHTML = `<div class="me">${said}</div>`;
     setTimeout(() => {
-      log.insertAdjacentHTML("beforeend", `<div class="him"><span class="label">Shadowfax</span><p class="reply" style="margin:0">${answer}</p><span class="audio">${glyphSVG(D.glyphs["play.fill"], 2)}<span>Spoken reply</span><span class="num">${len}</span></span></div>`);
+      log.insertAdjacentHTML("beforeend", `<div class="him"><span class="label">Shadowfax</span><p class="reply">${answer}</p><span class="audio">${G("play.fill", 2)}<span>Spoken reply</span><span class="num">${len}</span></span></div>`);
       ts.textContent = "Ready";
     }, 900);
   }
@@ -1217,107 +1301,37 @@ footer p { margin: 0; font-size: 13px; color: var(--quiet); }
   tb.addEventListener("keydown", (e) => { if ((e.key === " " || e.key === "Enter") && !e.repeat) { e.preventDefault(); start(); } });
   tb.addEventListener("keyup", (e) => { if (e.key === " " || e.key === "Enter") end(); });
 
-  /* ---------- Capture ---------- */
-  $("#quote-form").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const b = $("#q-file"), label = b.lastElementChild;
-    if (b.classList.contains("waiting")) return;
-    if (b.classList.contains("done")) {
-      b.classList.remove("done"); label.textContent = "File quote"; $("#q-note").textContent = "";
-      b.firstElementChild.innerHTML = glyphSVG(D.glyphs["tray.and.arrow.down"], 2.6); return;
-    }
-    b.classList.add("waiting"); label.textContent = "Filing";
-    setTimeout(() => {
-      b.classList.remove("waiting"); b.classList.add("done"); label.textContent = "Filed";
-      b.firstElementChild.innerHTML = glyphSVG(D.glyphs.checkmark, 2.6);
-      $("#q-note").textContent = "Filed to Walden and mymind";
-    }, 1100);
-  });
-
-  /* ---------- Share ---------- */
-  $("#share-form").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const b = $("#share-btn"), label = b.lastElementChild;
-    if (b.classList.contains("waiting")) return;
-    if (b.classList.contains("done")) { b.classList.remove("done"); label.textContent = "Send to Shadowfax"; return; }
-    b.classList.add("waiting"); label.textContent = "Sending";
-    setTimeout(() => { b.classList.remove("waiting"); b.classList.add("done"); label.textContent = "Sent"; }, 1000);
-  });
-
   /* ---------- Voice note ---------- */
   const wave = $("#vn-wave"), wctx = wave.getContext("2d");
-  const BARS = Array.from({ length: 30 }, (_, i) => 1 + Math.round(2 + 2.2 * Math.sin(i * 0.9) * Math.sin(i * 0.37 + 1) + 1.4 * Math.sin(i * 2.3)));
-  let vnPlaying = false, vnPos = 0, vnLast = 0;
+  const BARS = Array.from({ length: 26 }, (_, i) => Math.max(1, Math.min(4, Math.round(2.4 + 1.6 * Math.sin(i * 0.9) * Math.sin(i * 0.37 + 1) + 1.1 * Math.sin(i * 2.3)))));
   const LEN = 32;
+  let vnPlaying = false, vnPos = 0, vnLast = 0;
   function drawWave() {
-    const dpr = Math.min(3, window.devicePixelRatio || 1), W = 150, H = 22, p = 5, c = p * 0.76;
-    if (wave.width !== W * dpr) { wave.width = W * dpr; wave.height = H * dpr; wave.style.width = W + "px"; wave.style.height = H + "px"; }
-    wctx.setTransform(dpr, 0, 0, dpr, 0, 0); wctx.clearRect(0, 0, W, H);
-    const ink = getComputedStyle(root).getPropertyValue("--ink").trim();
-    BARS.forEach((h, i) => {
-      const n = Math.max(1, Math.min(4, h)), played = i / BARS.length < vnPos / LEN;
-      wctx.fillStyle = ink; wctx.globalAlpha = played ? 1 : 0.35;
+    const dpr = Math.min(3, window.devicePixelRatio || 1), p = 4.4, c = p * 0.76, W = BARS.length * p, Hh = 20;
+    if (wave.width !== Math.round(W * dpr)) { wave.width = Math.round(W * dpr); wave.height = Math.round(Hh * dpr); wave.style.width = W + "px"; wave.style.height = Hh + "px"; }
+    wctx.setTransform(dpr, 0, 0, dpr, 0, 0); wctx.clearRect(0, 0, W, Hh);
+    wctx.fillStyle = getComputedStyle(root).getPropertyValue("--ink").trim();
+    BARS.forEach((n, i) => {
+      wctx.globalAlpha = i / BARS.length < vnPos / LEN ? 1 : 0.3;
       for (let k = 0; k < n; k++) {
-        const y = H / 2 - (n * p) / 2 + k * p + (p - c) / 2;
-        wctx.beginPath(); wctx.roundRect ? wctx.roundRect(i * p, y, c, c, c * 0.24) : wctx.rect(i * p, y, c, c); wctx.fill();
+        const y = Hh / 2 - (n * p) / 2 + k * p + (p - c) / 2;
+        wctx.beginPath(); if (wctx.roundRect) wctx.roundRect(i * p, y, c, c, c * 0.24); else wctx.rect(i * p, y, c, c); wctx.fill();
       }
     });
     wctx.globalAlpha = 1;
-    const left = Math.ceil(LEN - vnPos);
-    $("#vn-time").textContent = `0:${String(left).padStart(2, "0")}`;
+    $("#vn-time").textContent = `0:${String(Math.ceil(LEN - vnPos)).padStart(2, "0")}`;
   }
-  const vnGlyph = () => { $("#vn-glyph").innerHTML = glyphSVG(D.glyphs[vnPlaying ? "pause.fill" : "play.fill"], 2.4); $("#vn-play").setAttribute("aria-label", vnPlaying ? "Pause voice note" : "Play voice note"); };
+  const vnGlyph = () => { $("#vn-glyph").innerHTML = G(vnPlaying ? "pause.fill" : "play.fill", 2.2); $("#vn-play").setAttribute("aria-label", vnPlaying ? "Pause voice note" : "Play voice note"); };
   $("#vn-play").addEventListener("click", () => { vnPlaying = !vnPlaying; if (vnPos >= LEN) vnPos = 0; vnLast = performance.now(); vnGlyph(); });
   vnGlyph();
 
-  /* ---------- Island ---------- */
-  const isl = $("#island-ride"), ictx = isl.getContext("2d");
-  const ISL_STEPS = [["Reading this week’s inbox.", 1], ["Opening Collaborative Steering, filed Tuesday.", 7], ["Searching memory for what you asked me to keep.", 21], ["Writing it up.", 34]];
-  const STARS = Array.from({ length: 22 }, (_, i) => [((i * 53) % 97) / 97, ((i * 29) % 7) / 7 * 0.4, 0.2 + ((i * 17) % 5) / 10]);
-  let islStart = performance.now();
-  function drawIsland(now) {
-    const dpr = Math.min(3, window.devicePixelRatio || 1);
-    const W = isl.clientWidth, H = 54;
-    if (!W) return;
-    if (isl.width !== Math.round(W * dpr)) { isl.width = Math.round(W * dpr); isl.height = Math.round(H * dpr); }
-    ictx.setTransform(dpr, 0, 0, dpr, 0, 0); ictx.clearRect(0, 0, W, H);
-    const pal = P[root.getAttribute("data-palette")] || P.fangorn;
-    const q = pal.quiet[1], acc = pal.accent[1];
-    const p = 3, c = p * 0.76, cols = Math.floor(W / p), rows = Math.floor(H / p);
-    const cycle = 11000, t = reduce.matches ? 3000 : (now - islStart) % cycle;
-    const sim = t / 1000 * 5;
-    const done = sim >= 40;
-    const ridden = reduce.matches ? 0 : (now - islStart) / 1000;
-    const dot = (x, y, col, a) => { ictx.fillStyle = `rgba(${col[0]},${col[1]},${col[2]},${a})`; ictx.beginPath(); ictx.roundRect ? ictx.roundRect(x * p, y * p, c, c, c * .24) : ictx.rect(x * p, y * p, c, c); ictx.fill(); };
-    const edge = (x) => Math.min(1, Math.min(x, cols - 1 - x) / 6);
-    STARS.forEach(([sx, sy, a]) => { const x = Math.floor(((sx * cols - ridden * 0.6) % cols + cols) % cols); dot(x, Math.floor(sy * rows), [255, 255, 255], a * edge(x)); });
-    for (let x = 0; x < cols; x++) {
-      const wx = x + ridden * 2.2;
-      const h = Math.round(4 + 2.4 * Math.sin(wx * 0.11) + 1.6 * Math.sin(wx * 0.27 + 2));
-      for (let y = rows - 3 - h; y < rows - 3; y++) dot(x, y, y === rows - 3 - h ? [255, 255, 255] : acc, (y === rows - 3 - h ? 0.28 : 0.22) * edge(x));
-      const w = Math.floor(x + ridden * 8) % 9;
-      dot(x, rows - 2, q, (w === 0 ? 0.6 : 0.12) * edge(x));
-    }
-    const frame = done ? 8 : Math.floor(now / 1000 * 11) % 15, fr = D.lo[frame];
-    const hx = Math.floor(cols * 0.3) - 11, hy = rows - 2 - 12;
-    fr.forEach((line, r) => [...line].forEach((ch, k) => {
-      const v = +ch; if (v < 2) return;
-      dot(hx + k, hy + r, done ? acc : [255, 255, 255], v >= 4 ? 1 : 0.55);
-    }));
-    const cur = ISL_STEPS.filter((s) => s[1] <= sim).pop();
-    const status = done ? "Seven pages this week. Four are worth your time." : (cur ? cur[0] : "Riding for Minas Tirith");
-    const st = $("#island-status"); if (st.textContent !== status) st.textContent = status;
-    const s = Math.min(40, Math.floor(sim));
-    $("#island-time").textContent = (done ? "✓ " : "") + `0:${String(s).padStart(2, "0")}`;
-  }
-
-  /* ---------- One loop for everything ---------- */
+  /* ---------- One loop ---------- */
   let lastTenth = -1;
   function frame(now) {
+    drawNight(now);
     fields.forEach((f) => f.draw(now));
     const tenth = Math.floor(now / 100);
     if (tenth !== lastTenth) { lastTenth = tenth; drawClock(now); }
-    drawIsland(now);
     if (vnPlaying) {
       vnPos = Math.min(LEN, vnPos + (now - vnLast) / 1000); vnLast = now; drawWave();
       if (vnPos >= LEN) { vnPlaying = false; vnGlyph(); }
