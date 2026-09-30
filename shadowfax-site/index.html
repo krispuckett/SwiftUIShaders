@@ -397,6 +397,101 @@ a.act { text-decoration: none; }
 .goal-next .glyph { margin-top: 5px; color: var(--quiet); }
 .pc-foot .grp { display: flex; gap: 14px; align-items: center; }
 
+
+/* Share: the browser, the system sheet, the extension, the flight */
+.browser { background: #FBFAF7; color: #1d1d1b; }
+.br-page { flex: 1; overflow-y: auto; scrollbar-width: none; padding: 70px 28px 120px; font: 17px/1.55 var(--book); }
+.br-page::-webkit-scrollbar { display: none; }
+.br-run { font-size: 10px; letter-spacing: .3em; color: #8a857a; margin-bottom: 14px; }
+.br-page h3 { font: 600 27px/1.15 var(--book); margin: 0 0 8px; letter-spacing: -0.2px; }
+.br-by { font: 13px var(--sans); color: #8a857a; margin-bottom: 20px; }
+.br-page p { margin: 0 0 14px; }
+.br-bar { position: absolute; left: 14px; right: 14px; bottom: 34px; height: 56px; border-radius: 28px; display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; padding: 0 6px; color: #1d1d1b;
+  background: rgb(255 255 255 / .72); box-shadow: inset 0 1px 0 rgb(255 255 255 / .8), inset 0 0 0 .7px rgb(0 0 0 / .08), 0 8px 22px -12px rgb(0 0 0 / .3); }
+.br-url { text-align: center; font: 500 15px var(--sans); color: #3a3a37; }
+.dim { position: absolute; inset: 0; z-index: 47; background: rgb(0 0 0 / .28); opacity: 0; pointer-events: none; transition: opacity .35s; }
+.dim.on { opacity: 1; pointer-events: auto; }
+.bsheet { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 48; border-radius: 40px; padding: 8px 20px 34px; transform: translateY(110%); transition: transform .42s var(--panel), opacity .3s;
+  background: color-mix(in srgb, var(--paper) 94%, transparent); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: 0 -10px 40px -20px rgb(0 0 0 / .35); color: var(--ink); }
+.bsheet.open { transform: none; }
+.grab { width: 36px; height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--quiet) 40%, transparent); margin: 0 auto 14px; }
+.sh-head { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: center; padding-bottom: 16px; border-bottom: .7px solid var(--line); }
+.sh-head .fav { width: 44px; height: 44px; border-radius: 10px; background: var(--panel-wash); display: grid; place-items: center; color: var(--quiet); }
+.sh-head b { display: block; font-size: 15px; font-weight: 600; line-height: 1.25; }
+.sh-head small { font-size: 13px; color: var(--quiet); }
+.apps { display: flex; gap: 18px; padding: 18px 2px; border-bottom: .7px solid var(--line); }
+.app { display: grid; justify-items: center; gap: 6px; font-size: 11px; width: 64px; }
+.app img { width: 60px; height: 60px; border-radius: 14px; display: block; transition: transform .16s; }
+.app:active img { transform: scale(.94); }
+.acts { display: grid; }
+.acts div { padding: 14px 4px; font-size: 17px; border-bottom: .7px solid var(--line); color: var(--soft); }
+.acts div:last-child { border-bottom: 0; }
+.bsheet.ext { top: 70px; left: 0; right: 0; bottom: 0; border-radius: 38px 38px 0 0; background: var(--paper); padding: 14px 20px 40px; }
+.ext-in { display: grid; gap: 18px; align-content: start; transition: opacity .3s; }
+.bsheet.ext.flying .ext-in > :not(.ext-send) { opacity: 0; transition: opacity .35s; }
+.bsheet.ext.flying .ext-send { opacity: 0; transition: opacity .35s .12s; }
+.ext-prev { display: grid; grid-template-columns: 20px 1fr; gap: 12px; align-items: start; padding-top: 6px; }
+.ext-prev .ic { color: var(--quiet); padding-top: 3px; }
+.ext-prev b { display: block; font-size: 17px; font-weight: 600; }
+.ext-prev small { font-size: 13px; color: var(--quiet); line-height: 1.35; }
+.ext-note { border: 0; outline: 0; font-size: 17px; padding: 16px 20px; border-radius: 29px; color: var(--ink); width: 100%; }
+.ext-note::placeholder { color: var(--quiet); }
+.ext-send { justify-self: center; display: inline-flex; align-items: center; gap: 10px; height: 52px; padding: 0 26px; border-radius: 999px; color: #fff; font-weight: 600; font-size: 17px;
+  background: var(--accent); box-shadow: inset 0 1px 0 rgb(255 255 255 / .35), 0 10px 24px -12px color-mix(in srgb, var(--accent) 80%, transparent); transition: transform .16s, opacity .2s; }
+.ext-send:active { transform: scale(.975); opacity: .8; }
+.ext-send.gone .pl { opacity: 0; }
+#isl-f { position: absolute; top: 0; left: 50%; width: 204px; height: 92px; margin-left: -102px; opacity: 0; transition: opacity .12s;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+.island.staged #isl-c { display: none; }
+.island.staged.lit #isl-f { opacity: 1; transition: opacity .3s ease-out; }
+.island:not(.staged) #isl-f { display: none; }
+#flight { position: absolute; inset: 0; width: 402px; height: 874px; z-index: 57; pointer-events: none; }
+.banner { position: absolute; z-index: 59; left: 10px; right: 10px; top: 10px; display: grid; grid-template-columns: 38px 1fr auto; gap: 2px 12px; align-items: start; text-align: left; padding: 12px 14px; border-radius: 26px;
+  background: color-mix(in srgb, var(--paper) 86%, transparent); transform: translateY(-140%); transition: transform .5s var(--spring); color: var(--ink); }
+.banner.on { transform: translateY(46px); }
+.banner img { width: 38px; height: 38px; border-radius: 9px; grid-row: 1 / span 2; }
+.banner .bt { display: grid; }
+.banner .bt b { font-size: 15px; font-weight: 600; }
+.banner .bn { font-size: 15px; font-weight: 600; }
+.banner .bb { grid-column: 2 / span 2; font-size: 15px; line-height: 1.3; color: var(--soft); margin-top: -2px; }
+.banner .bw { font-size: 12px; color: var(--quiet); padding-top: 2px; }
+.p-share { justify-self: end; max-width: calc(100% - 38px); display: grid; gap: 8px; }
+.p-share .lk { display: grid; grid-template-columns: 20px 1fr; gap: 10px; padding: 13px 16px; border-radius: 20px; border: .7px solid var(--line); background: color-mix(in srgb, var(--bubble) 38%, transparent); font-size: 15px; }
+.p-share .lk small { display: block; font-size: 12px; color: var(--quiet); }
+.p-share .lk .glyph { color: var(--quiet); margin-top: 3px; }
+.p-share .p-me { justify-self: end; }
+
+/* Books and buying */
+.gal { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-left: 26px; scrollbar-width: none; margin: 0 -26px; padding: 2px 26px 4px; }
+.gal::-webkit-scrollbar { display: none; }
+.btile { flex: none; width: 228px; scroll-snap-align: start; border-radius: 24px; overflow: hidden; border: .7px solid var(--line); background: color-mix(in srgb, var(--bubble) 38%, transparent); display: grid; animation: fin .45s var(--ease) both; }
+.btile .pic { height: 188px; display: grid; place-items: center; background: color-mix(in srgb, var(--cloth) 16%, var(--paper)); }
+.cover { width: 104px; height: 156px; border-radius: 3px 6px 6px 3px; background: var(--cloth); color: #F3EAD5; display: grid; align-content: space-between; padding: 16px 12px 12px 16px; position: relative; text-align: left;
+  box-shadow: inset 5px 0 0 rgb(0 0 0 / .18), inset 6px 0 0 rgb(255 255 255 / .06), 0 1px 1px rgb(0 0 0 / .15), 0 12px 20px -10px rgb(0 0 0 / .45); }
+.cover > span:first-child { display: grid; justify-items: start; }
+.cover .ct { display: block; font: 600 14px/1.12 var(--book); letter-spacing: .01em; }
+.cover .cr { display: block; width: 18px; height: 1px; background: currentColor; opacity: .6; margin: 8px 0; }
+.cover .ca { display: block; font: 9.5px/1.2 var(--book); letter-spacing: .12em; text-transform: uppercase; opacity: .85; }
+.cover .cd { display: flex; gap: 3px; }
+.cover .cd i { width: 3px; height: 3px; border-radius: .8px; background: currentColor; opacity: .7; }
+.cover.mini { width: 44px; height: 64px; padding: 7px 5px 5px 7px; border-radius: 2px 3px 3px 2px; }
+.cover.mini .ct { font-size: 6.5px; }
+.cover.mini .ca, .cover.mini .cr, .cover.mini .cd { display: none; }
+.btile .tx { padding: 14px 16px; display: grid; gap: 2px; }
+.btile .tx b { font-size: 15px; font-weight: 600; }
+.btile .tx small { font-size: 12px; color: var(--quiet); }
+.btile .why { font-size: 13px; color: var(--soft); margin-top: 4px; line-height: 1.3; }
+.btile .ft { display: flex; justify-content: space-between; align-items: center; border-top: .5px solid var(--line); margin: 0 16px; height: 46px; }
+.btile .ft .pr { font: 500 15px ui-monospace, "SF Mono", Menlo, monospace; }
+.btile .ft button { font-size: 12px; font-weight: 600; min-width: 44px; min-height: 44px; text-align: right; }
+.buy { display: grid; grid-template-columns: 44px 1fr auto; gap: 4px 14px; align-items: start; }
+.buy .t b { display: block; font-size: 17px; font-weight: 600; line-height: 1.25; }
+.buy .t small { font-size: 12px; color: var(--quiet); }
+.buy .tot { font: 500 17px ui-monospace, "SF Mono", Menlo, monospace; }
+.buy-foot { display: flex; justify-content: space-between; align-items: center; border-top: .7px solid var(--line); padding-top: 12px; font-size: 12px; color: var(--quiet); }
+.buy-foot button { font-weight: 600; color: var(--ink); font-size: 12px; min-height: 36px; }
+.buy-foot .ok { color: var(--accent); font-weight: 600; }
+
 /* ---------- Out of the app ---------- */
 .head { display: grid; gap: 14px; margin-bottom: 40px; max-width: 36em; }
 .stage { background: var(--stage); border-radius: 36px; padding: 24px; display: grid; justify-items: center; gap: 20px; transition: background-color .5s var(--ease); }
@@ -486,12 +581,13 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       <div class="try-list">
         <ul class="tries" id="tries">
           <li><button type="button" data-try="filed"><b>What did we file this week?</b><span>Six steps, a table, and a quote to keep.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="saturday"><b>Plan a slow Saturday.</b><span>A place, then a reminder in one tap.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
+          <li><button type="button" data-try="books"><b>Find me something to read</b><span>Four books from what I’ve read. Buy one without leaving.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
+          <li><button type="button" data-try="quest"><b>Let a quest run</b><span>He keeps working after I stop asking.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
+          <li><button type="button" data-try="share"><b>Share from the browser</b><span>The plane becomes a letter. He catches it.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
           <li><button type="button" data-try="talk"><b>Hold to talk</b><span>He gallops under my words.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
           <li><button type="button" data-try="upcoming"><b>Swipe up</b><span>To-dos, what’s coming, what he did, and quests.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
           <li><button type="button" data-try="quote"><b>Quote a book</b><span>Live Text reads the page. I file the line.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="threads"><b>Open threads</b><span>Quests run in their own threads.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="playlist"><b>Make me a playlist</b><span>Twenty-four songs for the drive home.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
+          <li><button type="button" data-try="saturday"><b>Plan a slow Saturday.</b><span>A place, then a reminder in one tap.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
         </ul>
         <div class="try-fine"><span>Practice data. Nothing leaves this page.</span><button class="reset" type="button" id="reset">Start over</button></div>
       </div>
@@ -884,6 +980,15 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     return g;
   }
   const POSES = [0, 1, 2].map((dip) => Array.from({ length: 15 }, (_, f) => poseRows(f, dip)));
+  // The letter he carries from the share sheet (HorseLoop.letter), its corner at his nose:
+  // the lowest solid cell of his rightmost solid column in the top seven rows.
+  const LETTER = ["XXXXX", "XX.XX", "X.X.X", "XXXXX"];
+  function letterCorner(cells) {
+    for (let c = LO_COLS - 1; c >= 0; c--) {
+      for (let r = Math.min(7, cells.length) - 1; r >= 0; r--) if (cells[r][c] >= 4) return [r, c];
+    }
+    return [3, LO_COLS - 1];
+  }
   function mountain(x) {
     const block = 19, k0 = Math.floor(x / block);
     let best = 0;
@@ -905,7 +1010,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     let CRUISE = opts.cruise || 9;    // seconds riding before the answer lands (a loop's)
     const GAP = 1.1;                  // dark between rides
     const LOOP = CRUISE + APPROACH + REST + LEAVE + GAP;
-    let W = 0, Hh = 0, dpr = 1, p = 6, cols = 0, rows = ROWS, visible = true, drawn = false;
+    let W = 0, Hh = 0, dpr = 1, p = 6, cols = 0, rows = ROWS, visible = true, drawn = false, carrying = false;
     let t0 = performance.now();
     function fit() {
       dpr = Math.min(3, window.devicePixelRatio || 1);
@@ -971,7 +1076,10 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
         if (reduce.matches && landAt != null) t = now - landAt > 1200 ? Infinity : CRUISE + APPROACH + 0.3;
         if (t > CRUISE + APPROACH + REST + LEAVE) { const done = opts.onDone; startAt = null; landAt = null; if (done) done(); return; }
       } else t = reduce.matches ? ENTER + 1 : ((now - t0) / 1000) % LOOP;
-      const m = moment(t);
+      // Someone else's choreography (the share flight): the world stands still and he goes
+      // where it says, with the letter in his mouth once he has it.
+      const m = opts.staged ? Object.assign({ road: 0, dip: 0, phase: "staged" }, opts.staged(now, cols)) : moment(t);
+      if (carrying && m.letter == null) m.letter = true;
       const d = m.road, ground = rows - 4, clock = now / 1000;
       const n = cols * rows;
       if (!grid || grid.length !== n) { grid = new Int8Array(n); gridA = new Float32Array(n); }
@@ -1087,6 +1195,14 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
           grid[i] = a > 0.02 ? WHITE : SOLID; gridA[i] = a > 0.02 ? a : 1;
         }
       });
+      if (m.letter) {
+        const [lr, lc] = letterCorner(cells);
+        LETTER.forEach((line, r) => [...line].forEach((ch, c) => {
+          const cc = fx + lc + c + (ff > 0.5 ? 1 : 0), rr = top + lr + r;
+          if (cc < 0 || cc >= cols || rr < 0 || rr >= rows) return;
+          const i = rr * cols + cc; grid[i] = ch === "X" ? WHITE : SOLID; gridA[i] = 1;
+        }));
+      }
 
       // One fill per color and brightness.
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1116,9 +1232,10 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       if (opts.onMoment) opts.onMoment(m, t, LOOP, CRUISE);
     }
     let startAt = null, landAt = null;
-    if (opts.controlled) {
+    if (opts.controlled || opts.staged) {
       return {
         draw, fit,
+        carry(v) { carrying = !!v; },
         start() { startAt = performance.now(); landAt = null; },
         land() { if (startAt != null && landAt == null) landAt = performance.now(); },
         get riding() { return startAt != null; }
@@ -1140,7 +1257,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     return s + "</svg>";
   }
 
-  window.SFX = { P, KEYS, Field, fields, clockFace, nightRide, markSVG, glyphSVG, tone, isNight, reduce, css };
+  window.SFX = { P, KEYS, Field, fields, clockFace, nightRide, markSVG, glyphSVG, tone, isNight, reduce, css, letterCorner, POSES, LETTER, LO_COLS };
 })();
 </script>
 <script>(function () {
@@ -1309,8 +1426,10 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
   const BATT = '<svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.8" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="20" height="9" rx="2.4"/><path d="M25 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" opacity=".45"/></svg>';
 
   ps.innerHTML = `
-    <div class="sb" aria-hidden="true"><span>9:41</span><span class="r">${SIGNAL}${WIFI}${BATT}</span></div>
-    <div class="island" id="isl" aria-hidden="true"><canvas id="isl-c"></canvas></div>
+    <div class="sb" aria-hidden="true"><span id="sb-time" class="num">9:41</span><span class="r">${SIGNAL}${WIFI}${BATT}</span></div>
+    <div class="island" id="isl" aria-hidden="true"><canvas id="isl-c"></canvas><canvas id="isl-f"></canvas></div>
+    <canvas id="flight" aria-hidden="true"></canvas>
+    <button class="banner glass" id="banner" type="button" aria-live="polite"><img src="icons/stride.png" alt=""><span class="bt"><b>Shadowfax</b><span class="bn"></span></span><span class="bw">now</span><span class="bb"></span></button>
     <div class="view" id="v-chat">
       <div class="p-scroll" id="scroll"><div id="lists"></div></div>
       <div class="p-head">
@@ -1391,6 +1510,37 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
         <div class="foot" id="q-foot"></div>
       </form>
     </section>
+    <section class="sheet from-right browser" id="s-browser" aria-label="Browser">
+      <div class="br-page">
+        <div class="br-run">WALDEN</div>
+        <h3>Where I Lived, and What I Lived For</h3>
+        <div class="br-by">Henry David Thoreau · 1854</div>
+        <p>I went to the woods because I wished to live deliberately, to front only the essential facts of life, and see if I could not learn what it had to teach, and not, when I came to die, discover that I had not lived.</p>
+        <p>I did not wish to live what was not life, living is so dear; nor did I wish to practise resignation, unless it was quite necessary. I wanted to live deep and suck out all the marrow of life, to cut a broad swath and shave close, to drive life into a corner, and reduce it to its lowest terms.</p>
+        <p>Our life is frittered away by detail. An honest man has hardly need to count more than his ten fingers, or in extreme cases he may add his ten toes, and lump the rest. Simplicity, simplicity, simplicity!</p>
+      </div>
+      <div class="br-bar glass">
+        <button class="gbtn" type="button" data-close aria-label="Back">${G("chevron.left", 3.4)}</button>
+        <span class="br-url">gutenberg.org</span>
+        <button class="gbtn" type="button" id="br-share" aria-label="Share">${G("square.and.arrow.up", 3.4)}</button>
+      </div>
+    </section>
+    <div class="dim" id="dim"></div>
+    <section class="bsheet" id="s-share" aria-label="Share">
+      <div class="grab"></div>
+      <div class="sh-head"><span class="fav">${G("book", 1.67)}</span><span><b>Where I Lived, and What I Lived For</b><small>gutenberg.org</small></span></div>
+      <div class="apps"><button class="app" type="button" id="to-sfx"><img src="icons/stride.png" alt=""><span>Shadowfax</span></button></div>
+      <div class="acts"><div>Copy</div><div>Add to Reading List</div><div>Add Bookmark</div></div>
+    </section>
+    <section class="bsheet ext" id="s-ext" aria-label="Send to Shadowfax">
+      <div class="ext-in">
+        <button class="gbtn glass" type="button" id="ext-x" aria-label="Cancel">${G("xmark", 3.67)}</button>
+        <div class="ext-prev"><span class="ic">${G("link", 3)}</span><span><b>gutenberg.org</b><small>gutenberg.org/ebooks/205 · Where I Lived, and What I Lived For</small></span></div>
+        <label for="ext-note" style="position:absolute;left:-9999px">Add a note</label>
+        <input class="ext-note glass" id="ext-note" placeholder="Add a note">
+        <button class="ext-send" type="button" id="ext-send"><span class="pl">${G("paperplane.fill", 1.67)}</span><span class="lb">Send to Shadowfax</span></button>
+      </div>
+    </section>
     <div class="home-ind"></div>`;
 
   /* ---------- Fit the device to the page ---------- */
@@ -1469,6 +1619,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
   const nearBottom = () => scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 160;
   const toBottom = (smooth) => scroller.scrollTo({ top: scroller.scrollHeight, behavior: smooth && !reduce.matches ? "smooth" : "auto" });
   function follow(fn) { const stick = nearBottom(); fn(); if (stick) toBottom(true); }
+  const later = (ms) => { const my = epoch; return wait(ms).then(() => my === epoch); };
 
   function showThread(id) {
     closeAll();
@@ -1506,7 +1657,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     items.forEach((t) => { const b = el(`<button class="chip press" type="button">${esc(t)}</button>`); b.onclick = () => { if (busy) return; row.remove(); send(t); }; row.appendChild(b); });
     return row;
   }
-  const STARTERS = ["What did we file this week?", "Plan a slow Saturday.", "Pack for the weekend.", "Make me a playlist", "Tidy my threads"];
+  const STARTERS = ["What did we file this week?", "Find me something to read", "Plan a slow Saturday.", "Pack for the weekend.", "Make me a playlist"];
 
   /* ---------- Cards ---------- */
   function pageCard(key, meta) {
@@ -1628,7 +1779,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       quests.unshift({ id: "desk", title: "Find a desk that fits the alcove", next: "Measure the alcove, then check what’s in stock nearby", ran: "Not run yet" });
       activity.unshift({ kind: "goal", title: "Started: Find a desk that fits the alcove", when: "Now", isNew: true, open: "desk" });
       badges.activity++; renderUpc();
-      toast("Started. It’s in Quests.");
+      questDay();
     });
     return c;
   }
@@ -1745,6 +1896,17 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
   };
   function script(name) {
     if (name.startsWith("short:")) { const a = name.slice(6); return [st("Writing it down.", "vault_write", 0.5), para(SHORT[a] || a), done()]; }
+    if (name.startsWith("buy:")) {
+      const b = BOOKS[+name.slice(4)];
+      return [st(`Opening ${b.title} at Bookshop.org.`, "browse", 0.8), st("Guest checkout.", "browse", 1.2), st(`Asking Link for ${b.total}.`, "link-cli", 1.1),
+        para(`Staged at Bookshop.org: ${b.title}, with tax and shipping it comes to ${b.total}. Approve it in Link and I’ll finish.`),
+        card(() => purchaseCard(b)), done()];
+    }
+    if (name.startsWith("desk:")) {
+      const a = name.slice(5);
+      return [st("Calling the store.", "phone", 0.9), st("Putting pickup on the calendar.", "calendar", 1.0),
+        para(`${a} it is. The store is holding it until Saturday, and pickup is on your calendar for 10.`), done()];
+    }
     if (name.startsWith("camp:")) return [st("Holding the site.", "browse", 0.8), para(`${name.slice(5)} it is. I’ll hold Oct 16 to 18 and put the weekend on your calendar.`), done()];
     switch (name) {
       case "filed": return [
@@ -1771,6 +1933,10 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
         card(() => placeCard()),
         card(() => choiceCard("Want a reminder?", ["Friday night", "Saturday 6:30am", "No reminder"], (a) => send(a, { script: "short:" + a })), 0.2),
         done()];
+      case "books": return [
+        st("Reading your Library.", "vault_search", 0.7), st("Looking at what you finished this year.", "Read", 1.3), st("Checking what’s in stock.", "web_search", 1.4),
+        para("Four, from Walden, Gift from the Sea and Meditations. All quiet books about paying attention."),
+        card(() => galleryCard()), done(["Why these four?", "Something with a plot"])];
       case "packing": return [
         st("Reading last trip’s list.", "Read", 1.1),
         para("Here’s the list from last time, trimmed to what you actually used."),
@@ -1822,16 +1988,17 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     if (/saturday|coffee/.test(t)) return "saturday";
     if (/pack|errand|checklist/.test(t)) return "packing";
     if (/tidy/.test(t)) return "tidy";
+    if (/something to read|recommend|what should i read|book rec/.test(t)) return "books";
     if (/playlist/.test(t)) return "playlist";
     if (/capture flow|name the/.test(t)) return "loop";
     return "fallback";
   }
 
   async function run(name, opts = {}) {
-    const my = epoch, list = listFor(current), threadId = current;
+    const my = epoch, threadId = opts.thread || current, list = listFor(threadId);
     busy = true; syncBar();
-    const h = him(list);
-    const events = name.startsWith("named:") ? [st("Closing the loop.", "vault_write", 0.6), para(`“${name.slice(6)}” it is. The loop is closed and the spec says ${name.slice(6)} now.`), done()] : script(name);
+    const h = him(list, { attr: opts.attr });
+    const events = opts.events || (name.startsWith("named:") ? [st("Closing the loop.", "vault_write", 0.6), para(`“${name.slice(6)}” it is. The loop is closed and the spec says ${name.slice(6)} now.`), done()] : script(name));
     const t0 = performance.now(), steps = [];
     let status = null, phase = "working";
     const ridePick = S.RIDE[Math.floor(Math.random() * S.RIDE.length)];
@@ -1859,7 +2026,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       if (kind === "status") { status = a; steps.push({ text: a, tool: b, at: Math.max(1, Math.round((performance.now() - t0) / 1000)) }); }
       else if (kind === "para") {
         writing();
-        const p = el(`<p class="p-reply"></p>`); follow(() => h.body.appendChild(p));
+        const p = el(`<p class="p-reply${opts.small ? " small" : ""}"></p>`); follow(() => h.body.appendChild(p));
         const words = a.split(/(\s+)/);
         for (let i = 0; i < words.length; i += 6) {
           p.textContent = words.slice(0, i + 6).join("");
@@ -1891,6 +2058,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     }
     clearInterval(tick);
     busy = false; syncBar();
+    if (opts.after && alive()) opts.after(h);
   }
   function send(text, opts = {}) {
     if (busy || !text.trim()) return;
@@ -2176,12 +2344,231 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     }, 1000);
   });
 
+  /* ---------- Books: the gallery, then buying in the same thread ---------- */
+  const BOOKS = [
+    { title: "The Outermost House", author: "Henry Beston", why: "A year alone on the Great Beach of Cape Cod. Walden, by the sea.", price: "$18.00", total: "$21.43", cloth: "#2F4A5A" },
+    { title: "The Living Mountain", author: "Nan Shepherd", why: "Walking the Cairngorms to know them, not to summit them.", price: "$17.00", total: "$20.32", cloth: "#4B5B3B" },
+    { title: "Pilgrim at Tinker Creek", author: "Annie Dillard", why: "One creek, one year, paying attention the whole time.", price: "$18.99", total: "$22.51", cloth: "#94652C" },
+    { title: "Four Thousand Weeks", author: "Oliver Burkeman", why: "Meditations for a calendar: what to do with finite time.", price: "$18.00", total: "$21.43", cloth: "#6B302B" }
+  ];
+  const cover = (b, mini) => `<span class="cover${mini ? " mini" : ""}" style="--cloth:${b.cloth}"><span><span class="ct">${esc(b.title)}</span><span class="cr"></span><span class="ca">${esc(b.author)}</span></span><span class="cd"><i></i><i></i><i></i></span></span>`;
+  function galleryCard() {
+    const g = el(`<div class="gal"></div>`);
+    BOOKS.forEach((b, i) => {
+      const t = el(`<div class="btile" style="--cloth:${b.cloth};animation-delay:${i * 90}ms"><div class="pic">${cover(b)}</div>
+        <div class="tx"><b>${esc(b.title)}</b><small>${esc(b.author)} · Bookshop.org</small><span class="why">${esc(b.why)}</span></div>
+        <div class="ft"><span class="pr">${b.price}</span><button type="button" aria-label="Buy ${esc(b.title)}">Buy</button></div></div>`);
+      $("button", t).onclick = () => send(`Buy ${b.title}`, { script: "buy:" + i });
+      g.appendChild(t);
+    });
+    return g;
+  }
+  function purchaseCard(b) {
+    const c = el(`<div class="pc"><div class="buy">${cover(b, true)}<span class="t"><b>${esc(b.title)}</b><small>Bookshop.org · Test</small></span><span class="tot">${b.total}</span></div>
+      <div class="buy-foot"><span class="stw">Waiting for you in Link</span><button type="button">Approve</button></div></div>`);
+    const btn = $("button", c), words = $(".stw", c);
+    btn.onclick = async () => {
+      btn.remove();
+      for (const [w, ms] of [["Approved", 700], ["Paying", 900], ["Paid", 0]]) {
+        words.textContent = w; if (w === "Paid") words.classList.add("ok");
+        if (ms && !(await later(ms))) return;
+      }
+      activity.unshift({ kind: "loop", title: `Bought: ${b.title}, ${b.total}`, detail: "Bookshop.org, arriving Thursday", when: "Now", isNew: true });
+      badges.activity++;
+      UPCOMING.unshift({ title: `${b.title} from Bookshop.org`, when: "Arriving Thu", x: true });
+      T.reading.pv = `${b.title} is on the way.`;
+      if (!(await later(500))) return;
+      while (busy) { if (!(await later(300))) return; }
+      run("paid", { events: [st("Adding it to Read Next.", "vault_write", 0.6), para(`Paid. It ships Monday, and it’s on Read Next with a note that it came from Walden.`), done()] });
+    };
+    return c;
+  }
+
+  /* ---------- A quest that keeps going on its own ---------- */
+  let questState = "idle";
+  const setClock = (t) => { $("#sb-time").textContent = t; };
+  function banner(title, body, open) {
+    const b = $("#banner");
+    $(".bn", b).textContent = title; $(".bb", b).textContent = body;
+    b.classList.add("on");
+    b.onclick = () => { b.classList.remove("on"); open && open(); };
+    clearTimeout(banner.t); banner.t = setTimeout(() => b.classList.remove("on"), 5200);
+  }
+  const RUNS = [
+    { at: "11:02", events: [st("Reading the Office setup thread.", "Read", 0.7), st("Finding the alcove photo from June.", "memory_search", 1.3),
+      para("The alcove is 50 inches wide and 24 deep, from the photo you sent in June. Most desks start at 48, so I’m looking at those and anything narrower."), done()],
+      next: "Find 48-inch desks in stock nearby", activity: "Measured the alcove: 50 by 24 inches" },
+    { at: "1:30", events: [st("Checking stores within 20 minutes.", "web_search", 0.8), st("Reading reviews for wobble.", "web_search", 1.4),
+      para("Six fit. Three are in stock nearby, and none of them wobble in reviews. The other three ship in two weeks."), done()],
+      next: "Compare the three in stock", activity: "Six desks fit; three in stock nearby" },
+    { at: "4:15", events: [st("Comparing the three in stock.", "Bash", 1.0),
+      para("Down to three. All fit the alcove, and all are in stock today."),
+      card(() => choiceCard("Which desk for the alcove?", [{ label: "Oak writing desk", detail: "48 in, solid top, $289" }, { label: "Steel frame desk", detail: "48 in, crossbar, $219" }, { label: "Wall-mounted fold-down", detail: "Frees the floor, $149" }], (a) => {
+        const q = quests.find((x) => x.id === "desk"); if (q) { q.needs = false; q.next = "Pick up the desk Saturday at 10"; }
+        badges.quests = 0; questState = "done"; renderUpc();
+        send(`Which desk for the alcove? ${a}.`, { script: "desk:" + a });
+      })), done()],
+      next: "Choose one of three desks", activity: "Found three desks that fit the alcove", needs: true }
+  ];
+  async function questDay() {
+    if (questState !== "idle") return;
+    questState = "running";
+    toast("Skipping ahead. He works while you’re away.");
+    for (const r of RUNS) {
+      if (!(await later(1800))) return;
+      while (busy) { if (!(await later(300))) return; }
+      setClock(r.at);
+      await new Promise((res) => run("quest", { thread: "desk", attr: "Shadowfax · Quest", small: true, events: r.events, after: res }));
+      if (questState === "idle") return;
+      const q = quests.find((x) => x.id === "desk");
+      if (q) { q.ran = "Ran " + r.at + (+r.at.split(":")[0] < 9 ? " PM" : " AM"); q.next = r.next; if (r.needs) q.needs = true; }
+      activity.unshift({ kind: "goal", title: r.activity, detail: "Find a desk that fits the alcove", when: r.at + (+r.at.split(":")[0] < 9 ? " PM" : " AM"), isNew: true, open: "desk" });
+      badges.activity++;
+      T.desk.pv = r.activity + ".";
+      if (current !== "desk") T.desk.unread = (T.desk.unread || 0) + 1;
+      if (r.needs) {
+        badges.quests = 1; questState = "waiting";
+        banner("Office setup", "Found three desks that fit the alcove. Pick one?", () => showThread("desk"));
+      }
+      renderUpc();
+    }
+  }
+
+  /* ---------- Sharing from another app ---------- */
+  const dim = $("#dim"), shareSheet = $("#s-share"), ext = $("#s-ext"), extSend = $("#ext-send");
+  let flying = false;
+  function openBrowser() { if (busy || flying || ride.riding) { toast("One moment, he’s still working."); return false; } closeAll(); openSheet("#s-browser"); return true; }
+  function openShare() { dim.classList.add("on"); shareSheet.classList.add("open"); }
+  function closeShare() { shareSheet.classList.remove("open"); ext.classList.remove("open", "flying"); dim.classList.remove("on"); }
+  $("#br-share").onclick = openShare;
+  dim.onclick = () => { if (!flying) closeShare(); };
+  $("#ext-x").onclick = () => { if (!flying) closeShare(); };
+  $("#to-sfx").onclick = () => { shareSheet.classList.remove("open"); setTimeout(() => { ext.classList.add("open"); }, 180); };
+
+  // The flight (ShareFlight.swift, "pulls up"): Send throws the plane into the island,
+  // its dots gather into the letter, and he rides in, takes it in his mouth, nods, and goes.
+  const flightCanvas = $("#flight"), fctx = flightCanvas.getContext("2d");
+  const FL = { enter: 0.12, stop: 0.82, hold: 0.72, wait: 1.8, leave: 0.75 };
+  const GATHER = (() => {
+    const dots = (rows) => { const cols = Math.max(...rows.map((r) => r.length)); const out = []; rows.forEach((line, r) => [...line].forEach((ch, c) => { if (ch === "X") out.push([c - (cols - 1) / 2, r - (rows.length - 1) / 2]); })); return out; };
+    const plane = dots(D.pixels["paperplane.fill"]), letter = dots(S.LETTER);
+    const spread = (pts) => [Math.max(1, ...pts.map((q) => Math.abs(q[0]))), Math.max(1, ...pts.map((q) => Math.abs(q[1])))];
+    const ps2 = spread(plane), ls = spread(letter);
+    const dist = (a, b) => (a[0] / ps2[0] - b[0] / ls[0]) ** 2 + (a[1] / ps2[1] - b[1] / ls[1]) ** 2;
+    const pairs = plane.map((d) => [d, letter.reduce((m, q) => (dist(d, q) < dist(d, m) ? q : m))]);
+    letter.forEach((q) => { if (!pairs.some((pr) => pr[1] === q)) pairs.push([plane.reduce((m, d) => (dist(d, q) < dist(m, q) ? d : m)), q]); });
+    return pairs;
+  })();
+  let fl = null;
+  function islandGeom() {
+    const dpr = Math.min(3, window.devicePixelRatio || 1);
+    const pp = Math.max(1, Math.round(1.7 * dpr)) / dpr, cols = Math.floor(204 / pp), rows = Math.floor(92 / pp), cell = pp * 0.76;
+    return { p: pp, cols, rows, cell, ox: (204 - cols * pp + (pp - cell)) / 2, oy: (92 - rows * pp + (pp - cell)) / 2, top: rows - 4 - 12 };
+  }
+  const smooth = (x) => { const u = Math.min(1, Math.max(0, x)); return u * u * (3 - 2 * u); };
+  function rider(now, cols) {
+    const t = (now - fl.t0) / 1000;
+    const [lr, lc] = S.letterCorner(S.POSES[0][13]);
+    const stop = Math.round(cols / 2 - (lc + 5) / 2), start = -0.6 * 23, sc = (23 * 1.6 / 15) * 1.6;
+    const gallop = (x) => (((Math.floor((x - stop) / sc) + 13) % 15) + 15) % 15;
+    fl.stop = stop; fl.lr = lr; fl.lc = lc;
+    if (t < FL.stop) {
+      const u = Math.min(1, Math.max(0, (t - FL.enter) / (FL.stop - FL.enter))), v0 = 1.5 * (stop - start);
+      const x = Math.round((2 * u ** 3 - 3 * u * u + 1) * start + (u ** 3 - 2 * u * u + u) * v0 + (3 * u * u - 2 * u ** 3) * stop);
+      return { x, frame: gallop(x), letter: false };
+    }
+    if (fl.leaves && now > fl.leaves) {
+      const a = Math.min(1, (now - fl.leaves) / (FL.leave * 1000));
+      const x = Math.round(stop + (cols + 6 - stop) * a * a);
+      return { x, frame: gallop(x), letter: true };
+    }
+    const ph = (t - FL.stop) % FL.wait, u = (ph - 0.12) / 0.48;
+    return { x: stop, frame: 13, dip: ph >= 0.12 && ph <= 0.6 ? (u < 0.25 || u > 0.75 ? 1 : 2) : 0, letter: true };
+  }
+  const flightRide = S.nightRide($("#isl-f"), { pitch: 1.7, moon: 0.83, moonRow: 5, skip: { x0: 39.5, x1: 164.5, y1: 37 }, staged: (now, cols) => rider(now, cols) });
+  function drawPlane(now) {
+    const dpr = Math.min(3, window.devicePixelRatio || 1);
+    if (flightCanvas.width !== 402 * dpr) { flightCanvas.width = 402 * dpr; flightCanvas.height = 874 * dpr; }
+    fctx.setTransform(dpr, 0, 0, dpr, 0, 0); fctx.clearRect(0, 0, 402, 874);
+    const t = (now - fl.t0) / 1000;
+    if (t >= FL.stop || fl.stop == null) return;
+    const g = islandGeom();
+    const target = [99 + g.ox + (fl.stop + fl.lc + 2) * g.p + g.cell / 2, 14 + g.oy + (g.top + fl.lr + 1.5) * g.p + g.cell / 2];
+    const q = 1 - Math.pow(1 - Math.min(1, t / FL.stop), 3), a = 1 - q;
+    const s0 = fl.from, ctl = [s0[0] + 170, s0[1] - (s0[1] - target[1]) * 0.55];
+    const cx = a * a * s0[0] + 2 * a * q * ctl[0] + q * q * target[0], cy = a * a * s0[1] + 2 * a * q * ctl[1] + q * q * target[1];
+    const m = smooth((q - 0.3) / 0.6);
+    const pitch = 5 / 3 + (g.p - 5 / 3) * m, cell = 4 / 3 + (g.cell - 4 / 3) * m;
+    const acc = S.tone("accent"), lift = smooth(t / 0.12), night = smooth((106 + 12 - cy) / 20);
+    const mixc = (x, y, k) => x.map((v, i) => Math.round(v + (y[i] - v) * k));
+    const col = mixc(mixc([255, 255, 255], acc, lift), [255, 255, 255], night);
+    fctx.fillStyle = `rgb(${col[0]},${col[1]},${col[2]})`;
+    fctx.beginPath();
+    for (const [f, to] of GATHER) {
+      const dx = f[0] + (to[0] - f[0]) * m, dy = f[1] + (to[1] - f[1]) * m;
+      const x = cx + dx * pitch - cell / 2, y = cy + dy * pitch - cell / 2;
+      if (fctx.roundRect) fctx.roundRect(x, y, cell, cell, cell * 0.25); else fctx.rect(x, y, cell, cell);
+    }
+    fctx.fill();
+  }
+  S.ticks.push((now) => { if (fl) { flightRide.draw(now, true); drawPlane(now); } });
+
+  const SHARE_STEPS = [["Reading what you shared.", "Read", 1], ["Opening the Walden page.", "vault_page", 2], ["Filing it under chapter 2.", "Edit", 4]];
+  async function sendShare() {
+    if (flying || busy || ride.riding) { toast("One moment, he’s still riding."); return; }
+    const my = epoch, note = $("#ext-note").value.trim();
+    flying = true; busy = true; syncBar();
+    extSend.querySelector(".lb").textContent = "Sending";
+    const pl = extSend.querySelector(".pl").getBoundingClientRect(), pr = ps.getBoundingClientRect(), s = pr.width / 402;
+    const from = [(pl.left + pl.width / 2 - pr.left) / s, (pl.top + pl.height / 2 - pr.top) / s];
+    ext.classList.add("flying"); extSend.classList.add("gone");
+    if (!reduce.matches) {
+      fl = { t0: performance.now(), from, leaves: null };
+      isl.classList.add("staged");
+      setTimeout(() => isl.classList.add("open"), 40);
+      setTimeout(() => isl.classList.add("lit"), 330);
+      if (!(await later(1300))) return;
+      fl.leaves = Math.max(performance.now(), fl.t0 + (FL.stop + FL.hold) * 1000);
+      if (!(await later(fl.leaves - performance.now() + FL.leave * 700))) return;
+      isl.classList.remove("lit");
+      if (!(await later(120))) return;
+      isl.classList.remove("open");
+      if (!(await later(450))) return;
+      isl.classList.remove("staged"); fl = null; fctx.clearRect(0, 0, 402, 874);
+    } else if (!(await later(600))) return;
+    closeShare(); extSend.classList.remove("gone"); extSend.querySelector(".lb").textContent = "Send to Shadowfax"; $("#ext-note").value = "";
+    flying = false;
+    // narsil's Live Activity carries him on in the real island, the letter in his mouth.
+    if (!(await later(500))) return;
+    ride.carry(true); islandRide();
+    const main = listFor("main");
+    $$(".p-chips", main).forEach((c) => c.remove());
+    const box = add(main, el(`<div class="p-share"><div class="lk">${G("link", 3)}<span>Where I Lived, and What I Lived For<small>gutenberg.org</small></span></div></div>`));
+    if (note) box.appendChild(el(`<div class="p-me">${esc(note)}</div>`));
+    if (!(await later(2600))) return;
+    ride.land();
+    const h = him(main);
+    h.body.appendChild(el(`<p class="p-reply">Filed it to the Walden page under chapter 2, next to your two quotes. The line you keep coming back to is in it.</p>`));
+    h.cards.appendChild(pageCard("walden"));
+    h.trail.hidden = false; $(".tx", h.trail).textContent = "Worked for 4 seconds · 3 steps";
+    h.steps.innerHTML = SHARE_STEPS.map((x) => `<div class="p-step"><span>${x[0]}</span><span class="tool">${x[1]}</span><span class="t">${x[2]}s</span></div>`).join("");
+    T.main.pv = "Filed it to the Walden page under chapter 2."; T.main.unread = (T.main.unread || 0) + 1;
+    activity.unshift({ kind: "filed", title: "Filed: Where I Lived, and What I Lived For, to Walden", detail: note || "Shared from the browser", when: "Now", isNew: true });
+    badges.activity++;
+    busy = false; syncBar();
+    if (!(await later(3000))) return;
+    ride.carry(false);
+    banner("Shadowfax", "Filed it to the Walden page under chapter 2, next to your two quotes.", () => { closeAll(); showThread("main"); });
+  }
+  extSend.onclick = sendShare;
+
   /* ---------- Closing things ---------- */
   function closeAll(keepSheets) {
     attach.hidden = true; plus.classList.remove("open");
     closeUpc(); scrim.classList.remove("on");
     if (!keepSheets) $$(".sheet.open").forEach((s) => { s.classList.remove("open"); if (s.id === "s-lens") resetLens(); });
     $(".settings", ps)?.remove();
+    if (!flying) closeShare();
     syncBar();
   }
 
@@ -2203,6 +2590,26 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     await wait(400 + words * 420);
     talkEnd();
   }
+  async function questDemo() {
+    closeAll(); showThread("desk");
+    if (questState !== "idle") { toast(questState === "waiting" ? "He found three. Your pick." : "It’s already running."); return; }
+    if (!(await later(700))) return;
+    const b = $$(".pc .act", listFor("desk")).find((x) => !x.dataset.state);
+    if (b) b.click(); else questDay();
+  }
+  async function shareDemo() {
+    if (!openBrowser()) return;
+    if (!(await later(1000))) return;
+    openShare();
+    if (!(await later(1000))) return;
+    $("#to-sfx").click();
+    if (!(await later(700))) return;
+    const n = $("#ext-note"); n.value = "";
+    for (const ch of "For the Walden page") { n.value += ch; if (!reduce.matches && !(await later(35))) return; }
+    if (!(await later(450))) return;
+    await sendShare();
+    if (await later(1600)) $("#banner").click();
+  }
   function bringIntoView() {
     const r = device.getBoundingClientRect();
     if (r.top < 0 || r.bottom > window.innerHeight) device.scrollIntoView({ behavior: reduce.matches ? "auto" : "smooth", block: "center" });
@@ -2213,13 +2620,20 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       if (name === "filed") typeAndSend("What did we file this week?");
       else if (name === "saturday") typeAndSend("Plan a slow Saturday.");
       else if (name === "playlist") typeAndSend("Make me a playlist for the drive home");
+      else if (name === "books") typeAndSend("Find me something to read");
+      else if (name === "quest") questDemo();
+      else if (name === "share") shareDemo();
       else if (name === "talk") scriptedTalk();
       else if (name === "upcoming") openUpc();
       else if (name === "threads") openThreads();
       else if (name === "quote") { closeAll(); attach.hidden = false; plus.classList.add("open"); focused = true; syncBar(); setTimeout(() => { focused = false; closeAll(); openLens(); }, 650); }
     },
     reset() {
-      epoch++; closeAll();
+      epoch++; flying = false; fl = null; fctx.clearRect(0, 0, 402, 874);
+      isl.classList.remove("open", "lit", "staged"); ride.carry(false);
+      $("#banner").classList.remove("on"); setClock("9:41"); questState = "idle";
+      extSend.classList.remove("gone"); extSend.querySelector(".lb").textContent = "Send to Shadowfax";
+      closeAll();
       lists.innerHTML = ""; emptyDraw = null;
       freshState(); UPCOMING = UPCOMING_BASE(); showDone = false;
       $("#hint").style.opacity = ""; $("#hint").style.pointerEvents = "";
