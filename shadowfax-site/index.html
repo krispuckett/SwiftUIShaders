@@ -493,80 +493,106 @@ a.act { text-decoration: none; }
 .buy-foot .ok { color: var(--accent); font-weight: 600; }
 
 
-/* Voice memo: the card, the island, the Lock Screen */
+/* Voice memo: the composer's row, the island, the Lock Screen, the thread */
 .side-btn { position: absolute; right: -3px; top: 230px; width: 4px; height: 92px; border-radius: 0 3px 3px 0; background: #1E221E; box-shadow: inset -1px 0 0 #2E332E; cursor: pointer; }
 .side-btn:hover { background: #2A2F2A; }
 .side-btn:focus-visible { outline: 2px solid var(--accent); }
 .frame { position: relative; }
-.memo { border-radius: 28px; padding: 16px 12px 10px 20px; display: grid; gap: 10px; }
-.m-top { display: flex; align-items: center; gap: 10px; }
-.m-top .rec { width: 9px; height: 9px; border-radius: 50%; background: #D0543F; }
-.m-top .rec.paused { background: var(--quiet); }
-.m-top .m-time { font: 600 17px var(--sans); font-variant-numeric: tabular-nums; }
-.m-top .sp, .m-row .sp { flex: 1; }
-.m-line { font-size: 17px; line-height: 1.35; min-height: 46px; color: var(--ink); padding-right: 8px; }
-.m-line .old { color: var(--quiet); }
-.m-row { display: flex; align-items: center; gap: 8px; }
-.m-row .act { width: auto; padding: 11px 18px; }
-.m-row .discard { font-size: 15px; font-weight: 600; color: var(--failure); min-height: 44px; padding: 0 8px; }
-.meter { display: inline-grid; place-items: center; transition: opacity .15s; }
-.meter.calm { opacity: .5; }
+/* MemoCard: over the composer's row, which stays in place unseen; the strip rides under it. */
+.bar { position: relative; }
+.bar-top { transition: opacity .2s; }
+.bar.memo-on .bar-top { opacity: 0; pointer-events: none; }
+.bar.memo-on .bar-talk { padding: 0 18px 14px; }
+.mcard { position: absolute; left: 0; right: 0; top: 0; min-height: 56px; display: flex; align-items: center; gap: 4px; padding: 6px 8px; animation: fade .2s ease-out; }
+.m-trash { min-width: 44px; height: 44px; display: grid; place-items: center; color: var(--quiet); flex: none; }
+.m-trash.armed { min-width: 0; height: 34px; padding: 0 14px; margin: 0 2px; border-radius: 999px; background: var(--ink); color: var(--paper); font-size: 15px; font-weight: 600; animation: arm .32s var(--spring); }
+@keyframes arm { from { transform: scale(.6); opacity: 0; } }
+@keyframes fade { from { opacity: 0; } }
+.m-mid { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.m-clock { display: flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 600; line-height: 20px; }
+.m-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex: none; transition: opacity .2s; }
+.m-paused { display: none; font-weight: 400; color: var(--quiet); }
+.mcard.paused .m-dot { opacity: .3; }
+.mcard.paused .m-paused { display: inline; }
+.m-heard { font-size: 13px; line-height: 18px; color: var(--quiet); white-space: nowrap; overflow: hidden; }
+.m-pause { color: var(--ink); margin-left: 4px; }
+/* The lock above a hold on the mic (MemoLockHint). */
+.lockpill { position: absolute; z-index: 2; width: 30px; height: 44px; border-radius: 15px; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  color: color-mix(in srgb, var(--ink) calc(55% + 45% * var(--p, 0)), transparent); background: color-mix(in srgb, var(--paper) 86%, transparent);
+  box-shadow: inset 0 1px 0 var(--glass-hi), inset 0 0 0 0.7px var(--panel-line), 0 6px 16px -8px rgb(0 0 0 / .3); pointer-events: none; transform-origin: 50% 100%; }
+.lockpill.on { display: flex; animation: arm .24s var(--spring); }
+.lockpill.full { color: var(--accent); }
+.lockpill .lp-up { opacity: calc(1 - var(--p, 0)); }
+.lockpill svg { fill: currentColor; display: block; }
+/* The island: compact, the horse and his voice beside the time; held open, the row. */
 .isl-memo, .isl-row { position: absolute; display: none; align-items: center; }
-.island.memo { width: 212px; margin-left: -106px; }
-.ps:has(.island.memo) .sb .r { opacity: 0; }
-.ps:has(.island.memo) .sb { padding-left: 36px; }
+.island.memo { width: 212px; margin-left: -106px; cursor: pointer; }
 .ps:has(.island.memo-x) .sb { opacity: 0; }
-.island.memo canvas, .island.memo-x canvas { display: none; }
+/* A wide compact island leaves the time and the battery (the signal and Wi-Fi step aside). */
+.ps:has(.island.memo) .sb .r svg:not(:last-child) { display: none; }
+.island.memo canvas { display: none; }
 .island.memo .isl-memo { display: flex; inset: 0; justify-content: space-between; padding: 0 16px 0 14px; }
-.island.memo-x { width: 374px; height: 136px; margin-left: -187px; border-radius: 46px; }
+.island.memo-x { width: 374px; height: 110px; margin-left: -187px; border-radius: 44px; cursor: default; }
 .island.memo-x .isl-memo { display: none; }
-.island.memo-x .isl-row { display: flex; left: 22px; right: 18px; bottom: 20px; gap: 12px; }
-.im-l { display: flex; align-items: center; gap: 6px; }
-.im-l svg, .lrow2 svg, .isl-row svg { fill: currentColor; }
-.im-horse, .im-meter { color: var(--n-cream); }
-.im-meter { color: var(--n-sage); }
-.im-t { font: 600 14px var(--sans); font-variant-numeric: tabular-nums; color: var(--n-sage); }
+.island.memo-x .isl-row { display: flex; left: 22px; right: 18px; bottom: 16px; }
+.im-l { display: flex; align-items: center; gap: 5px; }
+.im-l svg, .isl-row svg { fill: currentColor; }
+.im-horse { color: var(--n-cream); }
+.im-meter, .im-t { color: var(--n-sage); }
+.island.memo-paused .im-meter, .island.memo-paused .im-t { color: var(--n-quiet); }
+.im-t { font: 600 14px var(--sans); font-variant-numeric: tabular-nums; }
 .mrow2 { display: flex; align-items: center; gap: 12px; width: 100%; color: var(--n-cream); }
-.mrow2 .big { font: 600 30px var(--sans); font-variant-numeric: tabular-nums; letter-spacing: -0.5px; }
-.mrow2 .sp { flex: 1; }
+.mrow2 svg { fill: currentColor; display: block; }
+.mrow2 .big { font: 600 30px var(--sans); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mrow2 .sp { flex: 1; min-width: 4px; }
 .mrow2 .cir { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--n-cream) 14%, transparent); color: var(--n-cream); flex: none; }
 .mrow2 .cir.send { background: var(--n-sage); color: var(--n-night); }
 .mrow2 .mtr { color: var(--n-sage); }
 .mrow2.paused .mtr, .mrow2.paused .big { color: var(--n-quiet); }
-.lock { position: absolute; inset: 0; z-index: 52; color: #fff; opacity: 0; pointer-events: none; transform: translateY(24px) scale(1.02); transition: opacity .4s var(--ease), transform .45s var(--ease); overflow: hidden; }
+/* The Lock Screen: plain, the date and time, Live Activities at the foot, two Controls. */
+.lock { position: absolute; inset: 0; z-index: 52; color: #fff; opacity: 0; pointer-events: none; transform: translateY(24px) scale(1.02); transition: opacity .4s var(--ease), transform .45s var(--ease); overflow: hidden;
+  background: radial-gradient(120% 70% at 50% 0%, color-mix(in srgb, var(--n-night) 70%, #000) 0%, #000 72%); }
 .lock.on { opacity: 1; pointer-events: auto; transform: none; }
-.lock { background: #000; }
-.lk-face { position: absolute; top: 88px; left: 50%; width: 208px; height: 208px; margin-left: -104px; }
-.lk-face canvas { width: 100%; height: 100%; display: block; }
-.lk-list { position: absolute; left: 14px; right: 14px; top: 336px; display: grid; gap: 10px; }
+.lk-top { position: absolute; top: 68px; left: 0; right: 0; text-align: center; }
+.lk-date { font-size: 19px; font-weight: 600; opacity: .88; }
+.lk-time { font: 600 92px/1 var(--sans); letter-spacing: -0.02em; margin-top: 2px; color: rgb(255 255 255 / .94); }
+.lk-list { position: absolute; left: 14px; right: 14px; bottom: 126px; display: grid; gap: 10px; }
 .la { border-radius: 26px; padding: 16px 18px; background: color-mix(in srgb, var(--n-night) 78%, transparent); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
-  box-shadow: inset 0 0 0 .7px rgb(255 255 255 / .08); animation: fin .45s var(--ease) both; color: var(--n-cream); text-align: left; width: 100%; display: grid; gap: 8px; }
-.la .top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
-.la .top .num { font-weight: 600; color: var(--n-sage); }
-.la .st { font-size: 17px; font-weight: 600; line-height: 1.3; }
-.la .q { font-size: 13px; color: var(--n-quiet); }
-.la .rp { font-size: 15px; line-height: 1.35; }
-.la svg { fill: currentColor; }
-.lk-note { display: grid; grid-template-columns: 38px 1fr auto; gap: 1px 12px; padding: 13px 15px; border-radius: 24px; text-align: left; width: 100%; color: #fff;
-  background: rgb(255 255 255 / .14); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); animation: fin .45s var(--ease) both; }
-.lk-note img { width: 38px; height: 38px; border-radius: 9px; grid-row: 1 / span 3; }
-.lk-note b { font-size: 15px; font-weight: 600; }
-.lk-note .w { font-size: 12px; opacity: .7; }
-.lk-note .t2 { grid-column: 2 / span 2; font-size: 15px; font-weight: 600; }
-.lk-note .b2 { grid-column: 2 / span 2; font-size: 15px; line-height: 1.3; opacity: .9; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  box-shadow: inset 0 0 0 .7px rgb(255 255 255 / .08); animation: fin .45s var(--ease) both; color: var(--n-cream); text-align: left; width: 100%; }
+.la.turn { display: grid; gap: 10px; padding: 16px; }
+.la .top { display: flex; justify-content: space-between; align-items: center; }
+.la .hm { color: var(--n-cream); }
+.la.done .hm { color: var(--n-sage); }
+.la .top .tt { font-size: 13px; font-weight: 500; color: var(--n-quiet); }
+.la .st { font-size: 15px; font-weight: 500; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.la .q { font-size: 13px; color: var(--n-quiet); margin-top: -8px; }
+.la .rp { font-size: 15px; line-height: 20px; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.la svg { fill: currentColor; display: block; }
 .lk-ctl { position: absolute; bottom: 52px; width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: rgb(255 255 255 / .16); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); transition: transform .18s var(--ease), background-color .2s; }
 .lk-ctl svg { fill: #fff; }
 .lk-ctl.l { left: 46px; } .lk-ctl.r { right: 46px; }
 .lk-ctl.pressed { transform: scale(1.18); background: rgb(255 255 255 / .34); }
-.lk-hint { position: absolute; bottom: 20px; left: 0; right: 0; text-align: center; font-size: 13px; opacity: .6; }
 .ps:has(.lock.on) .sb { color: #fff; }
+.ps:has(.lock.on) #sb-time { opacity: 0; }
 .ps:has(.lock.on) .home-ind { background: #fff; }
-.p-memo { justify-self: end; width: 82%; border-radius: 23px; background: var(--bubble); padding: 12px 16px 12px; display: grid; gap: 8px; animation: pin .3s var(--ease); }
-.p-memo .mr { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--quiet); }
-.p-memo .mr svg { fill: var(--ink); }
-.p-memo .gist { font-size: 17px; line-height: 1.35; }
-.p-memo .trb { justify-self: start; font-size: 12px; font-weight: 600; color: var(--quiet); min-height: 28px; }
-.p-memo .full { font-size: 15px; line-height: 1.4; color: var(--soft); }
+/* Swiping along the bottom, to the last app and back, while a memo records. */
+.home-ind.can { pointer-events: auto; cursor: pointer; }
+.home-ind.can::before { content: ""; position: absolute; inset: -14px -20px -8px; }
+/* His memo in the thread: the player, then its line. */
+.p-memo { justify-self: end; display: grid; justify-items: end; gap: 6px; max-width: calc(100% - 38px); animation: pin .3s var(--ease); }
+.ab { display: flex; align-items: center; gap: 12px; padding: 4px 14px 4px 4px; border-radius: 999px; background: var(--bubble); }
+.ab-play { width: 36px; height: 36px; display: grid; place-items: center; color: var(--ink); }
+.ab-w { display: block; cursor: pointer; }
+.ab .dw { display: block; fill: var(--ink); }
+.ab .dw .q { fill: color-mix(in srgb, var(--quiet) 55%, transparent); }
+.ab-t { font-size: 12px; color: var(--quiet); min-width: 34px; text-align: right; }
+.mg { background: var(--bubble); border-radius: 23px; padding: 13px 18px; display: grid; gap: 8px; justify-items: start; }
+.mg .g { font-size: 17px; line-height: 1.35; color: var(--ink); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; transition: opacity .18s; }
+.mg .g.pending { color: var(--quiet); -webkit-line-clamp: 2; }
+.mg .g.swap { opacity: 0; }
+.trb { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 500; color: var(--accent); min-height: 24px; }
+.tr .ttl { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tr-body { font-size: 17px; line-height: 27px; padding: 16px 20px 40px; user-select: text; }
 
 
 /* Settings menu, as the app's: Appearance and Palette, each opening its choices */
@@ -1637,11 +1663,10 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       <div class="isl-memo"><span class="im-l"><span class="im-horse"></span><span class="im-meter meter"></span></span><span class="im-t">0:00</span></div>
       <div class="isl-row"><div class="mrow2" data-memo-row></div></div></div>
     <div class="lock" id="lock" aria-label="Lock Screen">
-      <div class="lk-face"><canvas id="lk-clock" aria-label="Clock"></canvas></div>
+      <div class="lk-top"><div class="lk-date" id="lk-date"></div><div class="lk-time" id="lk-time">9:41</div></div>
       <div class="lk-list" id="lk-list"></div>
       <button class="lk-ctl l" id="lk-memo" type="button" aria-label="Voice Memo"></button>
       <button class="lk-ctl r" id="lk-talk" type="button" aria-label="Talk to Shadowfax">${G("waveform", 3.4)}</button>
-      <div class="lk-hint" id="lk-hint">Tap to open</div>
     </div>
     <canvas id="flight" aria-hidden="true"></canvas>
     <button class="banner glass" id="banner" type="button" aria-live="polite"><img src="icons/stride.png" alt=""><span class="bt"><b>Shadowfax</b><span class="bn"></span></span><span class="bw">now</span><span class="bb"></span></button>
@@ -1666,19 +1691,19 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
           <div class="tabs" role="tablist" id="tabs"></div>
           <div class="ulist" id="ulist"></div>
         </div>
-        <div class="memo glass" id="memo" hidden>
-          <div class="m-top"><span class="rec" id="m-rec"></span><span class="m-time" id="m-time">0:00</span><span class="meter" id="m-meter"></span><span class="sp"></span>
-            <button class="ibtn" id="m-pause" type="button" aria-label="Pause">${G("pause.fill", 3)}</button></div>
-          <div class="m-line" id="m-line">Listening</div>
-          <div class="m-row"><button class="ibtn" id="m-trash" type="button" aria-label="Discard">${G("trash", 1.67)}</button><span class="sp"></span>
-            <button class="act primary" id="m-send" type="button">${G("arrow.up", 2.4)}<span>Send memo</span></button></div>
-        </div>
         <form class="bar glass" id="bar" autocomplete="off">
           <div class="bar-top">
             <label for="inp" style="position:absolute;left:-9999px">Message</label>
             <input id="inp" type="text" placeholder="Message Shadowfax" enterkeyhint="send">
             <button class="ibtn" id="mic1" type="button" aria-label="Hold to talk">${G("waveform", 3.67)}</button>
           </div>
+          <div class="mcard" id="memo" hidden>
+            <button class="m-trash" id="m-trash" type="button" aria-label="Discard memo">${G("trash", 1.67)}</button>
+            <div class="m-mid"><div class="m-clock"><i class="m-dot"></i><span class="num" id="m-time">0:00</span><span class="m-paused">Paused</span></div><div class="m-heard" id="m-heard">&nbsp;</div></div>
+            <button class="ibtn m-pause" id="m-pause" type="button" aria-label="Pause">${G("pause.fill", 3)}</button>
+            <button class="send m-send" id="m-send" type="button" aria-label="Send memo">${G("arrow.up", 3.4)}</button>
+          </div>
+          <div class="lockpill" id="lockpill" aria-hidden="true"><span class="lp-lock"></span><span class="lp-up">${glyphSVG(["..X..", ".X.X.", "X...X"], 2)}</span></div>
           <div class="bar-talk" id="talk" hidden><canvas id="talk-c"></canvas></div>
           <div class="bar-row" id="row" hidden>
             <button class="ibtn plus" id="plus" type="button" aria-label="Attach">${G("plus", 3.67)}</button>
@@ -1763,7 +1788,11 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
         <button class="ext-send" type="button" id="ext-send"><span class="pl">${G("paperplane.fill", 1.67)}</span><span class="lb">Send to Shadowfax</span></button>
       </div>
     </section>
-    <div class="home-ind"></div>`;
+    <section class="sheet from-bottom tr" id="s-transcript" aria-label="Transcript">
+      <div class="sh-bar"><span></span><span class="ttl" id="tr-title">Voice memo</span><button class="txtbtn rt" type="button" data-close>Done</button></div>
+      <div class="sh-body tr-body" id="tr-body"></div>
+    </section>
+    <button class="home-ind" id="home-ind" type="button" tabindex="-1" aria-label="Swipe to the last app"></button>`;
 
   /* ---------- Fit the device to the page ---------- */
   const device = document.getElementById("device");
@@ -2224,7 +2253,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     const t0 = performance.now(), steps = [];
     let status = null, phase = "working";
     const ridePick = S.RIDE[Math.floor(Math.random() * S.RIDE.length)];
-    islandRide();
+    if (!opts.away) islandRide();
     h.think.hidden = false;
     const w = $(".w", h.think), secs = $(".secs", h.think);
     const tick = setInterval(() => {
@@ -2245,7 +2274,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       await wait(ev[ev.length - 1] * 1000);
       if (!alive()) { clearInterval(tick); return; }
       const [kind, a, b] = ev;
-      if (kind === "status") { status = a; steps.push({ text: a, tool: b, at: Math.max(1, Math.round((performance.now() - t0) / 1000)) }); }
+      if (kind === "status") { status = a; opts.onStatus && opts.onStatus(a); steps.push({ text: a, tool: b, at: Math.max(1, Math.round((performance.now() - t0) / 1000)) }); }
       else if (kind === "para") {
         writing();
         const p = el(`<p class="p-reply${opts.small ? " small" : ""}"></p>`); follow(() => h.body.appendChild(p));
@@ -2265,7 +2294,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
         const f = el(`<div class="p-fail"><div class="row">${G("exclamationmark.circle", 3)}<span>${esc(a)}</span></div><button class="act" type="button" style="justify-self:start;width:auto">${G("arrow.counterclockwise", 2.4)}<span>Try again</span></button></div>`);
         $(".act", f).onclick = () => { if (busy) return; f.remove(); h.node.remove(); run("fallback"); };
         follow(() => h.body.appendChild(f));
-        ride.land(); break;
+        if (!opts.away) ride.land(); break;
       } else if (kind === "done") {
         phase = "done";
         const secsTotal = Math.max(1, Math.round((performance.now() - t0) / 1000));
@@ -2273,7 +2302,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
         $(".tx", h.trail).textContent = `Worked for ${secsTotal} second${secsTotal === 1 ? "" : "s"} · ${steps.length} step${steps.length === 1 ? "" : "s"}`;
         h.steps.innerHTML = steps.map((s) => `<div class="p-step"><span>${esc(s.text)}</span>${s.tool ? `<span class="tool">${esc(s.tool)}</span>` : ""}<span class="t">${s.at}s</span></div>`).join("");
         if (opts.voice) h.body.appendChild(audioChip("0:0" + Math.min(9, 2 + Math.round(h.body.textContent.length / 60))));
-        ride.land();
+        if (!opts.away) ride.land();
         if (a && threadId === current) follow(() => chips(list, a));
         T[threadId].pv = (h.body.textContent || "").trim().slice(0, 90) || T[threadId].pv;
       }
@@ -2298,7 +2327,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
   const bar = $("#bar"), inp = $("#inp"), row = $("#row"), mic1 = $("#mic1"), sendBtn = $("#send"), attach = $("#attach"), plus = $("#plus");
   let focused = false, blurT = null;
   function syncBar() {
-    const expanded = focused || inp.value || !attach.hidden || busy || talking;
+    const expanded = !bar.classList.contains("memo-on") && (focused || inp.value || !attach.hidden || busy || talking);
     row.hidden = !expanded; mic1.hidden = !!expanded;
     $(".bar-top", bar).style.paddingRight = expanded ? "20px" : "6px";
     sendBtn.disabled = busy || !inp.value.trim();
@@ -2772,13 +2801,14 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
   }
   extSend.onclick = sendShare;
 
-  /* ---------- Voice memo: in the app, in the island, on the Lock Screen ---------- */
+  /* ---------- Voice memo (MemoCard, MemoActivityWidget, TurnActivityWidget) ----------
+     In the app: the composer turns into the memo's row, the horse runs in the strip under
+     it. Away in another app: the Live Activity in the island, compact, and held open. On the
+     Lock Screen: the same row, Pause and Send, and once sent, the turn's own activity. */
   const MIC = [".XXX.", ".XXX.", ".XXX.", "X.X.X", ".XXX.", "..X..", ".XXX."];
   $("#lk-memo").innerHTML = glyphSVG(MIC, 3.4);
-  const lock = $("#lock"), lkList = $("#lk-list"), memoCard = $("#memo");
-  const drawLockClock = S.clockFace($("#lk-clock"), { time: () => $("#sb-time").textContent });
-  let lockTenth = -1;
-  S.ticks.push((now) => { if (!lock.classList.contains("on")) return; const t = Math.floor(now / 100); if (t !== lockTenth) { lockTenth = t; drawLockClock(now); } });
+  const lock = $("#lock"), lkList = $("#lk-list"), memoCard = $("#memo"), homeInd = $("#home-ind");
+  $("#lk-date").textContent = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
   // The island's night colors, whatever the appearance (MemoIsland).
   function nightVars() {
     const pal = S.P[document.documentElement.getAttribute("data-palette")] || S.P.fangorn;
@@ -2792,117 +2822,209 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     bars.forEach((h, i) => { const half = (h - 1) / 2; for (let r = 2 - half; r <= 2 + half; r++) rows[r][i * 2] = "X"; });
     return glyphSVG(rows.map((r) => r.join("")), pitch);
   };
+  const LOCK_SHUT = ["..XXX..", ".X...X.", ".X...X.", "XXXXXXX", "XXX.XXX", "XXX.XXX", "XXXXXXX"];
+  const LOCK_OPEN = ["..XXX..", ".X...X.", ".X.....", "XXXXXXX", "XXX.XXX", "XXX.XXX", "XXXXXXX"];
   const MEMO_WORDS = "Couple things. Put the chainring bolts in the cart, the short ones. Move the Moab campsite to Friday. And remind me Thursday night to charge the headlamp.".split(" ");
   const MEMO_GIST = "Chainring bolts, Moab to Friday, charge the headlamp";
-  const memo = { on: false, paused: false, acc: 0, since: 0, i: 0, bars: [1, 1, 1], timer: null, voice: [] };
+  const memo = { on: false, paused: false, away: false, acc: 0, since: 0, i: 0, bars: [1, 1, 1], timer: null };
   const memoSecs = () => memo.acc + (memo.on && !memo.paused ? (performance.now() - memo.since) / 1000 : 0);
   const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  const locked = () => lock.classList.contains("on");
+
   function setBars(b) {
     memo.bars = b;
-    const calm = b.every((x) => x <= 1);
-    [["#m-meter", 2.4], [".im-meter", 3]].forEach(([sel, pp]) => { const n = $(sel); n.innerHTML = meterSVG(b, pp); n.classList.toggle("calm", calm); });
-    $$(".mtr", ps).forEach((n) => { n.innerHTML = meterSVG(b, 3.6); n.classList.toggle("calm", calm); });
+    const n = $(".im-meter"); n.innerHTML = meterSVG(b, 3);
+    $$(".mtr", ps).forEach((m) => { m.innerHTML = meterSVG(b, 3.6); });
   }
-  function memoRowHTML() {
-    return `<span>${S.markSVG(13, 2.4)}</span><span class="mtr meter"></span><span class="big mt">0:00</span><span class="sp"></span>
-      <button class="cir mp" type="button" aria-label="Pause">${G("pause.fill", 3.6)}</button><button class="cir send ms" type="button" aria-label="Send memo">${G("arrow.up", 3.6)}</button>`;
-  }
+  // MemoRow: the horse standing, his voice in the meter, the time, round Pause and Send.
   function wireRow(row, where) {
-    row.innerHTML = memoRowHTML();
+    row.innerHTML = `<span>${S.markSVG(13, 2.4)}</span><span class="mtr"></span><span class="big mt num">${mmss(memoSecs())}</span><span class="sp"></span>
+      <button class="cir mp" type="button" aria-label="${memo.paused ? "Resume" : "Pause"}">${G(memo.paused ? "play.fill" : "pause.fill", 3.6)}</button><button class="cir send ms" type="button" aria-label="Send memo">${G("arrow.up", 3.6)}</button>`;
+    row.classList.toggle("paused", memo.paused);
     $(".mp", row).onclick = (e) => { e.stopPropagation(); togglePause(); };
     $(".ms", row).onclick = (e) => { e.stopPropagation(); sendMemo(where); };
+    setBars(memo.bars);
   }
   wireRow($("[data-memo-row]"), "island");
   $(".im-horse").innerHTML = S.markSVG(13, 1.2);
+
+  // The last line heard, cut at the front (lineLimit 1, truncationMode .head).
+  function setHeard(words) {
+    const n = $("#m-heard");
+    n.textContent = words.length ? words.join(" ") : " ";
+    for (let from = 1; n.scrollWidth > n.clientWidth && from < words.length; from++) n.textContent = "…" + words.slice(from).join(" ");
+  }
   function hearWord() {
     // A word lifts the middle; the sides follow a beat later; quiet falls back over a third of a second.
     const tok = (memo.voiceTok = (memo.voiceTok || 0) + 1);
-    setBars([1, 5, 1]);
+    setBars([1, 5, 1]); talkField.target = 30 + 16 * Math.random();
     setTimeout(() => { if (tok === memo.voiceTok) setBars([3, 5, 3]); }, 180);
     setTimeout(() => { if (tok === memo.voiceTok) setBars([1, 3, 1]); }, 560);
-    setTimeout(() => { if (tok === memo.voiceTok) setBars([1, 1, 1]); }, 900);
+    setTimeout(() => { if (tok === memo.voiceTok) { setBars([1, 1, 1]); talkField.target = 14; } }, 900);
   }
   function nextWord() {
     if (!memo.on) return;
-    if (!memo.paused && memo.i < MEMO_WORDS.length) {
-      memo.i++; hearWord();
-      const said = MEMO_WORDS.slice(0, memo.i), cut = Math.max(0, said.length - 9);
-      $("#m-line").innerHTML = (cut ? `<span class="old">…</span> ` : "") + esc(said.slice(cut).join(" "));
-    }
-    memo.timer = setTimeout(nextWord, 300 + Math.random() * 160);
+    if (!memo.paused && memo.i < MEMO_WORDS.length) { memo.i++; hearWord(); setHeard(MEMO_WORDS.slice(0, memo.i)); }
+    memo.timer = setTimeout(nextWord, 420 + Math.random() * 180);
   }
   function togglePause() {
     if (!memo.on) return;
-    if (memo.paused) { memo.paused = false; memo.since = performance.now(); } else { memo.acc = memoSecs(); memo.paused = true; setBars([1, 1, 1]); }
-    const g = G(memo.paused ? "play.fill" : "pause.fill", 3);
-    $("#m-pause").innerHTML = g; $("#m-rec").classList.toggle("paused", memo.paused);
-    $("#m-line").firstChild && memo.paused && ($("#m-line").innerHTML = "Paused");
-    $$(".mrow2", ps).forEach((r) => { r.classList.toggle("paused", memo.paused); const b = $(".mp", r); if (b) b.innerHTML = G(memo.paused ? "play.fill" : "pause.fill", 3.6); });
+    if (memo.paused) { memo.paused = false; memo.since = performance.now(); }
+    else { memo.acc = memoSecs(); memo.paused = true; memo.voiceTok++; setBars([1, 1, 1]); talkField.target = 0; }
+    memoCard.classList.toggle("paused", memo.paused);
+    $("#m-pause").innerHTML = G(memo.paused ? "play.fill" : "pause.fill", 3);
+    $("#m-pause").setAttribute("aria-label", memo.paused ? "Resume" : "Pause");
+    $$(".mrow2", ps).forEach((r) => {
+      r.classList.toggle("paused", memo.paused);
+      const b = $(".mp", r); if (b) { b.innerHTML = G(memo.paused ? "play.fill" : "pause.fill", 3.6); b.setAttribute("aria-label", memo.paused ? "Resume" : "Pause"); }
+    });
+    isl.classList.toggle("memo-paused", memo.paused);
   }
   S.ticks.push(() => {
     if (!memo.on) return;
     const t = mmss(memoSecs());
-    $("#m-time").textContent = t; $(".im-t").textContent = t;
-    $$(".mrow2 .mt", ps).forEach((n) => { n.textContent = t; });
+    if ($("#m-time").textContent !== t) { $("#m-time").textContent = t; $(".im-t").textContent = t; $$(".mrow2 .mt", ps).forEach((n) => { n.textContent = t; }); }
   });
-  function lockOn() {
+
+  // Where the memo shows: the island only while he's in another app; never over its own app.
+  function memoChrome() {
+    const away = memo.on && memo.away && !locked();
+    isl.classList.toggle("memo", away);
+    if (!away) isl.classList.remove("memo-x");
+    homeInd.classList.toggle("can", memo.on && !locked());
+  }
+  function goAway() {
+    if (!memo.on || memo.away) return;
+    memo.away = true; closeAll(true); openSheet("#s-browser"); memoChrome();
+  }
+  function comeBack() {
+    if (!memo.away) return;
+    memo.away = false; $("#s-browser").classList.remove("open"); memoChrome();
+  }
+  homeInd.onclick = () => { if (!memo.on || locked()) return; if (memo.away) comeBack(); else goAway(); };
+  $("#s-browser [data-close]").addEventListener("click", () => { if (memo.on && memo.away) { memo.away = false; memoChrome(); } });
+
+  // The island: a tap opens the app; held, it opens up to the row.
+  let islHold = null, islHeld = false;
+  isl.addEventListener("pointerdown", () => {
+    if (!isl.classList.contains("memo") || isl.classList.contains("memo-x")) return;
+    islHeld = false; clearTimeout(islHold);
+    islHold = setTimeout(() => { islHeld = true; isl.classList.add("memo-x"); }, 380);
+  });
+  ["pointerup", "pointerleave", "pointercancel"].forEach((t) => isl.addEventListener(t, () => clearTimeout(islHold)));
+  isl.addEventListener("click", (e) => {
+    if (!isl.classList.contains("memo")) return;
+    if (islHeld) { islHeld = false; return; }
+    if (e.target.closest("button")) return;
+    comeBack();
+  });
+  isl.addEventListener("contextmenu", (e) => e.preventDefault());
+  // A tap anywhere else lets the held-open island fall back to compact.
+  ps.addEventListener("pointerdown", (e) => { if (isl.classList.contains("memo-x") && !isl.contains(e.target)) isl.classList.remove("memo-x"); }, true);
+  isl.style.pointerEvents = "auto";
+
+  /* The Lock Screen: the date and time, what's live, and the two Controls. */
+  let lkTurn = null, lkLap = null;
+  function renderLock() {
     lkList.innerHTML = "";
-    if (memo.on) {
-      const la = el(`<div class="la"><div class="mrow2"></div></div>`);
-      wireRow($(".mrow2", la), "lock"); lkList.appendChild(la); setBars(memo.bars);
-      $("#lk-hint").textContent = "Recording. Pause or send from here.";
-    } else $("#lk-hint").textContent = "Tap to open";
-    lock.classList.add("on");
-    isl.classList.remove("memo", "memo-x");
+    if (lkTurn) lkList.appendChild(lkTurn);
+    if (memo.on) { const la = el(`<div class="la"><div class="mrow2"></div></div>`); wireRow($(".mrow2", la), "lock"); lkList.appendChild(la); }
+  }
+  function lockOn() {
+    $("#lk-time").textContent = $("#sb-time").textContent;
+    renderLock(); lock.classList.add("on"); memoChrome();
   }
   function unlock() {
     lock.classList.remove("on");
-    if (memo.on) isl.classList.add("memo");
+    if (lkTurn && lkTurn.classList.contains("done")) lkTurn = null;
+    memoChrome();
   }
-  // The face is the StandBy clock's: it redraws when the palette changes.
-  S.onPalette.push(() => drawLockClock(0));
-  lock.addEventListener("click", (e) => {
-    if (e.target.closest("button")) return;
-    if (!lkList.querySelector(".la.turn")) unlock();
-  });
-  document.getElementById("side-btn").onclick = () => { if (lock.classList.contains("on")) unlock(); else { closeAll(); lockOn(); } };
+  lock.addEventListener("click", (e) => { if (!e.target.closest("button")) unlock(); });
+  document.getElementById("side-btn").onclick = () => { if (locked()) unlock(); else { closeAll(true); lockOn(); } };
+
   function startMemo() {
     if (busy || ride.riding || flying || memo.on) return false;
     closeAll(); if (current !== "main") showThread("main");
-    Object.assign(memo, { on: true, paused: false, acc: 0, since: performance.now(), i: 0 });
-    $("#m-line").textContent = "Listening"; $("#m-pause").innerHTML = G("pause.fill", 3); $("#m-rec").classList.remove("paused");
-    $$(".mrow2", ps).forEach((r) => r.classList.remove("paused"));
-    memoCard.hidden = false; bar.hidden = true; $("#hint").style.opacity = 0;
-    isl.classList.remove("open", "lit", "staged"); isl.classList.add("memo");
-    setBars([1, 1, 1]);
+    Object.assign(memo, { on: true, paused: false, away: false, acc: 0, since: performance.now(), i: 0 });
+    memoCard.classList.remove("paused"); isl.classList.remove("memo-paused");
+    $("#m-pause").innerHTML = G("pause.fill", 3); $("#m-time").textContent = "0:00"; $(".im-t").textContent = "0:00";
+    armTrash(false);
+    memoCard.hidden = false; bar.classList.add("memo-on"); talkBox.hidden = false; talkField.resize(); talkField.target = 14;
+    $("#hint").style.opacity = 0; syncBar();
+    setHeard([]); setBars([1, 1, 1]); memoChrome();
     clearTimeout(memo.timer); memo.timer = setTimeout(nextWord, 600);
     return true;
   }
   function stopMemo() {
-    memo.acc = memoSecs(); memo.on = false; clearTimeout(memo.timer);
-    memoCard.hidden = true; bar.hidden = false;
-    isl.classList.remove("memo", "memo-x");
+    memo.acc = memoSecs(); memo.on = false; memo.away = false; clearTimeout(memo.timer); memo.voiceTok++;
+    memoCard.hidden = true; bar.classList.remove("memo-on"); talkBox.hidden = true; talkField.target = 12;
+    armTrash(false); syncBar(); memoChrome();
   }
+  // The Voice Memo Control opens the app recording (StartVoiceMemoIntent, a foreground intent).
   $("#lk-memo").onclick = async () => {
     const b = $("#lk-memo"); b.classList.add("pressed");
     if (!(await later(320))) return; b.classList.remove("pressed");
+    if (memo.on) { memo.away = false; $("#s-browser").classList.remove("open"); unlock(); return; }
     unlock(); startMemo();
   };
   $("#lk-talk").onclick = async () => { const b = $("#lk-talk"); b.classList.add("pressed"); if (!(await later(320))) return; b.classList.remove("pressed"); unlock(); scriptedTalk(); };
-  $("#m-pause").onclick = togglePause;
-  $("#m-trash").onclick = () => {
-    const row = $(".m-row", memoCard);
-    if (row.querySelector(".discard")) return;
-    const d = el(`<button class="discard" type="button">Discard</button>`);
-    d.onclick = () => { stopMemo(); toast("Memo discarded."); };
-    row.insertBefore(d, row.children[1]);
-    setTimeout(() => d.remove(), 3000);
-  };
-  $("#m-send").onclick = () => sendMemo("app");
-  isl.addEventListener("click", () => { if (memo.on && !lock.classList.contains("on")) isl.classList.toggle("memo-x"); });
-  isl.style.pointerEvents = "auto"; isl.style.cursor = "pointer";
 
-  const MEMO_STEPS = [["Reading the transcript.", "Read"], ["Putting the bolts in the cart.", "browse"], ["Moving the Moab booking.", "reminders"], ["Setting Thursday’s reminder.", "reminders"]];
+  // A hold on the mic that slides up locks into a memo (TalkButton's lockDistance, 64).
+  const pill = $("#lockpill");
+  let holdY = null, holdMic = null;
+  function setPill(p) {
+    pill.classList.toggle("on", p !== null);
+    if (p === null) return;
+    pill.style.setProperty("--p", p);
+    $(".lp-lock", pill).innerHTML = glyphSVG(p >= 1 ? LOCK_SHUT : LOCK_OPEN, 2.5);
+    pill.classList.toggle("full", p >= 1);
+  }
+  function placePill() {
+    const m = mic1.hidden ? $("#mic2") : mic1;
+    const r = m.getBoundingClientRect(), b = bar.getBoundingClientRect(), k = r.width / m.offsetWidth || 1;
+    pill.style.left = `${(r.left - b.left + r.width / 2) / k - 15}px`; pill.style.top = `${(r.top - b.top) / k - 50}px`;
+  }
+  [mic1, $("#mic2")].forEach((m) => {
+    m.addEventListener("pointerdown", (e) => {
+      holdY = e.clientY; holdMic = m;
+      requestAnimationFrame(() => { if (holdY === null || !talking) return; placePill(); setPill(0); });
+    });
+    m.addEventListener("pointermove", (e) => {
+      if (holdY === null || !talking) return;
+      placePill();
+      const k = m.getBoundingClientRect().width / m.offsetWidth || 1, lift = Math.max(0, (holdY - e.clientY) / k);
+      setPill(Math.min(1, lift / 64));
+      pill.style.transform = `translateY(${-Math.min(lift, 64) * 0.35}px) scale(${1 + 0.12 * Math.min(1, lift / 64)})`;
+      if (lift >= 64) lockIntoMemo();
+    });
+    ["pointerup", "pointercancel"].forEach((t) => m.addEventListener(t, () => { holdY = null; setPill(null); pill.style.transform = ""; }));
+  });
+  function lockIntoMemo() {
+    holdY = null; setPill(null); pill.style.transform = "";
+    talking = false; clearTimeout(wordT); bar.classList.remove("talking");
+    [mic1, $("#mic2")].forEach((x) => x.classList.remove("active"));
+    inp.value = ""; inp.placeholder = T[current].ph || "Message this thread";
+    try { holdMic && holdMic.releasePointerCapture && [...Array(4)].forEach((_, i) => holdMic.releasePointerCapture(i)); } catch (_) {}
+    startMemo();
+  }
+
+  // The trash's first tap arms Discard in its place for three seconds; a second throws it away.
+  let disarm = null;
+  function armTrash(on) {
+    clearTimeout(disarm);
+    const t = $("#m-trash");
+    t.classList.toggle("armed", on);
+    t.innerHTML = on ? "Discard" : G("trash", 1.67);
+    t.setAttribute("aria-label", on ? "Discard memo, tap again to confirm" : "Discard memo");
+    if (on) disarm = setTimeout(() => armTrash(false), 3000);
+    if (memo.on) setHeard(MEMO_WORDS.slice(0, memo.i));
+  }
+  $("#m-trash").onclick = () => { if ($("#m-trash").classList.contains("armed")) stopMemo(); else armTrash(true); };
+  $("#m-pause").onclick = togglePause;
+  $("#m-send").onclick = () => sendMemo("app");
+
+  /* In the thread: his memo's player, then its one line (MemoGist), and the reply. */
+  const MEMO_STEPS = [["Reading the memo.", "Read"], ["Putting the bolts in the cart.", "browse"], ["Moving the Moab booking.", "reminders"], ["Setting Thursday’s reminder.", "reminders"]];
   const MEMO_REPLY = "Done. The short bolts are in the cart, Moab is Friday, and I’ll nudge you Thursday at 8 to charge the headlamp.";
   function reminderCard() {
     const c = el(`<div class="pc"><div class="pc-head"><div><h5>Charge the headlamp</h5><div class="sub">Thursday, 8:00 PM</div></div><span class="ic">${G("bell", 1.67)}</span></div>
@@ -2911,80 +3033,125 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     b.onclick = () => { on = !on; $(".stt", c).textContent = on ? "In Reminders" : "Not in Reminders"; b.textContent = on ? "Undo" : "Add"; };
     return c;
   }
+  // DotWave: 34 columns of dots, 7 high, loudest tallest; played in ink.
+  const WAVE = (() => {
+    const lv = []; let w = 0, k = 0;
+    for (let c = 0; c < 34; c++) {
+      const word = MEMO_WORDS[w % MEMO_WORDS.length], at = k / Math.max(1, word.length - 1);
+      lv.push(k >= word.length ? 0.08 : 0.3 + 0.7 * Math.sin(Math.PI * Math.min(1, at)) * (0.55 + 0.45 * ((word.length * 7 + c * 3) % 10) / 10));
+      k += 2; if (k > word.length) { k = 0; w++; }
+    }
+    return lv;
+  })();
+  function waveSVG(progress) {
+    const p = 3, cell = p * 0.76, rx = cell * 0.26, played = Math.floor(progress * 34);
+    let s = `<svg class="dw" viewBox="0 0 ${34 * p} ${7 * p}" width="${34 * p}" height="${7 * p}" aria-hidden="true">`;
+    WAVE.forEach((l, c) => {
+      const tall = Math.max(1, Math.round(l * 7)), top = Math.floor((7 - tall) / 2);
+      for (let r = top; r < top + tall; r++) s += `<rect x="${c * p}" y="${r * p}" width="${cell}" height="${cell}" rx="${rx}"${c < played ? "" : ' class="q"'}/>`;
+    });
+    return s + "</svg>";
+  }
   function memoBubble(secs) {
-    const wave = glyphSVG(["..X...X.X.....X...X..X.X..", ".XX.X.XXX.X..XX.X.XXX.XXX.", "XXXXXXXXXXXXXXXXXXXXXXXXXX", ".XX.X.XXX.X..XX.X.XXX.XXX.", "..X...X.X.....X...X..X.X.."], 2.2);
-    const b = el(`<div class="p-memo"><div class="mr">${G("play.fill", 2)}${wave}<span class="num">${mmss(secs)}</span></div>
-      <div class="gist">${esc(MEMO_GIST)}</div><button class="trb" type="button">Transcript ›</button><div class="full" hidden>${esc(MEMO_WORDS.join(" "))}</div></div>`);
-    $(".trb", b).onclick = () => { const f = $(".full", b); f.hidden = !f.hidden; $(".trb", b).textContent = f.hidden ? "Transcript ›" : "Hide transcript"; };
+    const opening = MEMO_WORDS.slice(0, 14).join(" ");
+    const b = el(`<div class="p-memo">
+      <div class="ab"><button class="ab-play" type="button" aria-label="Play">${G("play.fill", 3)}</button><span class="ab-w">${waveSVG(0)}</span><span class="ab-t num">${mmss(secs)}</span></div>
+      <div class="mg"><div class="g pending">${esc(opening)}</div><button class="trb" type="button">Transcript<svg width="7" height="11" viewBox="0 0 7 11" aria-hidden="true"><path d="M1.2 1.2 5.5 5.5 1.2 9.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>`);
+    // The phone's own model writes the line a beat after it sends; it fades in over the opening words.
+    setTimeout(() => { const g = $(".g", b); g.classList.add("swap"); setTimeout(() => { g.textContent = MEMO_GIST; g.classList.remove("pending", "swap"); }, 180); }, 1400);
+    $(".trb", b).onclick = () => { $("#tr-title").textContent = MEMO_GIST; $("#tr-body").textContent = MEMO_WORDS.join(" "); openSheet("#s-transcript"); };
+    // The player: play and pause, the dots fill as it plays, the time left counts down.
+    const st8 = { playing: false, at: 0, last: 0, cols: -1 };
+    const play = $(".ab-play", b), w = $(".ab-w", b), t = $(".ab-t", b);
+    const draw = () => {
+      const cols = Math.floor((st8.at / secs) * 34);
+      if (cols !== st8.cols) { st8.cols = cols; w.innerHTML = waveSVG(st8.at / secs); }
+      t.textContent = mmss(Math.ceil(Math.max(0, secs - st8.at)));
+    };
+    play.onclick = () => {
+      st8.playing = !st8.playing; st8.last = performance.now();
+      play.innerHTML = G(st8.playing ? "pause.fill" : "play.fill", 3); play.setAttribute("aria-label", st8.playing ? "Pause" : "Play");
+    };
+    w.onclick = (e) => { const r = w.getBoundingClientRect(); st8.at = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * secs; draw(); };
+    S.ticks.push((now) => {
+      if (!st8.playing || !b.isConnected) return;
+      st8.at += (now - st8.last) / 1000; st8.last = now;
+      if (st8.at >= secs) { st8.at = 0; st8.playing = false; play.innerHTML = G("play.fill", 3); play.setAttribute("aria-label", "Play"); }
+      draw();
+    });
     return b;
   }
   function memoEffects() {
     const moab = todos.find((t) => /Moab/.test(t.title)); if (moab) moab.sub = "Fri 9:00 AM";
     todos.push({ id: Date.now(), title: "Charge the headlamp", sec: "Later", sub: "Thu 8:00 PM", his: true });
     activity.unshift({ kind: "reminder", title: "Added to Reminders: Charge the headlamp", detail: "Thursday 8:00 PM", when: "Now", isNew: true });
-    activity.unshift({ kind: "sent", title: "Voice memo: " + MEMO_GIST, detail: "Three things, all done", when: "Now", isNew: true });
-    badges.activity += 2;
+    badges.activity += 1;
     T.main.pv = MEMO_REPLY;
   }
-  async function sendMemo(where) {
+  const memoEvents = () => MEMO_STEPS.map(([t, tool], i) => st(t, tool, i ? 1.0 : 0.6)).concat([para(MEMO_REPLY), card(() => reminderCard()), done()]);
+
+  // Send, from the row in the app, the island, or the Lock Screen: all of them land in the thread.
+  function sendMemo(where) {
     if (!memo.on) return;
     const secs = Math.max(1, Math.round(memoSecs()));
     stopMemo();
     const main = listFor("main");
     $$(".p-chips", main).forEach((c) => c.remove());
+    if (current !== "main") showThread("main");
+    add(main, memoBubble(secs)); toBottom(true);
     if (where !== "lock") {
-      unlock(); if (current !== "main") showThread("main");
-      add(main, memoBubble(secs)); toBottom(true);
-      const evs = MEMO_STEPS.map(([t, tool], i) => st(t, tool, i ? 1.0 : 0.6)).concat([para(MEMO_REPLY), card(() => reminderCard()), done()]);
-      run("memo", { events: evs, voice: true, after: memoEffects });
+      run("memo", { events: memoEvents(), after: memoEffects });
       return;
     }
-    // Locked: the memo's Live Activity hands over to the reply's, on the Lock Screen.
-    const my = epoch;
-    lkList.innerHTML = "";
-    const la = el(`<div class="la turn"><div class="top"><span class="hm">${S.markSVG(0, 1.6)}</span><span class="num tt">0:00</span></div><div class="st">Sending</div><div class="q">Voice memo · ${mmss(secs)}</div></div>`);
-    lkList.appendChild(la); $("#lk-hint").textContent = "";
+    // Locked: the memo's activity ends and the turn's starts, on the Lock Screen (TurnLockScreen).
+    const la = el(`<button class="la turn" type="button" aria-label="Open the thread"><div class="top"><span class="hm">${S.markSVG(0, 2)}</span><span class="tt num">0:00</span></div><div class="st">Sending</div><div class="q">Voice memo</div></button>`);
+    lkTurn = la; renderLock();
     const t0 = performance.now();
     let f = 0;
-    const gal = setInterval(() => { f = (f + 1) % 15; $(".hm", la).innerHTML = S.markSVG(f, 1.6); $(".tt", la).textContent = mmss((performance.now() - t0) / 1000); }, 90);
-    for (const [text] of MEMO_STEPS) { if (!(await later(1100))) { clearInterval(gal); return; } $(".st", la).textContent = text; }
-    if (!(await later(1100))) { clearInterval(gal); return; }
-    clearInterval(gal);
-    $(".hm", la).innerHTML = S.markSVG(13, 1.6); $(".hm", la).style.color = "var(--n-sage)";
-    $(".tt", la).textContent = "✓ " + $(".tt", la).textContent;
-    $(".st", la).remove(); $(".q", la).insertAdjacentHTML("beforebegin", `<div class="rp">${esc(MEMO_REPLY)}</div>`);
-    // The reply lands in the thread, and its voice note comes in over the Lock Screen.
-    add(main, memoBubble(secs));
-    const h = him(main);
-    h.body.appendChild(el(`<p class="p-reply">${esc(MEMO_REPLY)}</p>`)); h.body.appendChild(audioChip("0:09"));
-    h.cards.appendChild(reminderCard());
-    h.trail.hidden = false; $(".tx", h.trail).textContent = "Worked for 5 seconds · 4 steps";
-    h.steps.innerHTML = MEMO_STEPS.map((x, i) => `<div class="p-step"><span>${x[0]}</span><span class="tool">${x[1]}</span><span class="t">${i + 1}s</span></div>`).join("");
-    memoEffects(); T.main.unread = (T.main.unread || 0) + 1;
-    if (!(await later(2200))) return;
-    la.remove();
-    const n = el(`<button class="lk-note" type="button"><img src="icons/stride.png" alt=""><b>Shadowfax</b><span class="w">now</span><span class="t2">Voice note · 0:09</span><span class="b2">${esc(MEMO_REPLY)}</span></button>`);
-    n.onclick = () => { lkList.innerHTML = ""; unlock(); closeAll(); showThread("main"); };
-    lkList.appendChild(n); $("#lk-hint").textContent = "Tap the note to open it";
-    if (my !== epoch) return;
+    // The Lock Screen turns a stopwatch once a second, so here it's a pose a second.
+    clearInterval(lkLap);
+    const lap = lkLap = setInterval(() => {
+      f = (f + 1) % 15; $(".hm", la).innerHTML = S.markSVG(f, 2);
+      $(".tt", la).textContent = mmss((performance.now() - t0) / 1000);
+    }, 1000);
+    la.onclick = () => { if (!la.classList.contains("done")) return; lkTurn = null; unlock(); closeAll(); showThread("main"); toBottom(true); };
+    run("memo", {
+      events: memoEvents(), away: true,
+      onStatus: (text) => { if (la.isConnected || lkTurn === la) $(".st", la).textContent = text; },
+      after: () => {
+        clearInterval(lap); memoEffects();
+        const took = mmss((performance.now() - t0) / 1000);
+        la.classList.add("done");
+        $(".hm", la).innerHTML = S.markSVG(13, 2);
+        $(".tt", la).textContent = took;
+        $(".st", la).remove(); $(".q", la).outerHTML = `<div class="rp">${esc(MEMO_REPLY)}</div>`;
+        if (!locked()) lkTurn = null;
+        else T.main.unread = (T.main.unread || 0) + 1;
+      }
+    });
   }
+
   async function memoDemo() {
     if (busy || ride.riding || flying) { toast("One moment, he’s still riding."); return; }
     if (memo.on) stopMemo();
-    closeAll(); lockOn();
-    if (!(await later(1300))) return;
-    $("#lk-memo").click();
-    if (!(await later(3600))) return;
-    isl.classList.add("memo-x");
-    if (!(await later(2600))) return;
+    closeAll(); lkTurn = null; lockOn();
+    const step = async (ms) => later(ms);
+    if (!(await step(1300))) return;
+    $("#lk-memo").click();                       // The Voice Memo Control opens the app, recording.
+    if (!(await step(4600))) return;
+    goAway();                                    // Along the bottom to the last app: the island has it.
+    if (!(await step(2200))) return;
+    isl.classList.add("memo-x");                 // Held open: the row.
+    if (!(await step(2800))) return;
     isl.classList.remove("memo-x");
-    if (!(await later(1400))) return;
-    lockOn();
-    if (!(await later(3200))) return;
-    const s = $(".la .ms", lkList); if (s) s.click(); else return;
-    for (let i = 0; i < 40 && !$(".lk-note", lkList); i++) { if (!(await later(250))) return; }
-    if (!(await later(1800))) return;
-    const n = $(".lk-note", lkList); if (n) n.click();
+    if (!(await step(1200))) return;
+    closeAll(true); lockOn();                    // The side button: the same row on the Lock Screen.
+    if (!(await step(2600))) return;
+    const s = $(".la .ms", lkList); if (!s) return;
+    s.click();                                   // Sent without unlocking; the turn rides on the Lock Screen.
+    for (let i = 0; i < 60 && !(lkTurn && lkTurn.classList.contains("done")); i++) { if (!(await step(250))) return; }
+    if (!(await step(2000))) return;
+    if (lkTurn) lkTurn.click();
   }
 
   /* ---------- Closing things ---------- */
@@ -3056,8 +3223,8 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     },
     reset() {
       epoch++; flying = false; fl = null; fctx.clearRect(0, 0, 402, 874);
-      if (memo.on) stopMemo(); lock.classList.remove("on"); lkList.innerHTML = "";
-      isl.classList.remove("open", "lit", "staged"); ride.carry(false);
+      if (memo.on) stopMemo(); clearInterval(lkLap); lkTurn = null; lock.classList.remove("on"); lkList.innerHTML = "";
+      isl.classList.remove("open", "lit", "staged", "memo", "memo-x", "memo-paused"); ride.carry(false); memoChrome();
       $("#banner").classList.remove("on"); setClock("9:41"); questState = "idle";
       extSend.classList.remove("gone"); extSend.querySelector(".lb").textContent = "Send to Shadowfax";
       closeAll();
