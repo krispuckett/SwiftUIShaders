@@ -104,21 +104,21 @@ p { margin: 0; }
 /* The hidden side: hold the pointer on the ride and the night opens out over the whole hero. */
 .hero { position: relative; }
 .hero > .wrap { position: relative; z-index: 1; }
-.grand { position: absolute; z-index: 0; left: 0; right: 0; top: -56px; bottom: -48px; background: #000;
-  transition: clip-path .9s cubic-bezier(.65, 0, .2, 1); will-change: clip-path; }
-.grand canvas { display: block; width: 100%; height: 100%; }
-/* Opening, the words turn once the night is behind them; closing, they turn back at once. */
-.hero h1, .hero .lede, .hero .label, .nav, .nav .mode { transition: color .3s var(--ease), background-color .3s var(--ease), box-shadow .3s; }
-.hero.night-open h1, .hero.night-open .lede, .hero.night-open .label, body.night-open .nav, body.night-open .nav .mode { transition: color .5s var(--ease) .38s, background-color .4s var(--ease), box-shadow .3s; }
-.hero .night { transition: background-color .5s var(--ease), box-shadow .5s var(--ease); }
-.hero .night canvas { transition: opacity .35s var(--ease); }
-.hero.night-open h1, .hero.night-open .lede { color: var(--grand-ink); }
-.hero.night-open .label { color: var(--grand-quiet); }
-.hero.night-open .night { background: transparent; box-shadow: none; }
-.hero.night-open .night canvas { opacity: 0; }
-body.night-open .nav { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; color: var(--grand-ink); }
-body.night-open .nav .mode { color: var(--grand-ink); box-shadow: inset 0 0 0 0.7px rgb(255 255 255 / .18); }
-@media (prefers-reduced-motion: reduce) { .grand { transition: none; } }
+.grand { position: absolute; z-index: 0; left: 0; right: 0; top: -56px; bottom: -48px; background: #000; will-change: clip-path; }
+.grand canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+/* The words go from ink to the night's cream as the dark comes in behind them: --night runs 0 to 1
+   with the morph (page.js), on the hero and, a little later, on the nav at the very top. */
+.hero h1 { color: color-mix(in srgb, var(--grand-ink, var(--ink)) calc(var(--night, 0) * 100%), var(--ink)); }
+.hero .lede { color: color-mix(in srgb, var(--grand-ink, var(--soft)) calc(var(--night, 0) * 100%), var(--soft)); }
+.hero .label { color: color-mix(in srgb, var(--grand-quiet, var(--quiet)) calc(var(--night, 0) * 100%), var(--quiet)); }
+.nav { color: color-mix(in srgb, var(--grand-ink, var(--ink)) calc(var(--night, 0) * 100%), var(--ink)); }
+.nav .mode { color: inherit; }
+body.night-open .nav { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
+body.night-open .nav .mode { box-shadow: inset 0 0 0 0.7px rgb(255 255 255 / .18); }
+.hero .night { transition: box-shadow .4s var(--ease); }
+/* Opening, the card's own black gives way to the layer's, which matches it exactly. */
+.hero .night.veiled { background: transparent; box-shadow: 0 0 0 0 transparent, 0 30px 60px -30px transparent; }
+
 
 /* ---------- Try it ---------- */
 .feature { padding-block: clamp(96px, 12vw, 152px) 0; }
@@ -720,7 +720,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
 
 <main id="top">
   <header class="hero">
-    <div class="grand" id="grand" aria-hidden="true" hidden><canvas id="grand-c"></canvas></div>
+    <div class="grand" id="grand" aria-hidden="true" hidden><canvas id="grand-c"></canvas><canvas id="grand-c2"></canvas></div>
     <div class="wrap">
       <div class="hero-top">
         <span class="label" data-copy="hero.label">Shadowfax for iPhone and macOS</span>
@@ -1437,10 +1437,32 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       return Math.max(big, small) + 0.004 * ((ih(i * 7 + seed) * (1 - f) + ih((i + 1) * 7 + seed) * f) - 0.5);
     };
   }
-  function grandRide(canvas, opts = {}) {
-    const ctx = canvas.getContext("2d");
-    const small = document.createElement("canvas"), sctx = small.getContext("2d");
-    let W = 0, Hh = 0, dpr = 1, P = 0, cols = 0, rows = 0, img = null, px = null, mask = null, maskP = 0;
+  function grandRide(fineCanvas, coarseCanvas) {
+    // Two grids over the same night: the fine one it resolves to, and a coarse one at the
+    // card's own dot that it opens from. Neither is ever re-gridded mid-morph, so no dot jumps.
+    function grid(canvas) {
+      const g = { canvas, ctx: canvas.getContext("2d"), small: document.createElement("canvas"), P: 0, cols: 0, rows: 0, img: null, px: null, mask: null };
+      g.sctx = g.small.getContext("2d");
+      return g;
+    }
+    const fine = grid(fineCanvas), coarse = grid(coarseCanvas);
+    let dpr = 1;
+    function size(g, css) {
+      const w = Math.round(g.canvas.clientWidth * dpr), h = Math.round(g.canvas.clientHeight * dpr);
+      if (g.canvas.width !== w || g.canvas.height !== h) { g.canvas.width = w; g.canvas.height = h; }
+      const P = Math.max(2, Math.round(css * dpr)), cols = Math.floor(w / P), rows = Math.floor(h / P);
+      if (P === g.P && cols === g.cols && rows === g.rows && g.img) return;
+      g.P = P; g.cols = cols; g.rows = rows;
+      g.small.width = cols; g.small.height = rows;
+      g.img = g.sctx.createImageData(Math.max(1, cols), Math.max(1, rows)); g.px = new Uint32Array(g.img.data.buffer);
+      const m = document.createElement("canvas"); m.width = m.height = P;
+      const mc = m.getContext("2d"), cell = P * DOT;
+      mc.beginPath(); if (mc.roundRect) mc.roundRect(0, 0, cell, cell, cell * CORNER); else mc.rect(0, 0, cell, cell); mc.fill();
+      g.mask = g.ctx.createPattern(m, "repeat");
+      // Each fine dot's turn to appear as the night resolves: scattered, fixed for the grid.
+      g.turn = new Float32Array(cols * rows);
+      for (let i = 0; i < g.turn.length; i++) g.turn[i] = ih(i * 2246822519 + 7);
+    }
     const ROAD = 0.55;                      // scene units a second under his hooves
     const LAYERS = [                        // back to front: base line, parallax, a range, ink, snow above
       { base: 0.715, speed: 0.03, ridge: range(3, 0.19, 0.07, 0.22), ink: "far", snow: 0.15 },
@@ -1451,30 +1473,22 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     const GROUND = 0.88;
     const stars = Array.from({ length: 420 }, (_, i) => ({ u: ih(i * 3 + 1) * 6, v: 0.02 + ih(i * 3 + 2) ** 1.3 * 0.62, b: ih(i * 3 + 3), s: i % 23 === 0 }));
     let dist = 0, last = null, wind = [], windAt = 0;
-    function fit(pitchCss) {
-      dpr = Math.min(2, window.devicePixelRatio || 1);
-      W = canvas.clientWidth; Hh = canvas.clientHeight;
-      const w = Math.round(W * dpr), h = Math.round(Hh * dpr);
-      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
-      setPitch(pitchCss || opts.pitch || 4.5);
-    }
-    function setPitch(css) {
-      const p = Math.max(2, Math.round(css * dpr));
-      if (p === P && img) return;
-      P = p; cols = Math.floor(canvas.width / P); rows = Math.floor(canvas.height / P);
-      small.width = cols; small.height = rows;
-      img = sctx.createImageData(cols, rows); px = new Uint32Array(img.data.buffer);
-      if (maskP !== P) {
-        const m = document.createElement("canvas"); m.width = m.height = P;
-        const mc = m.getContext("2d"), cell = P * DOT;
-        mc.beginPath(); if (mc.roundRect) mc.roundRect(0, 0, cell, cell, cell * CORNER); else mc.rect(0, 0, cell, cell); mc.fill();
-        mask = ctx.createPattern(m, "repeat"); maskP = P;
-      }
-    }
-    function draw(now) {
-      if (!cols || !rows) return;
+    const horse = (span) => { const hh = Math.min(0.125, span * 0.2), hw = hh * HD_W / HD_H; return { hh, hw, hx: span * 0.42 - hw / 2, hy: GROUND - hh + 0.004 }; };
+
+    // Time moves once a frame, whichever grids draw it.
+    function step(now) {
       const dt = last == null ? 0 : Math.min(0.1, (now - last) / 1000); last = now;
-      if (!reduce.matches) dist += ROAD * dt;
+      if (reduce.matches) return;
+      dist += ROAD * dt;
+      const g = fine.cols ? fine : coarse, { hh, hw, hx, hy } = horse(g.cols / g.rows);
+      windAt += dt;
+      while (windAt > 0.035) { windAt -= 0.035; wind.push({ u: hx + hw * (0.1 + 0.25 * Math.random()), v: hy + hh * (0.15 + 0.6 * Math.random()), life: 0, len: 0.004 + Math.random() * 0.012 }); }
+      wind = wind.filter((w) => (w.life += dt) < 0.7);
+    }
+
+    function render(g, now, resolve) {
+      const { cols, rows, px } = g;
+      if (!cols || !rows) return;
       const H = rows;                                  // one scene unit = the scene's height in dots
       const acc = tone("accent", true), q = tone("quiet", true), cream = tone("ink", true);
       const inks = { far: mix(mix(acc, q, 0.35), [247, 240, 214], 0.18), mid: mix(acc, cream, 0.1), near: acc, snow: [247, 240, 214], quiet: q, white: [255, 255, 255] };
@@ -1494,7 +1508,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
         const tw = 0.5 + 0.5 * Math.sin(clock * (0.7 + s.b * 1.4) + s.b * 40);
         const a = 0.12 + 0.55 * s.b * (0.55 + 0.45 * tw);
         set(x, y, inks.white, a);
-        if (s.s) { const g = 0.25 + 0.3 * tw; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) set(x + dx, y + dy, inks.white, g); for (const [dx, dy] of [[2, 0], [-2, 0], [0, 2], [0, -2]]) set(x + dx, y + dy, inks.white, g * 0.4); set(x, y, inks.white, 0.95); }
+        if (s.s) { const gl = 0.25 + 0.3 * tw; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) set(x + dx, y + dy, inks.white, gl); for (const [dx, dy] of [[2, 0], [-2, 0], [0, 2], [0, -2]]) set(x + dx, y + dy, inks.white, gl * 0.4); set(x, y, inks.white, 0.95); }
       }
       // The moon, a crescent lit on its right, and its halo.
       const mu = span * 0.8, mv = 0.13, mr = 0.042;
@@ -1503,7 +1517,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
         const du = (x + 0.5) / H - mu, dv = (y + 0.5) / H - mv, d = Math.hypot(du, dv);
         const inner = Math.hypot(du + mr * 0.42, dv + mr * 0.12);
         if (d < mr && inner > mr * 0.86) set(x, y, inks.snow, 0.55 + 0.45 * smoothstep(mr * 0.86, mr * 1.05, inner) * smoothstep(mr, mr * 0.7, d));
-        else if (d < mr * 2 && d >= mr) { const g = 0.1 * (1 - (d - mr) / mr); if (ih(x * 9176 + y * 131) < 0.3) set(x, y, inks.snow, g); }
+        else if (d < mr * 2 && d >= mr) { const gl = 0.1 * (1 - (d - mr) / mr); if (ih(x * 9176 + y * 131) < 0.3) set(x, y, inks.snow, gl); }
       }
       // The ranges, far to near; the nearer a range, the later it draws and the more it wins.
       const ridges = LAYERS.map((L) => { const a = new Float32Array(cols + 2); for (let c = -1; c <= cols; c++) a[c + 1] = L.base - L.ridge((c + 0.5) / H + dist * L.speed); return a; });
@@ -1536,8 +1550,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
         else px[i] = n < 0.12 ? pack(n < 0.03 ? acc : inks.quiet, 0.12 + 1.8 * n) : 0;
       }
       // Shadowfax: the HD frames, sampled at this dot; the gallop keeps time with the road.
-      const hh = Math.min(0.125, (cols / H) * 0.2), hw = hh * HD_W / HD_H;
-      const hx = (cols / H) * 0.42 - hw / 2, hy = GROUND - hh + 0.004;
+      const { hh, hw, hx, hy } = horse(span);
       const frame = reduce.matches ? 13 : Math.floor((dist / (hw * 0.92)) * 15) % 15, F = HD[frame];
       const bx0 = Math.floor(hx * H), by0 = Math.floor(hy * H), bw = Math.ceil(hw * H), bh = Math.ceil(hh * H);
       const cov = (fx, fy) => { const x = Math.floor(fx), y = Math.floor(fy); if (x < 0 || y < 0 || x >= HD_W || y >= HD_H) return 0; return F[y][x]; };
@@ -1551,27 +1564,44 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
         else if (a > 0.08) px[Y * cols + X] = 0;                 // his outline stays clear of the land
       }
       // The wind off him: streaks from his back half, trailing at the road's pace.
-      if (!reduce.matches) {
-        windAt += dt;
-        while (windAt > 0.035) { windAt -= 0.035; wind.push({ u: hx + hw * (0.1 + 0.25 * Math.random()), v: hy + hh * (0.15 + 0.6 * Math.random()), life: 0, len: 2 + Math.floor(Math.random() * 5) }); }
-        wind = wind.filter((w) => (w.life += dt) < 0.7);
-        for (const w of wind) {
-          const x = Math.floor((w.u - w.life * ROAD * 0.9) * H), y = Math.floor(w.v * H), a = 0.5 * (1 - w.life / 0.7);
-          for (let k = 0; k < w.len; k++) set(x + k, y, inks.white, a * (1 - k / (w.len + 1)));
+      for (const w of wind) {
+        const x = Math.floor((w.u - w.life * ROAD * 0.9) * H), y = Math.floor(w.v * H), a = 0.5 * (1 - w.life / 0.7), n = Math.max(1, Math.round(w.len * H));
+        for (let k = 0; k < n; k++) set(x + k, y, inks.white, a * (1 - k / (n + 1)));
+      }
+      // Resolving: each dot comes in on its own turn, so the night sharpens without a seam.
+      if (resolve != null && resolve < 1) {
+        const t = g.turn;
+        for (let i = 0; i < px.length; i++) {
+          const v = px[i]; if (!v) continue;
+          const f = smoothstep(t[i] * 0.7, t[i] * 0.7 + 0.3, resolve);
+          px[i] = f <= 0 ? 0 : ((Math.round((v >>> 24) * f) << 24) | (v & 0xffffff)) >>> 0;
         }
       }
       // One pixel a dot, up to size, cut into dots.
-      sctx.putImageData(img, 0, 0);
+      const { ctx, canvas, small, P } = g;
+      g.sctx.putImageData(g.img, 0, 0);
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.globalCompositeOperation = "source-over";
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(small, 0, 0, cols * P, rows * P);
       ctx.globalCompositeOperation = "destination-in";
-      ctx.fillStyle = mask; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = g.mask; ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.globalCompositeOperation = "source-over";
     }
-    return { fit, setPitch, draw, reset() { last = null; } };
+    return {
+      // fineCss: the dot it resolves to; coarseCss: the card's own dot, where it opens from.
+      fit(fineCss, coarseCss) { dpr = Math.min(2, window.devicePixelRatio || 1); size(fine, fineCss); size(coarse, coarseCss); },
+      // resolve 0..1: 0 is all coarse, 1 all fine. The coarse grid only draws while it shows.
+      draw(now, resolve = 1) {
+        step(now);
+        render(fine, now, resolve);
+        const c = 1 - smoothstep(0.35, 0.95, resolve);
+        coarseCanvas.style.opacity = c.toFixed(3);
+        if (c > 0.004) render(coarse, now, null);
+      },
+      reset() { last = null; }
+    };
   }
 
   /* ---------- Small horse mark (header avatar: HorseMark on the low-res frames) ---------- */
@@ -1692,61 +1722,89 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
   });
 
   /* ---------- The hidden side of the hero ----------
-     Rest the pointer on the ride and the night opens out from the card to the whole hero,
-     its dots resolving from coarse to fine as it goes; leave the hero and it folds back.
-     On touch, a tap on the ride opens it and a tap in the hero closes it. */
+     Rest the pointer on the ride and the night opens out from the card to the whole hero.
+     One spring carries all of it: the edge growing out from the card, the dots resolving
+     from the card's own size to a far finer one, the card fading under it, and the words
+     turning to the night's cream. Leave the hero and the same spring carries it back, from
+     wherever it had got to. On touch, a tap on the ride opens it and a tap in the hero
+     closes it. */
   (() => {
-    const hero = $(".hero"), card = $(".night"), layer = $("#grand");
-    const scene = window.SFX.grandRide($("#grand-c"));
-    const reduce = window.SFX.reduce;
-    const FINE = 4.5, COARSE = 16, OPEN = 900, CLOSE = 650;
-    const touch = window.matchMedia("(hover: none)");
-    let state = "closed", intent = null, at = 0;
-    const cardClip = () => {
-      const L = layer.getBoundingClientRect(), r = card.getBoundingClientRect(), R = parseFloat(getComputedStyle(card).borderTopLeftRadius) || 0;
-      return `inset(${r.top - L.top}px ${L.right - r.right}px ${L.bottom - r.bottom}px ${r.left - L.left}px round ${R}px)`;
-    };
+    const hero = $(".hero"), card = $(".night"), cardCanvas = $("#night"), layer = $("#grand"), nav = $(".nav");
+    const scene = window.SFX.grandRide($("#grand-c"), $("#grand-c2"));
+    const reduce = window.SFX.reduce, touch = window.matchMedia("(hover: none)");
+    // Two critically damped springs in a row: the first follows the goal, the second follows the
+    // first, so it eases in as well as out and settles in about 0.9s. Solved exactly each frame,
+    // so a slow frame changes nothing about the curve.
+    const FINE = 4, W1 = 11, W2 = 9;
+    let s = 0, sv = 0, p = 0, v = 0, target = 0, running = false, last = null, intent = null, from = null, navDark = false;
+    const spring = (x, vx, goal, w, dt) => { const e = x - goal, k = Math.exp(-w * dt), c = vx + w * e; return [goal + (e + c * dt) * k, (vx - w * c * dt) * k]; };
+    const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
     function inks() {
       const ink = window.SFX.tone("ink", true), q = window.SFX.tone("quiet", true);
-      hero.style.setProperty("--grand-ink", `rgb(${ink.join(",")})`); hero.style.setProperty("--grand-quiet", `rgb(${q.join(",")})`);
-      document.body.style.setProperty("--grand-ink", `rgb(${ink.join(",")})`);
+      for (const el of [hero, document.body]) { el.style.setProperty("--grand-ink", `rgb(${ink.join(",")})`); el.style.setProperty("--grand-quiet", `rgb(${q.join(",")})`); }
     }
-    function open() {
-      clearTimeout(intent);
-      if (state === "open" || state === "opening" || document.body.classList.contains("editing")) return;
-      inks();
-      const from = state === "closing" ? null : cardClip();
-      state = "opening"; at = performance.now();
-      layer.hidden = false;
-      if (from) { layer.style.transition = "none"; layer.style.clipPath = from; scene.fit(reduce.matches ? FINE : COARSE); scene.reset(); layer.getBoundingClientRect(); layer.style.transition = ""; }
-      requestAnimationFrame(() => { layer.style.clipPath = "inset(0px 0px 0px 0px round 0px)"; hero.classList.add("night-open"); document.body.classList.add("night-open"); });
-      setTimeout(() => { if (state === "opening") state = "open"; }, OPEN);
+    // Where the card sits inside the layer, taken once as it opens (neither moves meanwhile).
+    function measure() {
+      const L = layer.getBoundingClientRect(), r = card.getBoundingClientRect();
+      from = { t: r.top - L.top, r: L.right - r.right, b: L.bottom - r.bottom, l: r.left - L.left, R: parseFloat(getComputedStyle(card).borderTopLeftRadius) || 0 };
+      scene.fit(FINE, card.clientHeight / 44);   // the card's ride is 44 dots high
     }
-    function close() {
-      clearTimeout(intent);
-      if (state === "closed" || state === "closing") return;
-      state = "closing"; at = performance.now();
-      layer.style.clipPath = cardClip();
-      hero.classList.remove("night-open"); document.body.classList.remove("night-open");
-      setTimeout(() => { if (state === "closing") { state = "closed"; layer.hidden = true; } }, reduce.matches ? 0 : CLOSE);
+    function apply(now) {
+      const q = 1 - p;
+      layer.style.clipPath = `inset(${from.t * q}px ${from.r * q}px ${from.b * q}px ${from.l * q}px round ${from.R * q}px)`;
+      cardCanvas.style.opacity = (1 - smooth(0.02, 0.22, p)).toFixed(3);
+      card.classList.toggle("veiled", p > 0.002);
+      // The words turn once the dark is most of the way behind them, either way.
+      // The words blend to cream as the dark passes behind them; the nav, at the very top, last.
+      hero.style.setProperty("--night", smooth(0.3, 0.72, p).toFixed(3));
+      nav.style.setProperty("--night", smooth(0.86, 1, p).toFixed(3));
+      const navWant = p > 0.97;
+      if (navWant !== navDark) { navDark = navWant; document.body.classList.toggle("night-open", navWant); }
+      scene.draw(now, reduce.matches ? 1 : smooth(0.08, 0.9, p));
+    }
+    function go(to) {
+      if (to === target && running) return;
+      if (to === 1 && document.body.classList.contains("editing")) return;
+      target = to;
+      if (!running) {
+        if (to === 0) return;
+        inks(); layer.hidden = false; if (!from) measure(); scene.reset();
+        running = true; last = null;
+      }
     }
     window.SFX.ticks.push((now) => {
-      if (state === "closed") return;
-      const k = state === "closing" ? 1 - Math.min(1, (now - at) / CLOSE) : Math.min(1, (now - at) / OPEN);
-      const e = 1 - Math.pow(1 - k, 3);
-      scene.setPitch(reduce.matches ? FINE : COARSE + (FINE - COARSE) * e);
-      scene.draw(now);
+      if (!running) return;
+      const dt = last == null ? 1 / 60 : Math.min(0.05, (now - last) / 1000); last = now;
+      if (window.__grandHold != null) { p = s = window.__grandHold; v = sv = 0; }   // tests hold the morph at a point
+      else if (reduce.matches) { s = p = target; sv = v = 0; }
+      else { [s, sv] = spring(s, sv, target, W1, dt); [p, v] = spring(p, v, s, W2, dt); }
+      if (Math.abs(p - target) < 0.003 && Math.abs(v) < 0.02 && Math.abs(s - target) < 0.003) { s = p = target; sv = v = 0; }
+      p = Math.min(1, Math.max(0, p));
+      const t0 = performance.now(); apply(now);
+      if (window.__grandTrace) window.__grandTrace.push([now, p, performance.now() - t0]);
+      if (p === 0 && target === 0) {
+        running = false; layer.hidden = true;
+        cardCanvas.style.opacity = ""; card.classList.remove("veiled"); from = null;
+        hero.style.removeProperty("--night"); nav.style.removeProperty("--night");
+      }
     });
-    card.addEventListener("pointerenter", (e) => { if (e.pointerType !== "mouse") return; clearTimeout(intent); intent = setTimeout(open, 450); });
-    card.addEventListener("pointerleave", () => { if (state === "closed") clearTimeout(intent); });
+    const open = () => { clearTimeout(intent); go(1); };
+    const close = () => { clearTimeout(intent); go(0); };
+    card.addEventListener("pointerenter", (e) => {
+      if (e.pointerType !== "mouse") return;
+      clearTimeout(intent); intent = setTimeout(open, 380);
+      // Build the grids and draw one unseen frame while he waits, so the morph starts warm.
+      if (!running) { layer.hidden = false; layer.style.clipPath = "inset(100%)"; measure(); inks(); scene.draw(performance.now(), 0); scene.reset(); }
+    });
+    card.addEventListener("pointerleave", () => { if (target === 0) { clearTimeout(intent); if (!running) layer.hidden = true; } });
     hero.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") close(); });
     hero.addEventListener("click", (e) => {
       if (!touch.matches) return;
-      if (state === "closed" && card.contains(e.target)) open(); else if (state !== "closed") close();
+      if (target === 0 && card.contains(e.target)) open(); else if (target === 1) close();
     });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
     new IntersectionObserver((en) => { if (!en[0].isIntersecting) close(); }, { threshold: 0.25 }).observe(hero);
-    new ResizeObserver(() => { if (state !== "closed") scene.fit(FINE); }).observe(layer);
+    new ResizeObserver(() => { if (running) measure(); }).observe(layer);
     window.SFX.onPalette && window.SFX.onPalette.push(inks);
   })();
 
