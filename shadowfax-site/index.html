@@ -114,13 +114,13 @@ p { margin: 0; }
 }
 .tries { list-style: none; margin: 18px 0 0; padding: 0; display: grid; border-top: 0.7px solid var(--line); }
 .tries li { border-bottom: 0.7px solid var(--line); }
-.tries button { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; text-align: left; padding: 14px 4px; align-items: center; transition: background-color .2s; border-radius: 0; }
-.tries button:hover { background: color-mix(in srgb, var(--bubble) 40%, transparent); }
+.tries .try { cursor: pointer; width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; text-align: left; padding: 14px 4px; align-items: center; transition: background-color .2s; border-radius: 0; }
+.tries .try:hover { background: color-mix(in srgb, var(--bubble) 40%, transparent); }
 .tries b { font-weight: 600; font-size: 16px; letter-spacing: -0.01em; }
 .tries span { grid-column: 1; font-size: 14px; color: var(--quiet); }
 .tries .go { grid-row: 1 / span 2; grid-column: 2; color: var(--quiet); transition: transform .25s var(--ease), color .2s; }
-.tries button:hover .go { transform: translate(2px, -2px); color: var(--ink); }
-.tries button.live b::after { content: ""; display: inline-block; width: 6px; height: 6px; margin-left: 8px; border-radius: 1.5px; background: var(--accent); vertical-align: 2px; }
+.tries .try:hover .go { transform: translate(2px, -2px); color: var(--ink); }
+.tries .try.live b::after { content: ""; display: inline-block; width: 6px; height: 6px; margin-left: 8px; border-radius: 1.5px; background: var(--accent); vertical-align: 2px; }
 .try-fine { font-size: 13px; color: var(--quiet); margin-top: 6px; display: flex; justify-content: space-between; gap: 12px; align-items: center; }
 .reset { white-space: nowrap; font-size: 13px; font-weight: 500; color: var(--quiet); padding: 6px 12px; border-radius: 999px; box-shadow: inset 0 0 0 0.7px var(--panel-line); }
 .reset:hover { color: var(--ink); background: var(--panel-wash); }
@@ -616,6 +616,10 @@ a.act { text-decoration: none; }
 .smenu hr { border: 0; height: .7px; background: var(--line); margin: 3px 10px; }
 
 /* Editing the page's copy */
+.tries .try:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+body.editing .tries .try { cursor: text; }
+body.editing .tries .try:hover { background: none; }
+body.editing .tries .try:hover .go { transform: none; color: var(--quiet); }
 body.editing [data-copy] { -webkit-user-select: text; user-select: text; outline: 1px dashed color-mix(in srgb, var(--accent) 70%, transparent); outline-offset: 3px; border-radius: 3px; cursor: text; }
 body.editing [data-copy]:focus { outline: 2px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
 body.editing [data-copy].dirty { outline-color: var(--quote-rule); outline-style: solid; }
@@ -720,15 +724,15 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       </div>
       <div class="try-list">
         <ul class="tries" id="tries">
-          <li><button type="button" data-try="filed"><b data-copy="try.filed.title">What did we file this week?</b><span data-copy="try.filed.line">Six steps, a table, and a quote to keep.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="books"><b data-copy="try.books.title">Find me something to read</b><span data-copy="try.books.line">Four books from what I’ve read. Buy one without leaving.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="quest"><b data-copy="try.quest.title">Let a quest run</b><span data-copy="try.quest.line">He keeps working after I stop asking.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="share"><b data-copy="try.share.title">Share from the browser</b><span data-copy="try.share.line">The plane becomes a letter. He catches it.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="memo"><b data-copy="try.memo.title">Voice memo from the Lock Screen</b><span data-copy="try.memo.line">Record in my pocket. Send it without unlocking.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="talk"><b data-copy="try.talk.title">Hold to talk</b><span data-copy="try.talk.line">He gallops under my words.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="upcoming"><b data-copy="try.upcoming.title">Swipe up</b><span data-copy="try.upcoming.line">To-dos, what’s coming, what he did, and quests.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="quote"><b data-copy="try.quote.title">Quote a book</b><span data-copy="try.quote.line">Live Text reads the page. I file the line.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="saturday"><b data-copy="try.saturday.title">Plan a slow Saturday.</b><span data-copy="try.saturday.line">A place, then a reminder in one tap.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
+          <li><div class="try" role="button" tabindex="0" data-try="filed"><b data-copy="try.filed.title">What did we file this week?</b><span data-copy="try.filed.line">Six steps, a table, and a quote to keep.</span><i class="go" data-glyph="arrow.up.right"></i></div></li>
+          <li><div class="try" role="button" tabindex="0" data-try="books"><b data-copy="try.books.title">Find me something to read</b><span data-copy="try.books.line">Four books from what I’ve read. Buy one without leaving.</span><i class="go" data-glyph="arrow.up.right"></i></div></li>
+          <li><div class="try" role="button" tabindex="0" data-try="quest"><b data-copy="try.quest.title">Let a quest run</b><span data-copy="try.quest.line">He keeps working after I stop asking.</span><i class="go" data-glyph="arrow.up.right"></i></div></li>
+          <li><div class="try" role="button" tabindex="0" data-try="share"><b data-copy="try.share.title">Share from the browser</b><span data-copy="try.share.line">The plane becomes a letter. He catches it.</span><i class="go" data-glyph="arrow.up.right"></i></div></li>
+          <li><div class="try" role="button" tabindex="0" data-try="memo"><b data-copy="try.memo.title">Voice memo from the Lock Screen</b><span data-copy="try.memo.line">Record in my pocket. Send it without unlocking.</span><i class="go" data-glyph="arrow.up.right"></i></div></li>
+          <li><div class="try" role="button" tabindex="0" data-try="talk"><b data-copy="try.talk.title">Hold to talk</b><span data-copy="try.talk.line">He gallops under my words.</span><i class="go" data-glyph="arrow.up.right"></i></div></li>
+          <li><div class="try" role="button" tabindex="0" data-try="upcoming"><b data-copy="try.upcoming.title">Swipe up</b><span data-copy="try.upcoming.line">To-dos, what’s coming, what he did, and quests.</span><i class="go" data-glyph="arrow.up.right"></i></div></li>
+          <li><div class="try" role="button" tabindex="0" data-try="quote"><b data-copy="try.quote.title">Quote a book</b><span data-copy="try.quote.line">Live Text reads the page. I file the line.</span><i class="go" data-glyph="arrow.up.right"></i></div></li>
+          <li><div class="try" role="button" tabindex="0" data-try="saturday"><b data-copy="try.saturday.title">Plan a slow Saturday.</b><span data-copy="try.saturday.line">A place, then a reminder in one tap.</span><i class="go" data-glyph="arrow.up.right"></i></div></li>
         </ul>
         <div class="try-fine"><span data-copy="try.fine">Practice data. Nothing leaves this page.</span><button class="reset" type="button" id="reset">Start over</button></div>
       </div>
@@ -1585,7 +1589,28 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       st.innerHTML = msg || (d ? `<b>${d} unsaved</b> · ${Object.keys(saved).length} saved so far` : Object.keys(saved).length ? `${Object.keys(saved).length} fields saved. Claude can read them.` : "Click any dashed text to rewrite it.");
     };
     // In edit mode the words are text, not buttons: no tries fire, Enter ends the field.
-    const guard = (e) => { if (document.body.classList.contains("editing") && e.target.closest("[data-copy]")) { e.preventDefault(); e.stopPropagation(); } };
+    // Anything that acts on a click (a try row, a link) holding copy goes quiet: a click on its
+    // words edits them, a click beside them puts the caret in the nearest line.
+    const hosts = [...new Set(fields.map((f) => f.parentElement && f.parentElement.closest("[data-try], button, a[href]")).filter(Boolean))];
+    const caretIn = (f, x, y) => {
+      f.focus({ preventScroll: true });
+      const sel = getSelection(), r = document.caretRangeFromPoint ? document.caretRangeFromPoint(x, y) : null;
+      if (r && f.contains(r.startContainer)) { sel.removeAllRanges(); sel.addRange(r); return; }
+      const end = document.createRange(); end.selectNodeContents(f); end.collapse(false); sel.removeAllRanges(); sel.addRange(end);
+    };
+    const guard = (e) => {
+      if (!document.body.classList.contains("editing")) return;
+      const host = e.target.closest && hosts.find((h) => h.contains(e.target));
+      if (!host) return;
+      e.stopPropagation();
+      if (host.matches("a[href]")) e.preventDefault();
+      if (e.target.closest("[data-copy]")) return;
+      // Beside the words: the line nearest the click, caret at the matching point.
+      const inHost = fields.filter((f) => host.contains(f));
+      const near = inHost.map((f) => { const r = f.getBoundingClientRect(); return [f, e.clientY < r.top ? r.top - e.clientY : e.clientY > r.bottom ? e.clientY - r.bottom : 0, r]; }).sort((a, b) => a[1] - b[1])[0];
+      if (near) { const r = near[2]; caretIn(near[0], Math.min(Math.max(e.clientX, r.left + 1), r.right - 1), Math.min(Math.max(e.clientY, r.top + 1), r.bottom - 1)); }
+    };
+    // Keys stay with the field (Enter ends it); the rows' own key handler stands down while editing.
     document.addEventListener("click", guard, true);
     const onKey = (e) => {
       if (!e.target.closest || !e.target.closest("[data-copy]")) return;
@@ -1595,6 +1620,12 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     const onPaste = (e) => { if (!e.target.closest("[data-copy]")) return; e.preventDefault(); document.execCommand("insertText", false, (e.clipboardData || window.clipboardData).getData("text/plain")); };
     function setEditing(on) {
       document.body.classList.toggle("editing", on);
+      // A row that isn't a button can't be tabbed to or read out as one while it's text.
+      hosts.forEach((h) => {
+        if (!h.matches("[data-try]")) return;
+        if (on) { h.removeAttribute("role"); h.removeAttribute("tabindex"); }
+        else { h.setAttribute("role", "button"); h.setAttribute("tabindex", "0"); }
+      });
       fields.forEach((f) => { if (on) { f.setAttribute("contenteditable", "plaintext-only"); if (f.contentEditable !== "plaintext-only") f.setAttribute("contenteditable", "true"); f.spellcheck = true; } else f.removeAttribute("contenteditable"); });
       bar.hidden = !on; pill.hidden = on;
       if (on) status();
@@ -3234,9 +3265,16 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       inp.value = ""; showThread("main"); syncBar();
     }
   };
-  document.getElementById("tries").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-try]"); if (!b) return;
+  // The rows are buttons except while the copy is being edited; then they're only text.
+  const tries = document.getElementById("tries");
+  const editingCopy = () => document.body.classList.contains("editing");
+  tries.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-try]"); if (!b || editingCopy()) return;
     window.SFXPhone.try(b.dataset.try);
+  });
+  tries.addEventListener("keydown", (e) => {
+    const b = e.target.closest("[data-try]"); if (!b || e.target !== b || editingCopy()) return;
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); window.SFXPhone.try(b.dataset.try); }
   });
   document.getElementById("reset").onclick = () => window.SFXPhone.reset();
 
