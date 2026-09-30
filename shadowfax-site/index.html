@@ -103,11 +103,15 @@ p { margin: 0; }
 @media (max-width: 520px) { .night-meta { flex-direction: column; gap: 4px; } }
 /* The hidden side: hold the pointer on the ride and the night opens out over the whole hero. */
 .hero { position: relative; }
-.hero > .wrap { position: relative; z-index: 1; }
+/* Stacking: the card at the bottom, the night over it, the words over both. The card is never
+   touched: the night grows around it and draws its dots over the card's own black. */
+.hero > .wrap { position: relative; }
+.hero .night { z-index: 0; }
+.hero-top, .night-meta { position: relative; z-index: 2; }
 /* The layer is built of blocks (#grand-g) while the night grows; once it's whole, plain black. */
-.grand { position: absolute; z-index: 0; left: 0; right: 0; top: -56px; bottom: -48px; }
+.grand { position: absolute; z-index: 1; left: 0; right: 0; top: -56px; bottom: -48px; pointer-events: none; }
 .grand.whole { background: #000; }
-.grand canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.grand canvas { position: absolute; left: 0; top: 0; display: block; }   /* sized to whole device pixels by the engine */
 /* The words go from ink to the night's cream as the dark comes in behind them: --night runs 0 to 1
    with the morph (page.js), on the hero and, a little later, on the nav at the very top. */
 .hero h1 { color: color-mix(in srgb, var(--grand-ink, var(--ink)) calc(var(--night, 0) * 100%), var(--ink)); }
@@ -120,8 +124,6 @@ p { margin: 0; }
 body.night-building .nav, body.night-open .nav { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
 body.night-open .nav .mode { box-shadow: inset 0 0 0 0.7px rgb(255 255 255 / .18); }
 .hero .night { transition: box-shadow .4s var(--ease); }
-/* Opening, the card's own black gives way to the layer's first blocks, which land on it. */
-.hero .night.veiled { background: transparent; box-shadow: 0 0 0 0 transparent, 0 30px 60px -30px transparent; }
 
 
 /* ---------- Try it ---------- */
@@ -1372,7 +1374,8 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       const cell = p * DOT, rad = cell * CORNER;
       // Nothing under the real island: it hides whatever is drawn there.
       const skip = opts.skip ? [Math.floor(opts.skip.x0 / p) - 1, Math.ceil(opts.skip.x1 / p) + 1, Math.ceil(opts.skip.y1 / p) + 1] : null;
-      const ox = (W - cols * p + (p - cell)) / 2, oy = (Hh - rows * p + (p - cell)) / 2;
+      // The lattice sits on whole device pixels, so another grid can line up with it exactly.
+      const ox = Math.round(((W - cols * p + (p - cell)) / 2) * dpr) / dpr, oy = Math.round(((Hh - rows * p + (p - cell)) / 2) * dpr) / dpr;
       const batches = new Map();
       for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
         const i = r * cols + c, ink = grid[i];
@@ -1394,6 +1397,11 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       if (opts.onMoment) opts.onMoment(m, t, LOOP, CRUISE);
     }
     let startAt = null, landAt = null;
+    // Where its dots sit (CSS px in the canvas): the first dot's corner, the pitch, the density.
+    draw.lattice = () => {
+      const cell = p * DOT;
+      return { p, dpr, x0: Math.round(((W - cols * p + (p - cell)) / 2) * dpr) / dpr, y0: Math.round(((Hh - rows * p + (p - cell)) / 2) * dpr) / dpr };
+    };
     if (opts.controlled || opts.staged) {
       return {
         draw, fit,
@@ -1442,33 +1450,46 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     };
   }
   function grandRide(fineCanvas, coarseCanvas, groundCanvas) {
-    // Two grids over the same night: the fine one it resolves to, and a coarse one at the
-    // card's own dot that it opens from. Neither is ever re-gridded mid-morph, so no dot jumps.
-    // The night builds outward from the card a block at a time: each coarse block has its own
-    // moment (its distance from the card, and a little chance), arrives as a coarse pixel with
-    // a faint glow, and refines into the fine dots behind the front.
+    // Two grids over the same night: the coarse one is the card's own lattice (its pitch, its
+    // offset, its pixel density), carried out past every edge of the hero; the fine one it
+    // resolves to starts on the same corner. The night builds outward from the card a block at
+    // a time: each block has its moment (its distance from the card's rounded shape, bent by a
+    // slow noise), lands crisp with a thin accent rim, and refines into the fine dots behind the
+    // front. Every block is a whole number of device pixels; nothing is stretched or re-gridded.
     function grid(canvas) {
-      const g = { canvas, ctx: canvas.getContext("2d"), small: document.createElement("canvas"), P: 0, cols: 0, rows: 0, img: null, px: null, mask: null };
+      const g = { canvas, ctx: canvas.getContext("2d"), small: document.createElement("canvas"), P: 0, cols: 0, rows: 0, gx0: 0, gy0: 0, w: 0, h: 0, img: null, px: null, mask: null };
       g.sctx = g.small.getContext("2d");
       return g;
     }
     const fine = grid(fineCanvas), coarse = grid(coarseCanvas);
     const gctx = groundCanvas.getContext("2d"), gsmall = document.createElement("canvas"), gsctx = gsmall.getContext("2d");
-    let dpr = 1, when = null, phase = null, fineOf = null, coarseFac = null, fineFac = null, gimg = null, gpx = null, lastBlock = 1;
+    let dpr = 1, when = null, inside = null, phase = null, fineOf = null, coarseFac = null, fineFac = null, gimg = null, gpx = null, lastBlock = 1, card = null;
     const BAND = 0.22;                      // how long a block takes, arriving to settled, in morph progress
-    function size(g, css) {
-      const w = Math.round(g.canvas.clientWidth * dpr), h = Math.round(g.canvas.clientHeight * dpr);
-      if (g.canvas.width !== w || g.canvas.height !== h) { g.canvas.width = w; g.canvas.height = h; }
-      const P = Math.max(2, Math.round(css * dpr)), cols = Math.floor(w / P), rows = Math.floor(h / P);
+    // A grid of pitch P (device px) whose lattice passes through (ax, ay) (device px), covering
+    // the whole canvas: its first cell starts at or just before the canvas's own corner.
+    // Canvases are whole device pixels, shown at exactly that size (never stretched to a
+    // fractional box), so one canvas pixel is one screen pixel.
+    function exact(canvas) {
+      const b = canvas.parentElement.getBoundingClientRect(), w = Math.ceil(b.width * dpr), h = Math.ceil(b.height * dpr);
+      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+      canvas.style.width = w / dpr + "px"; canvas.style.height = h / dpr + "px";
+      return [w, h];
+    }
+    function size(g, P, ax, ay) {
+      const [w, h] = exact(g.canvas);
+      const X0 = ax - Math.ceil(ax / P) * P, Y0 = ay - Math.ceil(ay / P) * P;   // the lattice line at or left of 0
+      g.gx0 = X0; g.gy0 = Y0;
+      const cols = Math.ceil((w - X0) / P), rows = Math.ceil((h - Y0) / P);
+      g.w = w; g.h = h;
       if (P === g.P && cols === g.cols && rows === g.rows && g.img) return;
       g.P = P; g.cols = cols; g.rows = rows;
       g.small.width = cols; g.small.height = rows;
-      g.img = g.sctx.createImageData(Math.max(1, cols), Math.max(1, rows)); g.px = new Uint32Array(g.img.data.buffer);
+      g.img = g.sctx.createImageData(cols, rows); g.px = new Uint32Array(g.img.data.buffer);
       const m = document.createElement("canvas"); m.width = m.height = P;
       const mc = m.getContext("2d"), cell = P * DOT;
       mc.beginPath(); if (mc.roundRect) mc.roundRect(0, 0, cell, cell, cell * CORNER); else mc.rect(0, 0, cell, cell); mc.fill();
       g.mask = g.ctx.createPattern(m, "repeat");
-      // Each fine dot's turn to appear as the night resolves: scattered, fixed for the grid.
+      // Each fine dot's turn as the night resolves: scattered, fixed for the grid.
       g.turn = new Float32Array(cols * rows);
       for (let i = 0; i < g.turn.length; i++) g.turn[i] = ih(i * 2246822519 + 7);
     }
@@ -1489,7 +1510,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       const dt = last == null ? 0 : Math.min(0.1, (now - last) / 1000); last = now;
       if (reduce.matches) return;
       dist += ROAD * dt;
-      const g = fine.cols ? fine : coarse, { hh, hw, hx, hy } = horse(g.cols / g.rows);
+      const g = fine.cols ? fine : coarse, { hh, hw, hx, hy } = horse(g.w / g.h);
       windAt += dt;
       while (windAt > 0.035) { windAt -= 0.035; wind.push({ u: hx + hw * (0.1 + 0.25 * Math.random()), v: hy + hh * (0.15 + 0.6 * Math.random()), life: 0, len: 0.004 + Math.random() * 0.012 }); }
       wind = wind.filter((w) => (w.life += dt) < 0.7);
@@ -1498,7 +1519,10 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     function render(g, now, fac) {
       const { cols, rows, px } = g;
       if (!cols || !rows) return;
-      const H = rows;                                  // one scene unit = the scene's height in dots
+      // One scene unit is the canvas's height; a cell's place in the scene counts the lattice's offset.
+      const H = g.h / g.P, ox = -g.gx0 / g.P, oy = -g.gy0 / g.P;
+      const col = (u) => Math.floor(u * H + ox), row = (v) => Math.floor(v * H + oy);
+      const cu = (c) => (c + 0.5 - ox) / H, cv = (r) => (r + 0.5 - oy) / H;
       const acc = tone("accent", true), q = tone("quiet", true), cream = tone("ink", true);
       const inks = { far: mix(mix(acc, q, 0.35), [247, 240, 214], 0.18), mid: mix(acc, cream, 0.1), near: acc, snow: [247, 240, 214], quiet: q, white: [255, 255, 255] };
       px.fill(0);
@@ -1509,11 +1533,11 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
         if (a * 255 >= cur) px[i] = pack(c, a);
       };
       // Sky: the stars barely drift; each twinkles on its own; a few wear a cross.
-      const clock = now / 1000, span = cols / H;
+      const clock = now / 1000, span = g.w / g.h;
       for (const s of stars) {
         const u = (((s.u - dist * 0.02) % 6) + 6) % 6;
-        if (u > span) continue;
-        const x = Math.floor(u * H), y = Math.floor(s.v * H);
+        if (u > span + 0.01) continue;
+        const x = col(u), y = row(s.v);
         const tw = 0.5 + 0.5 * Math.sin(clock * (0.7 + s.b * 1.4) + s.b * 40);
         const a = 0.12 + 0.55 * s.b * (0.55 + 0.45 * tw);
         set(x, y, inks.white, a);
@@ -1521,37 +1545,36 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       }
       // The moon, a crescent lit on its right, and its halo.
       const mu = span * 0.8, mv = 0.13, mr = 0.042;
-      const x0 = Math.floor((mu - mr * 2.4) * H), x1 = Math.ceil((mu + mr * 2.4) * H), y0 = Math.floor((mv - mr * 2.4) * H), y1 = Math.ceil((mv + mr * 2.4) * H);
-      for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
-        const du = (x + 0.5) / H - mu, dv = (y + 0.5) / H - mv, d = Math.hypot(du, dv);
+      for (let y = row(mv - mr * 2.4); y <= row(mv + mr * 2.4); y++) for (let x = col(mu - mr * 2.4); x <= col(mu + mr * 2.4); x++) {
+        const du = cu(x) - mu, dv = cv(y) - mv, d = Math.hypot(du, dv);
         const inner = Math.hypot(du + mr * 0.42, dv + mr * 0.12);
         if (d < mr && inner > mr * 0.86) set(x, y, inks.snow, 0.55 + 0.45 * smoothstep(mr * 0.86, mr * 1.05, inner) * smoothstep(mr, mr * 0.7, d));
         else if (d < mr * 2 && d >= mr) { const gl = 0.1 * (1 - (d - mr) / mr); if (ih(x * 9176 + y * 131) < 0.3) set(x, y, inks.snow, gl); }
       }
       // The ranges, far to near; the nearer a range, the later it draws and the more it wins.
-      const ridges = LAYERS.map((L) => { const a = new Float32Array(cols + 2); for (let c = -1; c <= cols; c++) a[c + 1] = L.base - L.ridge((c + 0.5) / H + dist * L.speed); return a; });
+      const ridges = LAYERS.map((L) => { const a = new Float32Array(cols + 2); for (let c = -1; c <= cols; c++) a[c + 1] = L.base - L.ridge(cu(c) + dist * L.speed); return a; });
       for (let li = 0; li < LAYERS.length; li++) {
         const L = LAYERS[li], R = ridges[li], ink = inks[L.ink];
         const seed = li * 7919, shift = Math.floor(dist * L.speed * H);
         for (let c = 0; c < cols; c++) {
-          const top = R[c + 1], topRow = Math.max(0, Math.floor(top * H));
+          const top = R[c + 1], topRow = Math.max(0, row(top));
           const lit = R[c + 2] > R[c];                           // the face toward the moon
           const height = L.base - top, snowLine = height > L.snow ? top + (height - L.snow) * 0.55 : -1;
-          const bottom = li === LAYERS.length - 1 ? Math.floor(GROUND * H) : rows;
+          const bottom = li === LAYERS.length - 1 ? Math.min(rows, row(GROUND)) : rows;
           for (let y = topRow; y < bottom; y++) {
-            const v = (y + 0.5) / H, depth = (v - top) * H;
+            const v = cv(y), depth = (v - top) * H;
             const i = y * cols + c, n = ih((c + shift) * 73856093 ^ y * 19349663 ^ seed);
-            let a = 0, col = ink;
-            if (depth < 1.1) { a = lit ? 0.95 : 0.55; col = snowLine > 0 ? inks.snow : ink; }
-            else if (snowLine > 0 && v < snowLine) { if (n < (lit ? 0.7 : 0.35)) { a = (lit ? 0.75 : 0.35) * (0.6 + 0.4 * n); col = inks.snow; } }
+            let a = 0, cl = ink;
+            if (depth < 1.1) { a = lit ? 0.95 : 0.55; cl = snowLine > 0 ? inks.snow : ink; }
+            else if (snowLine > 0 && v < snowLine) { if (n < (lit ? 0.7 : 0.35)) { a = (lit ? 0.75 : 0.35) * (0.6 + 0.4 * n); cl = inks.snow; } }
             else if (lit) { const fall = Math.exp(-depth / (H * 0.06)); if (n < 0.3 + 0.6 * fall) a = (0.16 + 0.8 * fall) * (0.5 + 0.5 * ih(i * 31 + seed)); }
-            else if (n < 0.3) { a = 0.07 + 0.15 * ih(i * 17 + seed); col = n < 0.06 ? ink : inks.quiet; }
-            px[i] = a > 0.02 ? pack(col, a * (0.7 + 0.3 * li / (LAYERS.length - 1))) : 0;   // nearer land hides what's behind it
+            else if (n < 0.3) { a = 0.07 + 0.15 * ih(i * 17 + seed); cl = n < 0.06 ? ink : inks.quiet; }
+            px[i] = a > 0.02 ? pack(cl, a * (0.7 + 0.3 * li / (LAYERS.length - 1))) : 0;   // nearer land hides what's behind it
           }
         }
       }
       // The road, at full speed, and the grass speckle under it.
-      const gy = Math.floor(GROUND * H), roadShift = Math.floor(dist * H);
+      const gy = Math.max(0, row(GROUND)), roadShift = Math.floor(dist * H);
       for (let y = gy; y < rows; y++) for (let c = 0; c < cols; c++) {
         const w = c + roadShift, n = ih(w * 2654435761 ^ y * 40503);
         const i = y * cols + c;
@@ -1561,7 +1584,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       // Shadowfax: the HD frames, sampled at this dot; the gallop keeps time with the road.
       const { hh, hw, hx, hy } = horse(span);
       const frame = reduce.matches ? 13 : Math.floor((dist / (hw * 0.92)) * 15) % 15, F = HD[frame];
-      const bx0 = Math.floor(hx * H), by0 = Math.floor(hy * H), bw = Math.ceil(hw * H), bh = Math.ceil(hh * H);
+      const bx0 = col(hx), by0 = row(hy), bw = Math.ceil(hw * H), bh = Math.ceil(hh * H);
       const cov = (fx, fy) => { const x = Math.floor(fx), y = Math.floor(fy); if (x < 0 || y < 0 || x >= HD_W || y >= HD_H) return 0; return F[y][x]; };
       for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) {
         const sx = ((x + 0.5) / bw) * HD_W - 0.5, sy = ((y + 0.5) / bh) * HD_H - 0.5;
@@ -1574,7 +1597,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       }
       // The wind off him: streaks from his back half, trailing at the road's pace.
       for (const w of wind) {
-        const x = Math.floor((w.u - w.life * ROAD * 0.9) * H), y = Math.floor(w.v * H), a = 0.5 * (1 - w.life / 0.7), n = Math.max(1, Math.round(w.len * H));
+        const x = col(w.u - w.life * ROAD * 0.9), y = row(w.v), a = 0.5 * (1 - w.life / 0.7), n = Math.max(1, Math.round(w.len * H));
         for (let k = 0; k < n; k++) set(x + k, y, inks.white, a * (1 - k / (n + 1)));
       }
       // Where the night hasn't built yet, or has moved on to the other grid, the dot waits.
@@ -1585,61 +1608,75 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
           px[i] = f <= 0.004 ? 0 : ((Math.min(255, Math.round((v >>> 24) * f)) << 24) | (v & 0xffffff)) >>> 0;
         }
       }
-      // One pixel a dot, up to size, cut into dots.
+      // One pixel a dot, up to whole device pixels, cut into dots on the same lattice.
       const { ctx, canvas, small, P } = g;
       g.sctx.putImageData(g.img, 0, 0);
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.globalCompositeOperation = "source-over";
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(small, 0, 0, cols * P, rows * P);
+      ctx.drawImage(small, g.gx0, g.gy0, cols * P, rows * P);
       ctx.globalCompositeOperation = "destination-in";
-      ctx.fillStyle = g.mask; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.setTransform(1, 0, 0, 1, g.gx0, g.gy0);
+      ctx.fillStyle = g.mask; ctx.fillRect(-g.gx0, -g.gy0, canvas.width, canvas.height);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.globalCompositeOperation = "source-over";
     }
-    // Each coarse block's moment, from where the card sits (layer CSS px, with its corner
-    // radius): the card's own shape at once, then outward by distance, the far corners last.
-    // The front wanders on a slow, smooth noise, so it grows as one shape with a stepped edge
-    // rather than a spray of pixels.
+
+    // Each block's moment, from the card's rounded shape (layer CSS px): the blocks inside it at
+    // once, then outward by distance, the far corners last. The front wanders on a slow, smooth
+    // noise, so it grows as one shape with a stepped edge rather than a spray of pixels.
     function shape(rect) {
-      const g = coarse, Pc = g.P / dpr, n = g.cols * g.rows;
-      const W = g.canvas.clientWidth, Hh = g.canvas.clientHeight;
+      card = rect;
+      const g = coarse, n = g.cols * g.rows, W = g.w / dpr, Hh = g.h / dpr;   // the canvas, in CSS px
       const R = Math.min(rect.r || 0, rect.w / 2, rect.h / 2), cx = rect.x + rect.w / 2, cy = rect.y + rect.h / 2;
       const hx = rect.w / 2 - R, hy = rect.h / 2 - R;
       const sdf = (x, y) => { const qx = Math.abs(x - cx) - hx, qy = Math.abs(y - cy) - hy; return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - R; };
       const far = Math.max(sdf(0, 0), sdf(W, 0), sdf(0, Hh), sdf(W, Hh)) || 1;
-      // Value noise at about 150px, eased between its lattice points.
       const S = 150, vn = (x, y) => {
         const X = Math.floor(x / S), Y = Math.floor(y / S), fx = x / S - X, fy = y / S - Y;
         const e = (t) => t * t * (3 - 2 * t), h = (a, b) => ih(a * 73856093 ^ b * 19349663 ^ 0x5bd1e995);
         const a = h(X, Y) + (h(X + 1, Y) - h(X, Y)) * e(fx), b = h(X, Y + 1) + (h(X + 1, Y + 1) - h(X, Y + 1)) * e(fx);
         return a + (b - a) * e(fy);
       };
-      when = new Float32Array(n); phase = new Float32Array(n); coarseFac = new Float32Array(n);
+      when = new Float32Array(n); inside = new Uint8Array(n); phase = new Float32Array(n); coarseFac = new Float32Array(n);
+      const Pc = g.P / dpr, x0 = g.gx0 / dpr, y0 = g.gy0 / dpr;
       for (let r = 0; r < g.rows; r++) for (let c = 0; c < g.cols; c++) {
-        const i = r * g.cols + c, x = (c + 0.5) * Pc, y = (r + 0.5) * Pc, d = sdf(x, y);
+        const i = r * g.cols + c, x = x0 + (c + 0.5) * Pc, y = y0 + (r + 0.5) * Pc, d = sdf(x, y);
+        inside[i] = d <= 0 ? 1 : 0;
         when[i] = d <= 0 ? 0.004 : 0.02 + 0.66 * Math.pow(d / far, 0.85) + 0.055 * (vn(x, y) - 0.5) * Math.min(1, d / 60) + 0.006 * ih(i * 374761393 + 11);
       }
       lastBlock = Math.max(...when) + BAND;
-      // Which coarse block each fine dot sits in.
-      const f = fine, ratio = f.P / g.P;
+      // Which coarse block each fine dot's centre sits in.
+      const f = fine;
       fineOf = new Int32Array(f.cols * f.rows); fineFac = new Float32Array(f.cols * f.rows);
-      for (let r = 0; r < f.rows; r++) for (let c = 0; c < f.cols; c++) fineOf[r * f.cols + c] = Math.min(g.rows - 1, Math.floor(r * ratio)) * g.cols + Math.min(g.cols - 1, Math.floor(c * ratio));
+      for (let r = 0; r < f.rows; r++) for (let c = 0; c < f.cols; c++) {
+        const X = f.gx0 + (c + 0.5) * f.P, Y = f.gy0 + (r + 0.5) * f.P;
+        const C = Math.max(0, Math.min(g.cols - 1, Math.floor((X - g.gx0) / g.P))), Rr = Math.max(0, Math.min(g.rows - 1, Math.floor((Y - g.gy0) / g.P)));
+        fineOf[r * f.cols + c] = Rr * g.cols + C;
+      }
       gsmall.width = g.cols; gsmall.height = g.rows; gimg = gsctx.createImageData(g.cols, g.rows); gpx = new Uint32Array(gimg.data.buffer);
-      const w = Math.round(W * dpr), h = Math.round(Hh * dpr);
-      if (groundCanvas.width !== w || groundCanvas.height !== h) { groundCanvas.width = w; groundCanvas.height = h; }
+      exact(groundCanvas);
     }
     let lastP = 0;
     return {
+      // lattice: the card's dots (pitch and first corner, layer CSS px, and its pixel density);
+      // fineCss: the dot the night resolves to.
+      fit(lattice, fineCss) {
+        dpr = lattice.dpr;
+        const Pc = Math.round(lattice.p * dpr), ax = Math.round(lattice.x0 * dpr), ay = Math.round(lattice.y0 * dpr);
+        size(coarse, Pc, ax, ay);
+        size(fine, Math.max(2, Math.round(fineCss * dpr)), ax, ay);
+      },
+      shape,
+      // The coarse lattice as placed (device px): for checking it against the card's.
+      geometry: () => ({ P: coarse.P, gx0: coarse.gx0, gy0: coarse.gy0, fineP: fine.P, dpr }),
       // How far the night has come at a point (layer CSS px): below 0 not yet, 1 and on settled.
       phaseAt(x, y) {
         if (!when) return lastP >= 1 ? 1 : 0;
-        const g = coarse, Pc = g.P / dpr, c = Math.max(0, Math.min(g.cols - 1, Math.floor(x / Pc))), r = Math.max(0, Math.min(g.rows - 1, Math.floor(y / Pc)));
+        const g = coarse, c = Math.max(0, Math.min(g.cols - 1, Math.floor((x * dpr - g.gx0) / g.P))), r = Math.max(0, Math.min(g.rows - 1, Math.floor((y * dpr - g.gy0) / g.P)));
         return (lastP - when[r * g.cols + c]) / BAND;
       },
-      // fineCss: the dot it resolves to; coarseCss: the card's own dot, where it opens from.
-      fit(fineCss, coarseCss) { dpr = Math.min(2, window.devicePixelRatio || 1); size(fine, fineCss); size(coarse, coarseCss); },
-      shape,
       // p 0..1, the morph. Returns whether every block has settled (the night is whole).
       draw(now, p = 1) {
         step(now); lastP = p;
@@ -1652,11 +1689,13 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
         for (let i = 0; i < when.length; i++) {
           const ph = (p - when[i]) / BAND;
           phase[i] = ph;
-          // A block lands coarse and a little bright, holds briefly, and hands over to the fine dots.
-          coarseFac[i] = ph <= 0 ? 0 : smoothstep(0.02, 0.1, ph) * (1 - smoothstep(0.3, 0.6, ph)) * (1 + 0.4 * (1 - smoothstep(0, 0.25, ph)));
+          // Inside the card its own ride stands in for the coarse night; outside, a block lands
+          // coarse and a little bright, holds briefly, and hands over to the fine dots.
+          coarseFac[i] = inside[i] || ph <= 0 ? 0 : smoothstep(0.02, 0.1, ph) * (1 - smoothstep(0.3, 0.6, ph)) * (1 + 0.4 * (1 - smoothstep(0, 0.25, ph)));
           // The ground under it: each block lands crisp, and the newest carry a thin rim of the
           // accent that cools to black a block or two behind the front.
           if (ph <= 0) gpx[i] = 0;
+          else if (inside[i]) gpx[i] = (Math.round(smoothstep(0, 0.025, ph) * 255) << 24) >>> 0;   // black, no rim
           else {
             const a = smoothstep(0, 0.025, ph), glow = 0.62 * (1 - smoothstep(0.015, 0.11, ph));
             gpx[i] = ((Math.round(a * 255) << 24) | (Math.round(acc[2] * glow) << 16) | (Math.round(acc[1] * glow) << 8) | Math.round(acc[0] * glow)) >>> 0;
@@ -1667,10 +1706,20 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
         render(fine, now, fineFac);
         coarseCanvas.style.opacity = "1"; groundCanvas.style.opacity = "1";
         render(coarse, now, coarseFac);
-        gsctx.putImageData(gimg, 0, 0);
+        // The ground: the blocks, whole device pixels each, cleared over the card itself (inset a
+        // pixel and a half, so the two blacks overlap and no hairline opens between them). The
+        // card's own black shows through, so the first frame and the last are the card exactly;
+        // the blocks that reach past its corners are where its edge turns to pixels.
         gctx.setTransform(1, 0, 0, 1, 0, 0); gctx.clearRect(0, 0, groundCanvas.width, groundCanvas.height);
+        gsctx.putImageData(gimg, 0, 0);
         gctx.imageSmoothingEnabled = false;
-        gctx.drawImage(gsmall, 0, 0, groundCanvas.width, groundCanvas.height);
+        gctx.drawImage(gsmall, coarse.gx0, coarse.gy0, coarse.cols * coarse.P, coarse.rows * coarse.P);
+        if (card) {
+          const k = dpr, e = 1.5, x = card.x * k + e, y = card.y * k + e, w = card.w * k - 2 * e, h = card.h * k - 2 * e, r = Math.max(0, card.r * k - e);
+          gctx.globalCompositeOperation = "destination-out"; gctx.beginPath();
+          if (gctx.roundRect) gctx.roundRect(x, y, w, h, r); else gctx.rect(x, y, w, h);
+          gctx.fill(); gctx.globalCompositeOperation = "source-over";
+        }
         return false;
       },
       reset() { last = null; }
@@ -1804,6 +1853,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
   (() => {
     const hero = $(".hero"), card = $(".night"), cardCanvas = $("#night"), layer = $("#grand"), nav = $(".nav");
     const scene = window.SFX.grandRide($("#grand-c"), $("#grand-c2"), $("#grand-g"));
+    window.SFX.grandScene = scene;
     const reduce = window.SFX.reduce, touch = window.matchMedia("(hover: none)");
     // Two critically damped springs in a row: the first follows the goal, the second follows the
     // first, so it eases in as well as out and settles in about 1.3s. Solved exactly each frame,
@@ -1820,8 +1870,12 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     // the night builds outward from there.
     function measure() {
       const L = layer.getBoundingClientRect(), r = card.getBoundingClientRect();
-      from = { x: r.left - L.left, y: r.top - L.top, w: r.width, h: r.height, r: parseFloat(getComputedStyle(card).borderTopLeftRadius) || 0 };
-      scene.fit(FINE, card.clientHeight / 44);   // the card's ride is 44 dots high
+      // The card's box as the browser paints it: snapped to whole device pixels, edge by edge.
+      const lat = drawNight.lattice(), k = lat.dpr, snap = (v) => Math.round(v * k) / k, c = cardCanvas.getBoundingClientRect();
+      const lx = snap(L.left), ly = snap(L.top);
+      from = { x: snap(r.left) - lx, y: snap(r.top) - ly, w: snap(r.right) - snap(r.left), h: snap(r.bottom) - snap(r.top), r: parseFloat(getComputedStyle(card).borderTopLeftRadius) || 0 };
+      // The night's coarse grid is the card's own lattice, carried out across the hero.
+      scene.fit({ p: lat.p, dpr: lat.dpr, x0: snap(c.left) - lx + lat.x0, y0: snap(c.top) - ly + lat.y0 }, FINE);
       scene.shape(from);
       // The words turn as the front passes behind them: the headline a word at a time (its words
       // wrapped once, the text unchanged), the smaller lines whole.
@@ -1832,9 +1886,8 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       navBits = [...nav.querySelectorAll(".brand, .mode")].map((el) => { const b = el.getBoundingClientRect(); return [el, b.left - L.left + b.width / 2, Math.max(4, b.top - L.top + b.height / 2)]; });
     }
     function apply(now) {
-      // The card's own ride gives way as its blocks land (they are the first to).
-      cardCanvas.style.opacity = (1 - smooth(0.004, 0.05, p)).toFixed(3);
-      card.classList.toggle("veiled", p > 0.025);
+      // The card's own ride stays until the fine dots take over inside it; its black never moves.
+      cardCanvas.style.opacity = (1 - smooth(0.05, 0.16, p)).toFixed(3);
       // The words turn once the dark is most of the way behind them, either way.
       // The words blend to cream as the dark passes behind them; the nav, at the very top, last.
       const whole = scene.draw(now, reduce.matches ? 1 : p);
@@ -1867,7 +1920,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       if (window.__grandTrace) window.__grandTrace.push([now, p, performance.now() - t0]);
       if (p === 0 && target === 0) {
         running = false; layer.hidden = true; document.body.classList.remove("night-building");
-        cardCanvas.style.opacity = ""; card.classList.remove("veiled"); from = null;
+        cardCanvas.style.opacity = ""; from = null;
         for (const [el] of words.concat(navBits)) el.style.removeProperty("--night");
       }
     });
