@@ -111,11 +111,13 @@ p { margin: 0; }
 /* The words go from ink to the night's cream as the dark comes in behind them: --night runs 0 to 1
    with the morph (page.js), on the hero and, a little later, on the nav at the very top. */
 .hero h1 { color: color-mix(in srgb, var(--grand-ink, var(--ink)) calc(var(--night, 0) * 100%), var(--ink)); }
+.hero h1 .w { color: color-mix(in srgb, var(--grand-ink, var(--ink)) calc(var(--night, 0) * 100%), var(--ink)); }
 .hero .lede { color: color-mix(in srgb, var(--grand-ink, var(--soft)) calc(var(--night, 0) * 100%), var(--soft)); }
 .hero .label { color: color-mix(in srgb, var(--grand-quiet, var(--quiet)) calc(var(--night, 0) * 100%), var(--quiet)); }
 .nav { color: color-mix(in srgb, var(--grand-ink, var(--ink)) calc(var(--night, 0) * 100%), var(--ink)); }
-.nav .mode { color: inherit; }
-body.night-open .nav { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
+.nav .brand, .nav .mode { color: color-mix(in srgb, var(--grand-ink, var(--ink)) calc(var(--night, 0) * 100%), var(--ink)); }
+/* While the night builds, the nav is clear glass: its blur would smear the front beneath it. */
+body.night-building .nav, body.night-open .nav { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
 body.night-open .nav .mode { box-shadow: inset 0 0 0 0.7px rgb(255 255 255 / .18); }
 .hero .night { transition: box-shadow .4s var(--ease); }
 /* Opening, the card's own black gives way to the layer's first blocks, which land on it. */
@@ -1595,18 +1597,28 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       ctx.fillStyle = g.mask; ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.globalCompositeOperation = "source-over";
     }
-    // Each coarse block's moment, from where the card sits (layer CSS px): inside the card
-    // almost at once, then outward by distance, the far corners last, each a little early or late.
+    // Each coarse block's moment, from where the card sits (layer CSS px, with its corner
+    // radius): the card's own shape at once, then outward by distance, the far corners last.
+    // The front wanders on a slow, smooth noise, so it grows as one shape with a stepped edge
+    // rather than a spray of pixels.
     function shape(rect) {
       const g = coarse, Pc = g.P / dpr, n = g.cols * g.rows;
       const W = g.canvas.clientWidth, Hh = g.canvas.clientHeight;
-      const far = Math.max(...[[0, 0], [W, 0], [0, Hh], [W, Hh]].map(([x, y]) => Math.hypot(Math.max(rect.x - x, 0, x - rect.x - rect.w), Math.max(rect.y - y, 0, y - rect.y - rect.h)))) || 1;
+      const R = Math.min(rect.r || 0, rect.w / 2, rect.h / 2), cx = rect.x + rect.w / 2, cy = rect.y + rect.h / 2;
+      const hx = rect.w / 2 - R, hy = rect.h / 2 - R;
+      const sdf = (x, y) => { const qx = Math.abs(x - cx) - hx, qy = Math.abs(y - cy) - hy; return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - R; };
+      const far = Math.max(sdf(0, 0), sdf(W, 0), sdf(0, Hh), sdf(W, Hh)) || 1;
+      // Value noise at about 150px, eased between its lattice points.
+      const S = 150, vn = (x, y) => {
+        const X = Math.floor(x / S), Y = Math.floor(y / S), fx = x / S - X, fy = y / S - Y;
+        const e = (t) => t * t * (3 - 2 * t), h = (a, b) => ih(a * 73856093 ^ b * 19349663 ^ 0x5bd1e995);
+        const a = h(X, Y) + (h(X + 1, Y) - h(X, Y)) * e(fx), b = h(X, Y + 1) + (h(X + 1, Y + 1) - h(X, Y + 1)) * e(fx);
+        return a + (b - a) * e(fy);
+      };
       when = new Float32Array(n); phase = new Float32Array(n); coarseFac = new Float32Array(n);
       for (let r = 0; r < g.rows; r++) for (let c = 0; c < g.cols; c++) {
-        const i = r * g.cols + c, x = (c + 0.5) * Pc, y = (r + 0.5) * Pc;
-        const d = Math.hypot(Math.max(rect.x - x, 0, x - rect.x - rect.w), Math.max(rect.y - y, 0, y - rect.y - rect.h));
-        const k = ih(i * 374761393 + 11);
-        when[i] = d === 0 ? 0.012 * k : 0.03 + 0.62 * Math.pow(d / far, 0.9) + 0.06 * k;
+        const i = r * g.cols + c, x = (c + 0.5) * Pc, y = (r + 0.5) * Pc, d = sdf(x, y);
+        when[i] = d <= 0 ? 0.004 : 0.02 + 0.66 * Math.pow(d / far, 0.85) + 0.055 * (vn(x, y) - 0.5) * Math.min(1, d / 60) + 0.006 * ih(i * 374761393 + 11);
       }
       lastBlock = Math.max(...when) + BAND;
       // Which coarse block each fine dot sits in.
@@ -1617,13 +1629,20 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       const w = Math.round(W * dpr), h = Math.round(Hh * dpr);
       if (groundCanvas.width !== w || groundCanvas.height !== h) { groundCanvas.width = w; groundCanvas.height = h; }
     }
+    let lastP = 0;
     return {
+      // How far the night has come at a point (layer CSS px): below 0 not yet, 1 and on settled.
+      phaseAt(x, y) {
+        if (!when) return lastP >= 1 ? 1 : 0;
+        const g = coarse, Pc = g.P / dpr, c = Math.max(0, Math.min(g.cols - 1, Math.floor(x / Pc))), r = Math.max(0, Math.min(g.rows - 1, Math.floor(y / Pc)));
+        return (lastP - when[r * g.cols + c]) / BAND;
+      },
       // fineCss: the dot it resolves to; coarseCss: the card's own dot, where it opens from.
       fit(fineCss, coarseCss) { dpr = Math.min(2, window.devicePixelRatio || 1); size(fine, fineCss); size(coarse, coarseCss); },
       shape,
       // p 0..1, the morph. Returns whether every block has settled (the night is whole).
       draw(now, p = 1) {
-        step(now);
+        step(now); lastP = p;
         if (!when || p >= lastBlock) {
           render(fine, now, null);
           coarseCanvas.style.opacity = "0"; groundCanvas.style.opacity = "0";
@@ -1633,18 +1652,18 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
         for (let i = 0; i < when.length; i++) {
           const ph = (p - when[i]) / BAND;
           phase[i] = ph;
-          // A block lands coarse and bright, holds, and gives way to the fine dots.
-          coarseFac[i] = ph <= 0 ? 0 : smoothstep(0, 0.06, ph) * (1 - smoothstep(0.45, 0.85, ph)) * (1 + 0.5 * (1 - smoothstep(0, 0.3, ph)));
-          // The ground under it: black, glowing faintly in the accent as it arrives.
+          // A block lands coarse and a little bright, holds briefly, and hands over to the fine dots.
+          coarseFac[i] = ph <= 0 ? 0 : smoothstep(0.02, 0.1, ph) * (1 - smoothstep(0.3, 0.6, ph)) * (1 + 0.4 * (1 - smoothstep(0, 0.25, ph)));
+          // The ground under it: each block lands crisp, and the newest carry a thin rim of the
+          // accent that cools to black a block or two behind the front.
           if (ph <= 0) gpx[i] = 0;
           else {
-            // A block lands whole, the way a pixel does: black at once, its glow fading after.
-            const a = smoothstep(0, 0.035, ph), glow = 0.34 * (1 - smoothstep(0.04, 0.4, ph));
+            const a = smoothstep(0, 0.025, ph), glow = 0.62 * (1 - smoothstep(0.015, 0.11, ph));
             gpx[i] = ((Math.round(a * 255) << 24) | (Math.round(acc[2] * glow) << 16) | (Math.round(acc[1] * glow) << 8) | Math.round(acc[0] * glow)) >>> 0;
           }
         }
         const turn = fine.turn;
-        for (let i = 0; i < fineFac.length; i++) { const t = turn[i] * 0.25; fineFac[i] = smoothstep(0.35 + t, 0.65 + t, phase[fineOf[i]]); }
+        for (let i = 0; i < fineFac.length; i++) { const t = turn[i] * 0.2; fineFac[i] = smoothstep(0.25 + t, 0.55 + t, phase[fineOf[i]]); }
         render(fine, now, fineFac);
         coarseCanvas.style.opacity = "1"; groundCanvas.style.opacity = "1";
         render(coarse, now, coarseFac);
@@ -1790,7 +1809,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     // first, so it eases in as well as out and settles in about 1.3s. Solved exactly each frame,
     // so a slow frame changes nothing about the curve.
     const FINE = 4, W1 = 7.5, W2 = 6.5;
-    let s = 0, sv = 0, p = 0, v = 0, target = 0, running = false, last = null, intent = null, from = null, navDark = false;
+    let s = 0, sv = 0, p = 0, v = 0, target = 0, running = false, last = null, intent = null, from = null, navDark = false, words = [], navBits = [];
     const spring = (x, vx, goal, w, dt) => { const e = x - goal, k = Math.exp(-w * dt), c = vx + w * e; return [goal + (e + c * dt) * k, (vx - w * c * dt) * k]; };
     const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
     function inks() {
@@ -1801,9 +1820,16 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     // the night builds outward from there.
     function measure() {
       const L = layer.getBoundingClientRect(), r = card.getBoundingClientRect();
-      from = { x: r.left - L.left, y: r.top - L.top, w: r.width, h: r.height };
+      from = { x: r.left - L.left, y: r.top - L.top, w: r.width, h: r.height, r: parseFloat(getComputedStyle(card).borderTopLeftRadius) || 0 };
       scene.fit(FINE, card.clientHeight / 44);   // the card's ride is 44 dots high
       scene.shape(from);
+      // The words turn as the front passes behind them: the headline a word at a time (its words
+      // wrapped once, the text unchanged), the smaller lines whole.
+      const h1 = hero.querySelector("h1");
+      if (!h1.querySelector(".w")) h1.innerHTML = h1.textContent.trim().split(/\s+/).map((w) => `<span class="w">${w.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]))}</span>`).join(" ");
+      words = [...hero.querySelectorAll("h1 .w, .lede, .label")].map((el) => { const b = el.getBoundingClientRect(); return [el, b.left - L.left + b.width / 2, b.top - L.top + b.height / 2]; });
+      // The nav's brand and its button turn on their own, as the front reaches each.
+      navBits = [...nav.querySelectorAll(".brand, .mode")].map((el) => { const b = el.getBoundingClientRect(); return [el, b.left - L.left + b.width / 2, Math.max(4, b.top - L.top + b.height / 2)]; });
     }
     function apply(now) {
       // The card's own ride gives way as its blocks land (they are the first to).
@@ -1811,11 +1837,13 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       card.classList.toggle("veiled", p > 0.025);
       // The words turn once the dark is most of the way behind them, either way.
       // The words blend to cream as the dark passes behind them; the nav, at the very top, last.
-      hero.style.setProperty("--night", smooth(0.14, 0.45, p).toFixed(3));
-      nav.style.setProperty("--night", smooth(0.6, 0.8, p).toFixed(3));
-      const navWant = p > 0.72;
+      const whole = scene.draw(now, reduce.matches ? 1 : p);
+      layer.classList.toggle("whole", whole && p > 0.5);
+      for (const [el, x, y] of words) el.style.setProperty("--night", smooth(0.02, 0.3, scene.phaseAt(x, y)).toFixed(3));
+      let navMin = Infinity;
+      for (const [el, x, y] of navBits) { const ph = scene.phaseAt(x, y); navMin = Math.min(navMin, ph); el.style.setProperty("--night", smooth(0.02, 0.3, ph).toFixed(3)); }
+      const navWant = navMin > 0.1;
       if (navWant !== navDark) { navDark = navWant; document.body.classList.toggle("night-open", navWant); }
-      layer.classList.toggle("whole", scene.draw(now, reduce.matches ? 1 : p) && p > 0.5);
     }
     function go(to) {
       if (to === target && running) return;
@@ -1824,7 +1852,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       if (!running) {
         if (to === 0) return;
         inks(); layer.hidden = false; if (!from) measure(); scene.reset();
-        running = true; last = null;
+        running = true; last = null; document.body.classList.add("night-building");
       }
     }
     window.SFX.ticks.push((now) => {
@@ -1838,9 +1866,9 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       const t0 = performance.now(); apply(now);
       if (window.__grandTrace) window.__grandTrace.push([now, p, performance.now() - t0]);
       if (p === 0 && target === 0) {
-        running = false; layer.hidden = true;
+        running = false; layer.hidden = true; document.body.classList.remove("night-building");
         cardCanvas.style.opacity = ""; card.classList.remove("veiled"); from = null;
-        hero.style.removeProperty("--night"); nav.style.removeProperty("--night");
+        for (const [el] of words.concat(navBits)) el.style.removeProperty("--night");
       }
     });
     const open = () => { clearTimeout(intent); go(1); };
