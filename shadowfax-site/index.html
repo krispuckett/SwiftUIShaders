@@ -535,13 +535,10 @@ a.act { text-decoration: none; }
 .mrow2.paused .mtr, .mrow2.paused .big { color: var(--n-quiet); }
 .lock { position: absolute; inset: 0; z-index: 52; color: #fff; opacity: 0; pointer-events: none; transform: translateY(24px) scale(1.02); transition: opacity .4s var(--ease), transform .45s var(--ease); overflow: hidden; }
 .lock.on { opacity: 1; pointer-events: auto; transform: none; }
-.lk-wall { position: absolute; inset: 0; background:
-  radial-gradient(120% 60% at 20% 20%, color-mix(in srgb, var(--n-sage) 34%, transparent), transparent 60%),
-  radial-gradient(90% 70% at 90% 90%, color-mix(in srgb, var(--n-quiet) 30%, transparent), transparent 60%),
-  linear-gradient(170deg, color-mix(in srgb, var(--n-night) 70%, #000), #050605); }
-.lk-date { position: absolute; top: 70px; left: 0; right: 0; text-align: center; font-size: 20px; font-weight: 600; opacity: .85; }
-.lk-time { position: absolute; top: 106px; left: 0; right: 0; text-align: center; font: 700 104px/1 var(--display); letter-spacing: -3px; color: rgb(255 255 255 / .92); }
-.lk-list { position: absolute; left: 12px; right: 12px; top: 330px; display: grid; gap: 10px; }
+.lock { background: #000; }
+.lk-face { position: absolute; top: 88px; left: 50%; width: 208px; height: 208px; margin-left: -104px; }
+.lk-face canvas { width: 100%; height: 100%; display: block; }
+.lk-list { position: absolute; left: 14px; right: 14px; top: 336px; display: grid; gap: 10px; }
 .la { border-radius: 26px; padding: 16px 18px; background: color-mix(in srgb, var(--n-night) 78%, transparent); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
   box-shadow: inset 0 0 0 .7px rgb(255 255 255 / .08); animation: fin .45s var(--ease) both; color: var(--n-cream); text-align: left; width: 100%; display: grid; gap: 8px; }
 .la .top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
@@ -570,6 +567,45 @@ a.act { text-decoration: none; }
 .p-memo .gist { font-size: 17px; line-height: 1.35; }
 .p-memo .trb { justify-self: start; font-size: 12px; font-weight: 600; color: var(--quiet); min-height: 28px; }
 .p-memo .full { font-size: 15px; line-height: 1.4; color: var(--soft); }
+
+
+/* Settings menu, as the app's: Appearance and Palette, each opening its choices */
+.menu-anchor { position: relative; }
+.smenu { position: absolute; z-index: 30; top: calc(100% + 8px); right: 0; width: 304px; padding: 6px; border-radius: 22px; display: grid; gap: 1px; text-align: left; color: var(--ink);
+  background: color-mix(in srgb, var(--paper) 80%, transparent); -webkit-backdrop-filter: blur(24px) saturate(1.8); backdrop-filter: blur(24px) saturate(1.8);
+  box-shadow: inset 0 1px 0 var(--glass-hi), inset 0 0 0 .7px var(--panel-line), 0 24px 48px -20px rgb(0 0 0 / .35); transform-origin: top right; animation: grow .32s var(--panel); }
+.smenu.up { top: auto; bottom: calc(100% + 8px); transform-origin: bottom right; }
+.smenu.left { right: auto; left: 12px; transform-origin: bottom left; }
+.sh-foot { position: relative; }
+.smenu .row { display: grid; grid-template-columns: 22px 1fr auto 12px; gap: 12px; align-items: center; min-height: 46px; padding: 0 12px; border-radius: 16px; font-size: 17px; width: 100%; text-align: left; }
+.smenu .row:hover, .smenu .opt2:hover { background: color-mix(in srgb, var(--panel-wash) 80%, transparent); }
+.smenu .row .ic { color: var(--ink); display: grid; place-items: center; }
+.smenu .row .cur { font-size: 15px; color: var(--quiet); white-space: nowrap; }
+.smenu .row .ch { color: var(--quiet); transition: transform .25s var(--ease); display: grid; place-items: center; }
+.smenu .row[aria-expanded="true"] .ch { transform: rotate(180deg); }
+.smenu .sub { display: grid; gap: 1px; padding: 0 0 4px 34px; }
+.smenu .opt2 { display: grid; grid-template-columns: 1fr 16px; align-items: center; gap: 10px; min-height: 40px; padding: 0 12px; border-radius: 14px; font-size: 16px; text-align: left; width: 100%; }
+.smenu .opt2 .sw { display: inline-flex; gap: 3px; margin-right: 8px; vertical-align: -1px; }
+.smenu .opt2 .sw i { width: 10px; height: 10px; border-radius: 2.4px; display: inline-block; box-shadow: inset 0 0 0 .5px rgb(0 0 0 / .15); }
+.smenu hr { border: 0; height: .7px; background: var(--line); margin: 3px 10px; }
+
+/* Editing the page's copy */
+body.editing [data-copy] { -webkit-user-select: text; user-select: text; outline: 1px dashed color-mix(in srgb, var(--accent) 70%, transparent); outline-offset: 3px; border-radius: 3px; cursor: text; }
+body.editing [data-copy]:focus { outline: 2px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+body.editing [data-copy].dirty { outline-color: var(--quote-rule); outline-style: solid; }
+.edit-pill { position: fixed; z-index: 40; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 999px;
+  font-size: 15px; font-weight: 600; color: var(--paper); background: var(--ink); box-shadow: 0 12px 30px -12px rgb(0 0 0 / .45); }
+.edit-bar { position: fixed; z-index: 40; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: min(640px, calc(100vw - 24px));
+  display: grid; gap: 10px; padding: 12px 12px 12px 18px; border-radius: 24px; color: var(--ink);
+  background: color-mix(in srgb, var(--paper) 86%, transparent); -webkit-backdrop-filter: blur(24px) saturate(1.8); backdrop-filter: blur(24px) saturate(1.8);
+  box-shadow: inset 0 1px 0 var(--glass-hi), inset 0 0 0 .7px var(--panel-line), 0 24px 48px -20px rgb(0 0 0 / .4); }
+.edit-bar .r1 { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.edit-bar .st { flex: 1; min-width: 150px; font-size: 14px; color: var(--quiet); }
+.edit-bar .st b { color: var(--ink); font-weight: 600; }
+.edit-bar button { height: 38px; padding: 0 14px; border-radius: 999px; font-size: 14px; font-weight: 600; box-shadow: inset 0 0 0 .7px var(--panel-line); }
+.edit-bar button.pri { background: var(--ink); color: var(--paper); box-shadow: none; }
+.edit-bar button:disabled { opacity: .45; cursor: default; }
+.edit-bar textarea { width: 100%; min-height: 84px; resize: vertical; border: 0; outline: 0; border-radius: 14px; padding: 10px 12px; font: 15px/1.4 var(--sans); color: var(--ink); background: var(--panel-wash); }
 
 /* ---------- Out of the app ---------- */
 .head { display: grid; gap: 14px; margin-bottom: 40px; max-width: 36em; }
@@ -625,8 +661,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
   <div class="wrap">
     <a class="brand" href="#top"><span id="brand-mark"></span>Shadowfax</a>
     <div class="prefs">
-      <div class="swatches" role="group" aria-label="Palette" id="nav-swatches"></div>
-      <button class="mode" id="mode" type="button" aria-label="Switch to night"><span id="mode-glyph"></span></button>
+      <div class="menu-anchor"><button class="mode" id="settings-btn" type="button" aria-label="Appearance and palette" aria-haspopup="menu" aria-expanded="false"><span id="settings-glyph"></span></button></div>
     </div>
   </div>
 </nav>
@@ -635,16 +670,16 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
   <header class="hero">
     <div class="wrap">
       <div class="hero-top">
-        <span class="label">Shadowfax for iPhone</span>
-        <h1>Comes when called.</h1>
-        <p class="lede">Shadowfax is my assistant. He lives on a Mac mini at home, keeps my library and reminders, and remembers the loops I drop. This is his door on my phone.</p>
+        <span class="label" data-copy="hero.label">Shadowfax for iPhone</span>
+        <h1 data-copy="hero.title">Comes when called.</h1>
+        <p class="lede" data-copy="hero.lede">Shadowfax is my assistant. He lives on a Mac mini at home, keeps my library and reminders, and remembers the loops I drop. This is his door on my phone.</p>
       </div>
       <div class="night" role="img" aria-label="Shadowfax, a white horse drawn in dots, galloping past mountains and trees at night">
         <canvas id="night"></canvas>
       </div>
       <div class="night-meta">
         <span class="label ride-line" id="ride-line" aria-hidden="true">Riding for Minas Tirith</span>
-        <span class="label">Muybridge, 1887. Rider removed.</span>
+        <span class="label" data-copy="hero.credit">Muybridge, 1887. Rider removed.</span>
       </div>
     </div>
   </header>
@@ -653,23 +688,23 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     <div class="wrap try">
       <div class="device" id="device"><div class="frame"><button class="side-btn" id="side-btn" type="button" aria-label="Side button: lock or wake the phone"></button><div class="ps" id="ps" aria-label="An interactive Shadowfax app"></div></div></div>
       <div class="try-copy">
-        <span class="label">Try it</span>
-        <h2 id="try-h">Tap around. It works.</h2>
-        <p class="copy">This is the app, rebuilt for the web on its practice data. Ask something and watch the island ride while he works. The answers are scripted. Everything else behaves like the real thing.</p>
+        <span class="label" data-copy="try.label">Try it</span>
+        <h2 id="try-h" data-copy="try.title">Tap around. It works.</h2>
+        <p class="copy" data-copy="try.body">This is the app, rebuilt for the web on its practice data. Ask something and watch the island ride while he works. The answers are scripted. Everything else behaves like the real thing.</p>
       </div>
       <div class="try-list">
         <ul class="tries" id="tries">
-          <li><button type="button" data-try="filed"><b>What did we file this week?</b><span>Six steps, a table, and a quote to keep.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="books"><b>Find me something to read</b><span>Four books from what I’ve read. Buy one without leaving.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="quest"><b>Let a quest run</b><span>He keeps working after I stop asking.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="share"><b>Share from the browser</b><span>The plane becomes a letter. He catches it.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="memo"><b>Voice memo from the Lock Screen</b><span>Record in my pocket. Send it without unlocking.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="talk"><b>Hold to talk</b><span>He gallops under my words.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="upcoming"><b>Swipe up</b><span>To-dos, what’s coming, what he did, and quests.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="quote"><b>Quote a book</b><span>Live Text reads the page. I file the line.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
-          <li><button type="button" data-try="saturday"><b>Plan a slow Saturday.</b><span>A place, then a reminder in one tap.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
+          <li><button type="button" data-try="filed"><b data-copy="try.filed.title">What did we file this week?</b><span data-copy="try.filed.line">Six steps, a table, and a quote to keep.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
+          <li><button type="button" data-try="books"><b data-copy="try.books.title">Find me something to read</b><span data-copy="try.books.line">Four books from what I’ve read. Buy one without leaving.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
+          <li><button type="button" data-try="quest"><b data-copy="try.quest.title">Let a quest run</b><span data-copy="try.quest.line">He keeps working after I stop asking.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
+          <li><button type="button" data-try="share"><b data-copy="try.share.title">Share from the browser</b><span data-copy="try.share.line">The plane becomes a letter. He catches it.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
+          <li><button type="button" data-try="memo"><b data-copy="try.memo.title">Voice memo from the Lock Screen</b><span data-copy="try.memo.line">Record in my pocket. Send it without unlocking.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
+          <li><button type="button" data-try="talk"><b data-copy="try.talk.title">Hold to talk</b><span data-copy="try.talk.line">He gallops under my words.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
+          <li><button type="button" data-try="upcoming"><b data-copy="try.upcoming.title">Swipe up</b><span data-copy="try.upcoming.line">To-dos, what’s coming, what he did, and quests.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
+          <li><button type="button" data-try="quote"><b data-copy="try.quote.title">Quote a book</b><span data-copy="try.quote.line">Live Text reads the page. I file the line.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
+          <li><button type="button" data-try="saturday"><b data-copy="try.saturday.title">Plan a slow Saturday.</b><span data-copy="try.saturday.line">A place, then a reminder in one tap.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
         </ul>
-        <div class="try-fine"><span>Practice data. Nothing leaves this page.</span><button class="reset" type="button" id="reset">Start over</button></div>
+        <div class="try-fine"><span data-copy="try.fine">Practice data. Nothing leaves this page.</span><button class="reset" type="button" id="reset">Start over</button></div>
       </div>
     </div>
   </section>
@@ -677,14 +712,14 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
   <section class="feature" aria-labelledby="away-h">
     <div class="wrap">
       <div class="head">
-        <span class="label">Everywhere else</span>
-        <h2 id="away-h">Out of the app, too.</h2>
-        <p class="copy">Siri, the Action Button, Control Center, StandBy. Ask from anywhere and he rides in the Dynamic Island until the answer lands.</p>
+        <span class="label" data-copy="away.label">Everywhere else</span>
+        <h2 id="away-h" data-copy="away.title">Out of the app, too.</h2>
+        <p class="copy" data-copy="away.body">Siri, the Action Button, Control Center, StandBy. Ask from anywhere and he rides in the Dynamic Island until the answer lands.</p>
       </div>
       <div class="tiles">
         <figure class="tile">
           <div class="stage dark"><div class="clock"><canvas id="clock" aria-label="Clock"></canvas></div></div>
-          <figcaption><b>StandBy</b><span>The clock, in his dots.</span></figcaption>
+          <figcaption><b data-copy="tile.standby.title">StandBy</b><span data-copy="tile.standby.line">The clock, in his dots.</span></figcaption>
         </figure>
         <figure class="tile">
           <div class="stage">
@@ -697,7 +732,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
               <p>Quick one while you’re out. Your hold on Dune Messiah came in at the library. The Kickr has a firmware update waiting, so give it five minutes before tomorrow’s ride.</p>
             </div>
           </div>
-          <figcaption><b>Voice notes</b><span>Replies that land after I leave, read to me.</span></figcaption>
+          <figcaption><b data-copy="tile.notes.title">Voice notes</b><span data-copy="tile.notes.line">Replies that land after I leave, read to me.</span></figcaption>
         </figure>
         <figure class="tile">
           <div class="stage">
@@ -707,29 +742,18 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
               <div class="control"><span class="ring"><span id="mic-glyph"></span></span>Voice Memo</div>
             </div>
           </div>
-          <figcaption><b>Controls</b><span>One press from the Lock Screen or the Action Button.</span></figcaption>
+          <figcaption><b data-copy="tile.controls.title">Controls</b><span data-copy="tile.controls.line">One press from the Lock Screen or the Action Button.</span></figcaption>
         </figure>
       </div>
     </div>
   </section>
 
-  <section class="feature" aria-labelledby="pal-h">
-    <div class="wrap">
-      <div class="head">
-        <span class="label">Palettes</span>
-        <h2 id="pal-h">Five places. Day and night.</h2>
-        <p class="copy">Pulled from how Andrew Lesnie graded Middle-earth. Night is the same place after sundown. Tap one and the phone up there follows.</p>
-      </div>
-      <div class="palettes" id="palette-list" role="group" aria-label="Palettes"></div>
-      <p class="pal-note" id="pal-note" aria-live="polite"></p>
-    </div>
-  </section>
 </main>
 
 <footer>
   <div class="wrap">
     <img src="icons/stride.png" width="180" height="180" alt="The Shadowfax app icon">
-    <p class="sign">Shadowfax. Built by Kris Puckett. Named for the lord of all horses.</p>
+    <p class="sign" data-copy="footer.sign">Shadowfax. Built by Kris Puckett. Named for the lord of all horses.</p>
   </div>
 </footer>
 
@@ -964,7 +988,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
   /* ---------- StandBy clock: the 34-dot face (StandByClock.swift) ---------- */
   const GALLOP = [0, 2, 3, 5, 6, 8, 9, 11, 12, 14], NEAR = [0, 13, 27], FAR = [6, 20, 33];
   const COLON = [".", ".", "X", ".", ".", ".", "X", ".", "."];
-  function clockFace(canvas) {
+  function clockFace(canvas, opts = {}) {
     const ctx = canvas.getContext("2d");
     const FACE = 34, GROUND = 30;
     let size = 0, dpr = 1;
@@ -991,8 +1015,9 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
         const e = Math.min(r, c, FACE - 1 - r, FACE - 1 - c, 4);
         if (e > 0) dot(r, c, quiet, ringA[e]);
       }
-      const d = new Date();
-      const h = d.getHours() % 12 || 12, m = String(d.getMinutes()).padStart(2, "0");
+      // The time shown: the viewer's own, or a clock the caller keeps (the phone's "9:41").
+      const d = new Date(), given = opts.time && String(opts.time()).match(/^(\d{1,2}):(\d{2})/);
+      const h = given ? +given[1] : d.getHours() % 12 || 12, m = given ? given[2] : String(d.getMinutes()).padStart(2, "0");
       // The redrawn numerals: each digit and a one-dot gap; the colon's dot with two
       // empty columns either side (make_shadowfax_clock.py).
       const glyphs = [...String(h)].map((x) => [D.digits[x], 0]).concat([[COLON, 1]], [...m].map((x) => [D.digits[x], 0]));
@@ -1364,32 +1389,47 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
   const savedTheme = store.get("sfx-theme");
   if (savedTheme === "dark" || savedTheme === "light") root.setAttribute("data-theme", savedTheme);
 
-  const navSw = $("#nav-swatches"), list = $("#palette-list");
-  ids.forEach((id) => {
-    const p = P[id];
-    const b = document.createElement("button");
-    b.type = "button"; b.className = "swatch"; b.dataset.id = id; b.setAttribute("aria-label", p.name);
-    b.innerHTML = "<i></i>";
-    navSw.appendChild(b);
-    const half = (i) => `<span class="half" style="background:${css(p.paper[i])};color:${css(p.ink[i])}"><span class="aa">Aa</span><span class="chips"><i style="background:${css(p.accent[i])}"></i><i style="background:${css(p.bubble[i])};box-shadow:inset 0 0 0 .5px ${css(p.panelLine[i])}"></i><i style="background:${css(p.quoteRule[i])}"></i></span></span>`;
-    const tile = document.createElement("button");
-    tile.type = "button"; tile.className = "pal"; tile.dataset.id = id;
-    tile.innerHTML = `<span class="swatch-card" aria-hidden="true">${half(0)}${half(1)}</span><span class="pal-name"><b>${p.name}</b><span>Day · Night</span></span>`;
-    list.appendChild(tile);
+  /* ---------- Settings, as the app's menu: Appearance and Palette ---------- */
+  const THEME_NAMES = { light: "Light", dark: "Dark", system: "Match the system" };
+  const themeNow = () => root.getAttribute("data-theme") || "system";
+  function settingsMenu(anchor, opts = {}) {
+    const old = anchor.querySelector(".smenu"); if (old) { old.remove(); return null; }
+    const m = document.createElement("div");
+    m.className = "smenu" + (opts.up ? " up" : "") + (opts.left ? " left" : ""); m.setAttribute("role", "menu");
+    let open = opts.open || "palette";
+    const draw = () => {
+      const pal = root.getAttribute("data-palette"), th = themeNow(), n = isNight() ? 1 : 0;
+      const row = (id, glyph, label, cur) => `<button class="row" type="button" data-row="${id}" aria-expanded="${open === id}"><span class="ic">${glyph}</span><span>${label}</span><span class="cur">${cur}</span><span class="ch">${G("chevron.down", 1.67)}</span></button>`;
+      const check = G("checkmark", 2.4);
+      m.innerHTML = row("appearance", G("circle.lefthalf.filled", 2.8), "Appearance", THEME_NAMES[th]) +
+        (open === "appearance" ? `<div class="sub">${[["light", "sun.max"], ["dark", "moon"], ["system", "circle.lefthalf.filled"]].map(([k]) => `<button class="opt2" type="button" role="menuitemradio" aria-checked="${th === k}" data-set-theme="${k}"><span>${THEME_NAMES[k]}</span>${th === k ? check : "<span></span>"}</button>`).join("")}</div>` : "") +
+        `<hr>` + row("palette", G("paintpalette", 1.67), "Palette", P[pal].name) +
+        (open === "palette" ? `<div class="sub">${ids.map((id) => `<button class="opt2" type="button" role="menuitemradio" aria-checked="${pal === id}" data-set-pal="${id}"><span><span class="sw"><i style="background:${css(P[id].paper[n])}"></i><i style="background:${css(P[id].accent[n])}"></i><i style="background:${css(P[id].quoteRule[n])}"></i></span>${P[id].name}</span>${pal === id ? check : "<span></span>"}</button>`).join("")}</div>` : "");
+    };
+    m.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const r = e.target.closest("[data-row]"), t = e.target.closest("[data-set-theme]"), pl = e.target.closest("[data-set-pal]");
+      if (r) open = open === r.dataset.row ? "" : r.dataset.row;
+      if (t) window.SFX.setTheme(t.dataset.setTheme);
+      if (pl) window.SFX.setPalette(pl.dataset.setPal);
+      draw();
+    });
+    draw();
+    anchor.appendChild(m);
+    const away = (e) => { if (!m.contains(e.target) && !anchor.contains(e.target)) { m.remove(); document.removeEventListener("pointerdown", away, true); opts.onClose && opts.onClose(); } };
+    setTimeout(() => document.addEventListener("pointerdown", away, true), 0);
+    return m;
+  }
+  window.SFX.settingsMenu = settingsMenu;
+  const sBtn = $("#settings-btn");
+  sBtn.addEventListener("click", () => {
+    const m = settingsMenu(sBtn.parentElement, { onClose: () => sBtn.setAttribute("aria-expanded", "false") });
+    sBtn.setAttribute("aria-expanded", String(!!m));
   });
 
   let drawClock = null, drawNight = null;
   function refresh() {
-    const cur = root.getAttribute("data-palette"), night = isNight();
-    document.querySelectorAll("[data-id]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.id === cur)));
-    navSw.querySelectorAll(".swatch").forEach((b) => {
-      const i = b.firstElementChild, id = b.dataset.id;
-      i.style.setProperty("--sw-paper", css(P[id].paper[night ? 1 : 0]));
-      i.style.setProperty("--sw-accent", css(P[id].accent[night ? 1 : 0]));
-    });
-    $("#mode-glyph").innerHTML = G(night ? "sun.max" : "moon", 2.6);
-    $("#mode").setAttribute("aria-label", night ? "Switch to day" : "Switch to night");
-    $("#pal-note").textContent = P[cur].note;
+    $("#settings-glyph").innerHTML = G("circle.lefthalf.filled", 2.6);
     fields.forEach((f) => { f.fieldCache = null; f.draw(performance.now(), true); });
     if (drawClock) drawClock(0);
     if (drawNight) drawNight(performance.now(), true);
@@ -1401,11 +1441,6 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     if (t === "system") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", t);
     store.set("sfx-theme", t); refresh();
   };
-  document.addEventListener("click", (e) => {
-    const b = e.target.closest("[data-id]");
-    if (b) window.SFX.setPalette(b.dataset.id);
-  });
-  $("#mode").addEventListener("click", () => window.SFX.setTheme(isNight() ? "light" : "dark"));
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", refresh);
   const nav = $("#nav");
   const onScroll = () => nav.classList.toggle("scrolled", window.scrollY > 8);
@@ -1472,6 +1507,97 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     requestAnimationFrame(frame);
   }
   window.SFX.refresh = refresh;
+
+  /* ---------- Editing the copy: you write here, Claude reads it back ----------
+     Only in the published artifact, and only for its owner and editors. Each field you
+     change saves to this artifact's database as copy/<field>; nothing here runs in the
+     standalone site. */
+  (async function copyEditor() {
+    const claude = window.claude;
+    if (!claude || !claude.use) return;
+    const db = await claude.use("db");
+    if (!db) return;
+    const user = await claude.use("user");
+    const canEdit = user ? await user.canEdit() : false;
+    const fields = [...document.querySelectorAll("[data-copy]")];
+    const original = {}; fields.forEach((f) => { original[f.dataset.copy] = f.textContent; });
+    const saved = {};
+    const col = db.collection("data/copy/fields");
+    try {
+      const snap = await col.get();
+      snap.docs.forEach((d) => {
+        const v = d.data(); if (!v || typeof v.text !== "string") return;
+        saved[d.id] = v.text;
+        const el = document.querySelector(`[data-copy="${d.id}"]`); if (el) el.textContent = v.text;
+      });
+    } catch (e) { /* keep the page's own words */ }
+    let note = "";
+    try { const n = await db.doc("data/copy/notes/main").get(); if (n.exists) note = String(n.data().text || ""); } catch (e) {}
+    if (!canEdit) return;
+
+    const pill = document.createElement("button");
+    pill.className = "edit-pill"; pill.type = "button";
+    pill.innerHTML = G("pencil", 2.4) + "<span>Edit copy</span>";
+    document.body.appendChild(pill);
+    const bar = document.createElement("div");
+    bar.className = "edit-bar"; bar.hidden = true;
+    bar.innerHTML = `<div class="r1"><span class="st" id="ed-st">Click any dashed text to rewrite it.</span>
+      <button type="button" id="ed-note">Note for Claude</button><button type="button" id="ed-discard">Discard</button>
+      <button type="button" id="ed-done">Done</button><button type="button" class="pri" id="ed-save" disabled>Save</button></div>
+      <label for="ed-notes" style="position:absolute;left:-9999px">Note for Claude</label>
+      <textarea id="ed-notes" hidden placeholder="Anything else before this goes live: what to cut, what to add, the tone."></textarea>`;
+    document.body.appendChild(bar);
+    const st = bar.querySelector("#ed-st"), save = bar.querySelector("#ed-save"), notes = bar.querySelector("#ed-notes");
+    notes.value = note;
+    const current = (k) => (saved[k] != null ? saved[k] : original[k]);
+    const dirty = () => fields.filter((f) => f.textContent !== current(f.dataset.copy));
+    const noteDirty = () => notes.value !== note;
+    const status = (msg) => {
+      const d = dirty().length + (noteDirty() ? 1 : 0);
+      fields.forEach((f) => f.classList.toggle("dirty", f.textContent !== current(f.dataset.copy)));
+      save.disabled = d === 0;
+      st.innerHTML = msg || (d ? `<b>${d} unsaved</b> · ${Object.keys(saved).length} saved so far` : Object.keys(saved).length ? `${Object.keys(saved).length} fields saved. Claude can read them.` : "Click any dashed text to rewrite it.");
+    };
+    // In edit mode the words are text, not buttons: no tries fire, Enter ends the field.
+    const guard = (e) => { if (document.body.classList.contains("editing") && e.target.closest("[data-copy]")) { e.preventDefault(); e.stopPropagation(); } };
+    document.addEventListener("click", guard, true);
+    const onKey = (e) => {
+      if (!e.target.closest || !e.target.closest("[data-copy]")) return;
+      e.stopPropagation();
+      if (e.key === "Enter") { e.preventDefault(); e.target.blur(); }
+    };
+    const onPaste = (e) => { if (!e.target.closest("[data-copy]")) return; e.preventDefault(); document.execCommand("insertText", false, (e.clipboardData || window.clipboardData).getData("text/plain")); };
+    function setEditing(on) {
+      document.body.classList.toggle("editing", on);
+      fields.forEach((f) => { if (on) { f.setAttribute("contenteditable", "plaintext-only"); if (f.contentEditable !== "plaintext-only") f.setAttribute("contenteditable", "true"); f.spellcheck = true; } else f.removeAttribute("contenteditable"); });
+      bar.hidden = !on; pill.hidden = on;
+      if (on) status();
+    }
+    fields.forEach((f) => { f.addEventListener("input", () => status()); f.addEventListener("keydown", onKey); f.addEventListener("paste", onPaste); });
+    notes.addEventListener("input", () => status());
+    pill.onclick = () => setEditing(true);
+    bar.querySelector("#ed-done").onclick = () => setEditing(false);
+    bar.querySelector("#ed-note").onclick = () => { notes.hidden = !notes.hidden; if (!notes.hidden) notes.focus(); };
+    bar.querySelector("#ed-discard").onclick = () => { fields.forEach((f) => { f.textContent = current(f.dataset.copy); }); notes.value = note; status(); };
+    save.onclick = async () => {
+      save.disabled = true;
+      const changed = dirty();
+      status("Saving…");
+      try {
+        for (const f of changed) {
+          const k = f.dataset.copy, text = f.textContent.replace(/\s+/g, " ").trim();
+          f.textContent = text;
+          if (text === original[k]) { await col.doc(k).delete(); delete saved[k]; }
+          else { await col.doc(k).set({ text, original: original[k], updatedAt: new Date().toISOString() }); saved[k] = text; }
+        }
+        if (noteDirty()) { await db.doc("data/copy/notes/main").set({ text: notes.value, updatedAt: new Date().toISOString() }); note = notes.value; }
+        status(`<b>Saved.</b> ${Object.keys(saved).length} fields changed from the draft. Claude can read them.`);
+      } catch (e) {
+        status(e && e.code === "invalid_argument" ? "This view can’t save. Open it as the owner." : "Didn’t save. Try again.");
+        save.disabled = false;
+      }
+    };
+  })();
   window.SFX.start = () => { refresh(); requestAnimationFrame(frame); };
 })();
 </script>
@@ -1511,9 +1637,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       <div class="isl-memo"><span class="im-l"><span class="im-horse"></span><span class="im-meter meter"></span></span><span class="im-t">0:00</span></div>
       <div class="isl-row"><div class="mrow2" data-memo-row></div></div></div>
     <div class="lock" id="lock" aria-label="Lock Screen">
-      <div class="lk-wall"></div>
-      <div class="lk-date">Tuesday, September 30</div>
-      <div class="lk-time" id="lk-time">9:41</div>
+      <div class="lk-face"><canvas id="lk-clock" aria-label="Clock"></canvas></div>
       <div class="lk-list" id="lk-list"></div>
       <button class="lk-ctl l" id="lk-memo" type="button" aria-label="Voice Memo"></button>
       <button class="lk-ctl r" id="lk-talk" type="button" aria-label="Talk to Shadowfax">${G("waveform", 3.4)}</button>
@@ -2397,19 +2521,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     const sheet = c.closest(".sheet"); sheet.classList.remove("open");
     if (sheet.id === "s-lens") resetLens();
   });
-  $("#b-gear").onclick = () => {
-    const old = $(".settings", $("#s-threads")); if (old) { old.remove(); return; }
-    const pal = document.documentElement.getAttribute("data-palette");
-    const menu = el(`<div class="settings glass"><div class="h">Palette</div>${Object.keys(S.P).map((id) => `<button type="button" data-pal="${id}">${S.P[id].name}${id === pal ? G("checkmark", 2.6) : ""}</button>`).join("")}<div class="h">Appearance</div>
-      <button type="button" data-theme-set="light">Light</button><button type="button" data-theme-set="dark">Dark</button><button type="button" data-theme-set="system">Match the system</button></div>`);
-    menu.onclick = (e) => {
-      const p = e.target.closest("[data-pal]"), t = e.target.closest("[data-theme-set]");
-      if (p) S.setPalette(p.dataset.pal);
-      if (t) S.setTheme(t.dataset.themeSet);
-      menu.remove();
-    };
-    $("#s-threads").appendChild(menu);
-  };
+  $("#b-gear").onclick = () => { S.settingsMenu($(".sh-foot", $("#s-threads")), { up: true, left: true }); };
 
   /* ---------- Capture ---------- */
   let lensT = [];
@@ -2664,6 +2776,9 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
   const MIC = [".XXX.", ".XXX.", ".XXX.", "X.X.X", ".XXX.", "..X..", ".XXX."];
   $("#lk-memo").innerHTML = glyphSVG(MIC, 3.4);
   const lock = $("#lock"), lkList = $("#lk-list"), memoCard = $("#memo");
+  const drawLockClock = S.clockFace($("#lk-clock"), { time: () => $("#sb-time").textContent });
+  let lockTenth = -1;
+  S.ticks.push((now) => { if (!lock.classList.contains("on")) return; const t = Math.floor(now / 100); if (t !== lockTenth) { lockTenth = t; drawLockClock(now); } });
   // The island's night colors, whatever the appearance (MemoIsland).
   function nightVars() {
     const pal = S.P[document.documentElement.getAttribute("data-palette")] || S.P.fangorn;
@@ -2744,6 +2859,8 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     lock.classList.remove("on");
     if (memo.on) isl.classList.add("memo");
   }
+  // The face is the StandBy clock's: it redraws when the palette changes.
+  S.onPalette.push(() => drawLockClock(0));
   lock.addEventListener("click", (e) => {
     if (e.target.closest("button")) return;
     if (!lkList.querySelector(".la.turn")) unlock();
@@ -2875,7 +2992,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     attach.hidden = true; plus.classList.remove("open");
     closeUpc(); scrim.classList.remove("on");
     if (!keepSheets) $$(".sheet.open").forEach((s) => { s.classList.remove("open"); if (s.id === "s-lens") resetLens(); });
-    $(".settings", ps)?.remove();
+    $(".smenu", ps)?.remove();
     if (!flying) closeShare();
     syncBar();
   }
