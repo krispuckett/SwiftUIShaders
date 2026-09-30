@@ -104,22 +104,25 @@ p { margin: 0; }
 
 /* ---------- Try it ---------- */
 .feature { padding-block: clamp(96px, 12vw, 152px) 0; }
-.try { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "phone head" "phone list"; grid-template-rows: auto 1fr; gap: 0 clamp(40px, 6vw, 88px); align-items: start; }
+.try { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "phone head" "phone list"; grid-template-rows: auto 1fr; gap: 0 clamp(40px, 5vw, 72px); align-items: start; }
 .try .device { grid-area: phone; }
 .try-copy { grid-area: head; display: grid; gap: 14px; padding-top: 24px; }
 .try-list { grid-area: list; }
+.try-copy .copy { max-width: 40em; }
+@media (min-width: 901px) and (max-height: 860px) { .try-copy { padding-top: 0; } }
 @media (max-width: 900px) {
   .try { grid-template-columns: 1fr; grid-template-areas: "head" "phone" "list"; justify-items: center; row-gap: 32px; }
   .try-copy, .try-list { padding-top: 0; width: 100%; max-width: 520px; }
 }
-.tries { list-style: none; margin: 18px 0 0; padding: 0; display: grid; border-top: 0.7px solid var(--line); }
-.tries li { border-bottom: 0.7px solid var(--line); padding-block: 3px; }
-/* The hover fill reaches 10px past the column, so the words keep their line with the heading above. */
-.tries .try-row { cursor: pointer; width: calc(100% + 20px); margin-inline: -10px; display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; text-align: left; padding: 11px 14px; align-items: center; transition: background-color .2s; border-radius: 14px; }
+/* Two across wherever a column holds 250px, so every try sits beside the phone at once. */
+.tries { list-style: none; margin: 18px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); column-gap: 28px; align-content: start; }
+.tries li { border-top: 0.7px solid var(--line); padding-block: 3px; display: flex; }
+/* The hover fill reaches 10px past the column; the words sit 2px in, as the heading does. */
+.tries .try-row { cursor: pointer; width: calc(100% + 20px); margin-inline: -10px; display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto 1fr; gap: 2px 12px; text-align: left; padding: 10px 12px; align-content: start; transition: background-color .2s; border-radius: 14px; }
 .tries .try-row:hover { background: color-mix(in srgb, var(--bubble) 40%, transparent); }
 .tries b { font-weight: 600; font-size: 16px; letter-spacing: -0.01em; }
 .tries span { grid-column: 1; font-size: 14px; color: var(--quiet); }
-.tries .go { grid-row: 1 / span 2; grid-column: 2; color: var(--quiet); transition: transform .25s var(--ease), color .2s; }
+.tries .go { grid-row: 1; grid-column: 2; align-self: center; color: var(--quiet); transition: transform .25s var(--ease), color .2s; }
 .tries .try-row:hover .go { transform: translate(2px, -2px); color: var(--ink); }
 .tries .try-row.live b::after { content: ""; display: inline-block; width: 6px; height: 6px; margin-left: 8px; border-radius: 1.5px; background: var(--accent); vertical-align: 2px; }
 .try-fine { font-size: 13px; color: var(--quiet); margin-top: 6px; display: flex; justify-content: space-between; gap: 12px; align-items: center; }
