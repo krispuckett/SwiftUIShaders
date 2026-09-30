@@ -101,6 +101,24 @@ p { margin: 0; }
 .ride-line { transition: opacity .3s var(--ease); }
 .ride-line.fading { opacity: 0; }
 @media (max-width: 520px) { .night-meta { flex-direction: column; gap: 4px; } }
+/* The hidden side: hold the pointer on the ride and the night opens out over the whole hero. */
+.hero { position: relative; }
+.hero > .wrap { position: relative; z-index: 1; }
+.grand { position: absolute; z-index: 0; left: 0; right: 0; top: -56px; bottom: -48px; background: #000;
+  transition: clip-path .9s cubic-bezier(.65, 0, .2, 1); will-change: clip-path; }
+.grand canvas { display: block; width: 100%; height: 100%; }
+/* Opening, the words turn once the night is behind them; closing, they turn back at once. */
+.hero h1, .hero .lede, .hero .label, .nav, .nav .mode { transition: color .3s var(--ease), background-color .3s var(--ease), box-shadow .3s; }
+.hero.night-open h1, .hero.night-open .lede, .hero.night-open .label, body.night-open .nav, body.night-open .nav .mode { transition: color .5s var(--ease) .38s, background-color .4s var(--ease), box-shadow .3s; }
+.hero .night { transition: background-color .5s var(--ease), box-shadow .5s var(--ease); }
+.hero .night canvas { transition: opacity .35s var(--ease); }
+.hero.night-open h1, .hero.night-open .lede { color: var(--grand-ink); }
+.hero.night-open .label { color: var(--grand-quiet); }
+.hero.night-open .night { background: transparent; box-shadow: none; }
+.hero.night-open .night canvas { opacity: 0; }
+body.night-open .nav { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; color: var(--grand-ink); }
+body.night-open .nav .mode { color: var(--grand-ink); box-shadow: inset 0 0 0 0.7px rgb(255 255 255 / .18); }
+@media (prefers-reduced-motion: reduce) { .grand { transition: none; } }
 
 /* ---------- Try it ---------- */
 .feature { padding-block: clamp(96px, 12vw, 152px) 0; }
@@ -702,6 +720,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
 
 <main id="top">
   <header class="hero">
+    <div class="grand" id="grand" aria-hidden="true" hidden><canvas id="grand-c"></canvas></div>
     <div class="wrap">
       <div class="hero-top">
         <span class="label" data-copy="hero.label">Shadowfax for iPhone and macOS</span>
@@ -1383,6 +1402,178 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     return draw;
   }
 
+
+  /* ---------- The whole night (the hero's hidden side) ----------
+     The card's ride, opened out to the whole hero at a far finer dot: ranges of mountains
+     at their own depths, lit toward the moon in the palette's night accent, snow on the
+     high peaks, stars, the moon, and Shadowfax from the HD frames (HorseFramesHD) with the
+     wind coming off him. Everything is placed in the scene's own units (its height is 1),
+     so the same night can be drawn at any dot: it opens coarse and resolves.
+     At this many dots each frame is written one pixel a dot, scaled up, and cut into
+     rounded dots by one masked fill. */
+  const ih = (n) => {
+    n = Math.imul(n ^ (n >>> 16), 0x7feb352d); n = Math.imul(n ^ (n >>> 15), 0x846ca68b);
+    return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
+  };
+  const smoothstep = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  const HD = D.hd.map((f) => f.map((l) => [...l].map((ch) => +ch / 9)));
+  const HD_W = 46, HD_H = 24;
+  // A range: sharp peaks every `gap` (scene units), each its own height, with a second,
+  // smaller set between them so the ridge breaks up, and a little roughness on top.
+  function range(seed, gap, lo, hi) {
+    const peaks = (u, g, l, h, sd) => {
+      const k0 = Math.floor(u / g);
+      let best = -1;
+      for (let k = k0 - 2; k <= k0 + 2; k++) {
+        const r = ih(k * 131 + sd), center = (k + 0.15 + 0.7 * ih(k * 17 + sd * 7)) * g;
+        const height = ih(k * 53 + sd * 11) < 0.25 ? l * 0.5 : l + (h - l) * r * r, slope = 0.8 + 1.6 * ih(k * 29 + sd * 3);
+        best = Math.max(best, height - Math.abs(u - center) * slope);
+      }
+      return best;
+    };
+    return (u) => {
+      const big = peaks(u, gap, lo, hi, seed), small = peaks(u, gap * 0.47, lo * 0.3, hi * 0.42, seed + 5);
+      const q = u * 140, i = Math.floor(q), f = q - i;
+      return Math.max(big, small) + 0.004 * ((ih(i * 7 + seed) * (1 - f) + ih((i + 1) * 7 + seed) * f) - 0.5);
+    };
+  }
+  function grandRide(canvas, opts = {}) {
+    const ctx = canvas.getContext("2d");
+    const small = document.createElement("canvas"), sctx = small.getContext("2d");
+    let W = 0, Hh = 0, dpr = 1, P = 0, cols = 0, rows = 0, img = null, px = null, mask = null, maskP = 0;
+    const ROAD = 0.55;                      // scene units a second under his hooves
+    const LAYERS = [                        // back to front: base line, parallax, a range, ink, snow above
+      { base: 0.715, speed: 0.03, ridge: range(3, 0.19, 0.07, 0.22), ink: "far", snow: 0.15 },
+      { base: 0.77, speed: 0.07, ridge: range(11, 0.14, 0.05, 0.17), ink: "mid", snow: 0.13 },
+      { base: 0.82, speed: 0.14, ridge: range(23, 0.11, 0.04, 0.12), ink: "mid", snow: 9 },
+      { base: 0.865, speed: 0.28, ridge: range(37, 0.09, 0.015, 0.06), ink: "near", snow: 9 },
+    ];
+    const GROUND = 0.88;
+    const stars = Array.from({ length: 420 }, (_, i) => ({ u: ih(i * 3 + 1) * 6, v: 0.02 + ih(i * 3 + 2) ** 1.3 * 0.62, b: ih(i * 3 + 3), s: i % 23 === 0 }));
+    let dist = 0, last = null, wind = [], windAt = 0;
+    function fit(pitchCss) {
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      W = canvas.clientWidth; Hh = canvas.clientHeight;
+      const w = Math.round(W * dpr), h = Math.round(Hh * dpr);
+      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+      setPitch(pitchCss || opts.pitch || 4.5);
+    }
+    function setPitch(css) {
+      const p = Math.max(2, Math.round(css * dpr));
+      if (p === P && img) return;
+      P = p; cols = Math.floor(canvas.width / P); rows = Math.floor(canvas.height / P);
+      small.width = cols; small.height = rows;
+      img = sctx.createImageData(cols, rows); px = new Uint32Array(img.data.buffer);
+      if (maskP !== P) {
+        const m = document.createElement("canvas"); m.width = m.height = P;
+        const mc = m.getContext("2d"), cell = P * DOT;
+        mc.beginPath(); if (mc.roundRect) mc.roundRect(0, 0, cell, cell, cell * CORNER); else mc.rect(0, 0, cell, cell); mc.fill();
+        mask = ctx.createPattern(m, "repeat"); maskP = P;
+      }
+    }
+    function draw(now) {
+      if (!cols || !rows) return;
+      const dt = last == null ? 0 : Math.min(0.1, (now - last) / 1000); last = now;
+      if (!reduce.matches) dist += ROAD * dt;
+      const H = rows;                                  // one scene unit = the scene's height in dots
+      const acc = tone("accent", true), q = tone("quiet", true), cream = tone("ink", true);
+      const inks = { far: mix(mix(acc, q, 0.35), [247, 240, 214], 0.18), mid: mix(acc, cream, 0.1), near: acc, snow: [247, 240, 214], quiet: q, white: [255, 255, 255] };
+      px.fill(0);
+      const pack = (c, a) => ((Math.round(Math.min(1, a) * 255) << 24) | (c[2] << 16) | (c[1] << 8) | c[0]) >>> 0;
+      const set = (x, y, c, a) => {
+        if (x < 0 || x >= cols || y < 0 || y >= rows || a < 0.02) return;
+        const i = y * cols + x, cur = px[i] >>> 24;
+        if (a * 255 >= cur) px[i] = pack(c, a);
+      };
+      // Sky: the stars barely drift; each twinkles on its own; a few wear a cross.
+      const clock = now / 1000, span = cols / H;
+      for (const s of stars) {
+        const u = (((s.u - dist * 0.02) % 6) + 6) % 6;
+        if (u > span) continue;
+        const x = Math.floor(u * H), y = Math.floor(s.v * H);
+        const tw = 0.5 + 0.5 * Math.sin(clock * (0.7 + s.b * 1.4) + s.b * 40);
+        const a = 0.12 + 0.55 * s.b * (0.55 + 0.45 * tw);
+        set(x, y, inks.white, a);
+        if (s.s) { const g = 0.25 + 0.3 * tw; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) set(x + dx, y + dy, inks.white, g); for (const [dx, dy] of [[2, 0], [-2, 0], [0, 2], [0, -2]]) set(x + dx, y + dy, inks.white, g * 0.4); set(x, y, inks.white, 0.95); }
+      }
+      // The moon, a crescent lit on its right, and its halo.
+      const mu = span * 0.8, mv = 0.13, mr = 0.042;
+      const x0 = Math.floor((mu - mr * 2.4) * H), x1 = Math.ceil((mu + mr * 2.4) * H), y0 = Math.floor((mv - mr * 2.4) * H), y1 = Math.ceil((mv + mr * 2.4) * H);
+      for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+        const du = (x + 0.5) / H - mu, dv = (y + 0.5) / H - mv, d = Math.hypot(du, dv);
+        const inner = Math.hypot(du + mr * 0.42, dv + mr * 0.12);
+        if (d < mr && inner > mr * 0.86) set(x, y, inks.snow, 0.55 + 0.45 * smoothstep(mr * 0.86, mr * 1.05, inner) * smoothstep(mr, mr * 0.7, d));
+        else if (d < mr * 2 && d >= mr) { const g = 0.1 * (1 - (d - mr) / mr); if (ih(x * 9176 + y * 131) < 0.3) set(x, y, inks.snow, g); }
+      }
+      // The ranges, far to near; the nearer a range, the later it draws and the more it wins.
+      const ridges = LAYERS.map((L) => { const a = new Float32Array(cols + 2); for (let c = -1; c <= cols; c++) a[c + 1] = L.base - L.ridge((c + 0.5) / H + dist * L.speed); return a; });
+      for (let li = 0; li < LAYERS.length; li++) {
+        const L = LAYERS[li], R = ridges[li], ink = inks[L.ink];
+        const seed = li * 7919, shift = Math.floor(dist * L.speed * H);
+        for (let c = 0; c < cols; c++) {
+          const top = R[c + 1], topRow = Math.max(0, Math.floor(top * H));
+          const lit = R[c + 2] > R[c];                           // the face toward the moon
+          const height = L.base - top, snowLine = height > L.snow ? top + (height - L.snow) * 0.55 : -1;
+          const bottom = li === LAYERS.length - 1 ? Math.floor(GROUND * H) : rows;
+          for (let y = topRow; y < bottom; y++) {
+            const v = (y + 0.5) / H, depth = (v - top) * H;
+            const i = y * cols + c, n = ih((c + shift) * 73856093 ^ y * 19349663 ^ seed);
+            let a = 0, col = ink;
+            if (depth < 1.1) { a = lit ? 0.95 : 0.55; col = snowLine > 0 ? inks.snow : ink; }
+            else if (snowLine > 0 && v < snowLine) { if (n < (lit ? 0.7 : 0.35)) { a = (lit ? 0.75 : 0.35) * (0.6 + 0.4 * n); col = inks.snow; } }
+            else if (lit) { const fall = Math.exp(-depth / (H * 0.06)); if (n < 0.3 + 0.6 * fall) a = (0.16 + 0.8 * fall) * (0.5 + 0.5 * ih(i * 31 + seed)); }
+            else if (n < 0.3) { a = 0.07 + 0.15 * ih(i * 17 + seed); col = n < 0.06 ? ink : inks.quiet; }
+            px[i] = a > 0.02 ? pack(col, a * (0.7 + 0.3 * li / (LAYERS.length - 1))) : 0;   // nearer land hides what's behind it
+          }
+        }
+      }
+      // The road, at full speed, and the grass speckle under it.
+      const gy = Math.floor(GROUND * H), roadShift = Math.floor(dist * H);
+      for (let y = gy; y < rows; y++) for (let c = 0; c < cols; c++) {
+        const w = c + roadShift, n = ih(w * 2654435761 ^ y * 40503);
+        const i = y * cols + c;
+        if (y === gy) px[i] = w % 3 === 0 ? pack(inks.quiet, 0.55) : 0;
+        else px[i] = n < 0.12 ? pack(n < 0.03 ? acc : inks.quiet, 0.12 + 1.8 * n) : 0;
+      }
+      // Shadowfax: the HD frames, sampled at this dot; the gallop keeps time with the road.
+      const hh = Math.min(0.125, (cols / H) * 0.2), hw = hh * HD_W / HD_H;
+      const hx = (cols / H) * 0.42 - hw / 2, hy = GROUND - hh + 0.004;
+      const frame = reduce.matches ? 13 : Math.floor((dist / (hw * 0.92)) * 15) % 15, F = HD[frame];
+      const bx0 = Math.floor(hx * H), by0 = Math.floor(hy * H), bw = Math.ceil(hw * H), bh = Math.ceil(hh * H);
+      const cov = (fx, fy) => { const x = Math.floor(fx), y = Math.floor(fy); if (x < 0 || y < 0 || x >= HD_W || y >= HD_H) return 0; return F[y][x]; };
+      for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) {
+        const sx = ((x + 0.5) / bw) * HD_W - 0.5, sy = ((y + 0.5) / bh) * HD_H - 0.5;
+        const ix = Math.floor(sx), iy = Math.floor(sy), fx = sx - ix, fy = sy - iy;
+        const a = (cov(ix, iy) * (1 - fx) + cov(ix + 1, iy) * fx) * (1 - fy) + (cov(ix, iy + 1) * (1 - fx) + cov(ix + 1, iy + 1) * fx) * fy;
+        const X = bx0 + x, Y = by0 + y;
+        if (X < 0 || X >= cols || Y < 0 || Y >= rows) continue;
+        if (a > 0.28) px[Y * cols + X] = pack(inks.white, 0.3 + 0.7 * smoothstep(0.28, 0.95, a));
+        else if (a > 0.08) px[Y * cols + X] = 0;                 // his outline stays clear of the land
+      }
+      // The wind off him: streaks from his back half, trailing at the road's pace.
+      if (!reduce.matches) {
+        windAt += dt;
+        while (windAt > 0.035) { windAt -= 0.035; wind.push({ u: hx + hw * (0.1 + 0.25 * Math.random()), v: hy + hh * (0.15 + 0.6 * Math.random()), life: 0, len: 2 + Math.floor(Math.random() * 5) }); }
+        wind = wind.filter((w) => (w.life += dt) < 0.7);
+        for (const w of wind) {
+          const x = Math.floor((w.u - w.life * ROAD * 0.9) * H), y = Math.floor(w.v * H), a = 0.5 * (1 - w.life / 0.7);
+          for (let k = 0; k < w.len; k++) set(x + k, y, inks.white, a * (1 - k / (w.len + 1)));
+        }
+      }
+      // One pixel a dot, up to size, cut into dots.
+      sctx.putImageData(img, 0, 0);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.globalCompositeOperation = "source-over";
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(small, 0, 0, cols * P, rows * P);
+      ctx.globalCompositeOperation = "destination-in";
+      ctx.fillStyle = mask; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = "source-over";
+    }
+    return { fit, setPitch, draw, reset() { last = null; } };
+  }
+
   /* ---------- Small horse mark (header avatar: HorseMark on the low-res frames) ---------- */
   function markSVG(frame, pitch) {
     const rows = D.lo[frame], cell = pitch * DOT, r = cell * CORNER;
@@ -1396,7 +1587,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     return s + "</svg>";
   }
 
-  window.SFX = { P, KEYS, Field, fields, clockFace, nightRide, markSVG, glyphSVG, tone, isNight, reduce, css, letterCorner, POSES, LETTER, LO_COLS };
+  window.SFX = { P, KEYS, Field, fields, clockFace, nightRide, grandRide, markSVG, glyphSVG, tone, isNight, reduce, css, letterCorner, POSES, LETTER, LO_COLS };
 })();
 </script>
 <script>(function () {
@@ -1499,6 +1690,65 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       else if (m.phase === "rest") setLine("Here.");
     }
   });
+
+  /* ---------- The hidden side of the hero ----------
+     Rest the pointer on the ride and the night opens out from the card to the whole hero,
+     its dots resolving from coarse to fine as it goes; leave the hero and it folds back.
+     On touch, a tap on the ride opens it and a tap in the hero closes it. */
+  (() => {
+    const hero = $(".hero"), card = $(".night"), layer = $("#grand");
+    const scene = window.SFX.grandRide($("#grand-c"));
+    const reduce = window.SFX.reduce;
+    const FINE = 4.5, COARSE = 16, OPEN = 900, CLOSE = 650;
+    const touch = window.matchMedia("(hover: none)");
+    let state = "closed", intent = null, at = 0;
+    const cardClip = () => {
+      const L = layer.getBoundingClientRect(), r = card.getBoundingClientRect(), R = parseFloat(getComputedStyle(card).borderTopLeftRadius) || 0;
+      return `inset(${r.top - L.top}px ${L.right - r.right}px ${L.bottom - r.bottom}px ${r.left - L.left}px round ${R}px)`;
+    };
+    function inks() {
+      const ink = window.SFX.tone("ink", true), q = window.SFX.tone("quiet", true);
+      hero.style.setProperty("--grand-ink", `rgb(${ink.join(",")})`); hero.style.setProperty("--grand-quiet", `rgb(${q.join(",")})`);
+      document.body.style.setProperty("--grand-ink", `rgb(${ink.join(",")})`);
+    }
+    function open() {
+      clearTimeout(intent);
+      if (state === "open" || state === "opening" || document.body.classList.contains("editing")) return;
+      inks();
+      const from = state === "closing" ? null : cardClip();
+      state = "opening"; at = performance.now();
+      layer.hidden = false;
+      if (from) { layer.style.transition = "none"; layer.style.clipPath = from; scene.fit(reduce.matches ? FINE : COARSE); scene.reset(); layer.getBoundingClientRect(); layer.style.transition = ""; }
+      requestAnimationFrame(() => { layer.style.clipPath = "inset(0px 0px 0px 0px round 0px)"; hero.classList.add("night-open"); document.body.classList.add("night-open"); });
+      setTimeout(() => { if (state === "opening") state = "open"; }, OPEN);
+    }
+    function close() {
+      clearTimeout(intent);
+      if (state === "closed" || state === "closing") return;
+      state = "closing"; at = performance.now();
+      layer.style.clipPath = cardClip();
+      hero.classList.remove("night-open"); document.body.classList.remove("night-open");
+      setTimeout(() => { if (state === "closing") { state = "closed"; layer.hidden = true; } }, reduce.matches ? 0 : CLOSE);
+    }
+    window.SFX.ticks.push((now) => {
+      if (state === "closed") return;
+      const k = state === "closing" ? 1 - Math.min(1, (now - at) / CLOSE) : Math.min(1, (now - at) / OPEN);
+      const e = 1 - Math.pow(1 - k, 3);
+      scene.setPitch(reduce.matches ? FINE : COARSE + (FINE - COARSE) * e);
+      scene.draw(now);
+    });
+    card.addEventListener("pointerenter", (e) => { if (e.pointerType !== "mouse") return; clearTimeout(intent); intent = setTimeout(open, 450); });
+    card.addEventListener("pointerleave", () => { if (state === "closed") clearTimeout(intent); });
+    hero.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") close(); });
+    hero.addEventListener("click", (e) => {
+      if (!touch.matches) return;
+      if (state === "closed" && card.contains(e.target)) open(); else if (state !== "closed") close();
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+    new IntersectionObserver((en) => { if (!en[0].isIntersecting) close(); }, { threshold: 0.25 }).observe(hero);
+    new ResizeObserver(() => { if (state !== "closed") scene.fit(FINE); }).observe(layer);
+    window.SFX.onPalette && window.SFX.onPalette.push(inks);
+  })();
 
   drawClock = clockFace($("#clock"));
 
@@ -1832,7 +2082,10 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
   /* ---------- Fit the device to the page ---------- */
   const device = document.getElementById("device");
   function fit() {
-    const w = device.parentElement.clientWidth;
+    // The column's content width: clientWidth counts the wrap's padding, and a phone that wide
+    // overflows the page on a real phone, which then widens to fit it.
+    const wrap = device.parentElement, cs = getComputedStyle(wrap);
+    const w = wrap.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     const narrow = window.innerWidth <= 900;
     const s = Math.max(0.55, Math.min(1, (narrow ? w : w * 0.52) / 426, (window.innerHeight - 88) / 898));
     device.style.setProperty("--s", s.toFixed(4));
