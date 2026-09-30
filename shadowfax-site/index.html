@@ -492,6 +492,85 @@ a.act { text-decoration: none; }
 .buy-foot button { font-weight: 600; color: var(--ink); font-size: 12px; min-height: 36px; }
 .buy-foot .ok { color: var(--accent); font-weight: 600; }
 
+
+/* Voice memo: the card, the island, the Lock Screen */
+.side-btn { position: absolute; right: -3px; top: 230px; width: 4px; height: 92px; border-radius: 0 3px 3px 0; background: #1E221E; box-shadow: inset -1px 0 0 #2E332E; cursor: pointer; }
+.side-btn:hover { background: #2A2F2A; }
+.side-btn:focus-visible { outline: 2px solid var(--accent); }
+.frame { position: relative; }
+.memo { border-radius: 28px; padding: 16px 12px 10px 20px; display: grid; gap: 10px; }
+.m-top { display: flex; align-items: center; gap: 10px; }
+.m-top .rec { width: 9px; height: 9px; border-radius: 50%; background: #D0543F; }
+.m-top .rec.paused { background: var(--quiet); }
+.m-top .m-time { font: 600 17px var(--sans); font-variant-numeric: tabular-nums; }
+.m-top .sp, .m-row .sp { flex: 1; }
+.m-line { font-size: 17px; line-height: 1.35; min-height: 46px; color: var(--ink); padding-right: 8px; }
+.m-line .old { color: var(--quiet); }
+.m-row { display: flex; align-items: center; gap: 8px; }
+.m-row .act { width: auto; padding: 11px 18px; }
+.m-row .discard { font-size: 15px; font-weight: 600; color: var(--failure); min-height: 44px; padding: 0 8px; }
+.meter { display: inline-grid; place-items: center; transition: opacity .15s; }
+.meter.calm { opacity: .5; }
+.isl-memo, .isl-row { position: absolute; display: none; align-items: center; }
+.island.memo { width: 212px; margin-left: -106px; }
+.ps:has(.island.memo) .sb .r { opacity: 0; }
+.ps:has(.island.memo) .sb { padding-left: 36px; }
+.ps:has(.island.memo-x) .sb { opacity: 0; }
+.island.memo canvas, .island.memo-x canvas { display: none; }
+.island.memo .isl-memo { display: flex; inset: 0; justify-content: space-between; padding: 0 16px 0 14px; }
+.island.memo-x { width: 374px; height: 136px; margin-left: -187px; border-radius: 46px; }
+.island.memo-x .isl-memo { display: none; }
+.island.memo-x .isl-row { display: flex; left: 22px; right: 18px; bottom: 20px; gap: 12px; }
+.im-l { display: flex; align-items: center; gap: 6px; }
+.im-l svg, .lrow2 svg, .isl-row svg { fill: currentColor; }
+.im-horse, .im-meter { color: var(--n-cream); }
+.im-meter { color: var(--n-sage); }
+.im-t { font: 600 14px var(--sans); font-variant-numeric: tabular-nums; color: var(--n-sage); }
+.mrow2 { display: flex; align-items: center; gap: 12px; width: 100%; color: var(--n-cream); }
+.mrow2 .big { font: 600 30px var(--sans); font-variant-numeric: tabular-nums; letter-spacing: -0.5px; }
+.mrow2 .sp { flex: 1; }
+.mrow2 .cir { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--n-cream) 14%, transparent); color: var(--n-cream); flex: none; }
+.mrow2 .cir.send { background: var(--n-sage); color: var(--n-night); }
+.mrow2 .mtr { color: var(--n-sage); }
+.mrow2.paused .mtr, .mrow2.paused .big { color: var(--n-quiet); }
+.lock { position: absolute; inset: 0; z-index: 52; color: #fff; opacity: 0; pointer-events: none; transform: translateY(24px) scale(1.02); transition: opacity .4s var(--ease), transform .45s var(--ease); overflow: hidden; }
+.lock.on { opacity: 1; pointer-events: auto; transform: none; }
+.lk-wall { position: absolute; inset: 0; background:
+  radial-gradient(120% 60% at 20% 20%, color-mix(in srgb, var(--n-sage) 34%, transparent), transparent 60%),
+  radial-gradient(90% 70% at 90% 90%, color-mix(in srgb, var(--n-quiet) 30%, transparent), transparent 60%),
+  linear-gradient(170deg, color-mix(in srgb, var(--n-night) 70%, #000), #050605); }
+.lk-date { position: absolute; top: 70px; left: 0; right: 0; text-align: center; font-size: 20px; font-weight: 600; opacity: .85; }
+.lk-time { position: absolute; top: 106px; left: 0; right: 0; text-align: center; font: 700 104px/1 var(--display); letter-spacing: -3px; color: rgb(255 255 255 / .92); }
+.lk-list { position: absolute; left: 12px; right: 12px; top: 330px; display: grid; gap: 10px; }
+.la { border-radius: 26px; padding: 16px 18px; background: color-mix(in srgb, var(--n-night) 78%, transparent); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  box-shadow: inset 0 0 0 .7px rgb(255 255 255 / .08); animation: fin .45s var(--ease) both; color: var(--n-cream); text-align: left; width: 100%; display: grid; gap: 8px; }
+.la .top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+.la .top .num { font-weight: 600; color: var(--n-sage); }
+.la .st { font-size: 17px; font-weight: 600; line-height: 1.3; }
+.la .q { font-size: 13px; color: var(--n-quiet); }
+.la .rp { font-size: 15px; line-height: 1.35; }
+.la svg { fill: currentColor; }
+.lk-note { display: grid; grid-template-columns: 38px 1fr auto; gap: 1px 12px; padding: 13px 15px; border-radius: 24px; text-align: left; width: 100%; color: #fff;
+  background: rgb(255 255 255 / .14); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); animation: fin .45s var(--ease) both; }
+.lk-note img { width: 38px; height: 38px; border-radius: 9px; grid-row: 1 / span 3; }
+.lk-note b { font-size: 15px; font-weight: 600; }
+.lk-note .w { font-size: 12px; opacity: .7; }
+.lk-note .t2 { grid-column: 2 / span 2; font-size: 15px; font-weight: 600; }
+.lk-note .b2 { grid-column: 2 / span 2; font-size: 15px; line-height: 1.3; opacity: .9; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.lk-ctl { position: absolute; bottom: 52px; width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: rgb(255 255 255 / .16); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); transition: transform .18s var(--ease), background-color .2s; }
+.lk-ctl svg { fill: #fff; }
+.lk-ctl.l { left: 46px; } .lk-ctl.r { right: 46px; }
+.lk-ctl.pressed { transform: scale(1.18); background: rgb(255 255 255 / .34); }
+.lk-hint { position: absolute; bottom: 20px; left: 0; right: 0; text-align: center; font-size: 13px; opacity: .6; }
+.ps:has(.lock.on) .sb { color: #fff; }
+.ps:has(.lock.on) .home-ind { background: #fff; }
+.p-memo { justify-self: end; width: 82%; border-radius: 23px; background: var(--bubble); padding: 12px 16px 12px; display: grid; gap: 8px; animation: pin .3s var(--ease); }
+.p-memo .mr { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--quiet); }
+.p-memo .mr svg { fill: var(--ink); }
+.p-memo .gist { font-size: 17px; line-height: 1.35; }
+.p-memo .trb { justify-self: start; font-size: 12px; font-weight: 600; color: var(--quiet); min-height: 28px; }
+.p-memo .full { font-size: 15px; line-height: 1.4; color: var(--soft); }
+
 /* ---------- Out of the app ---------- */
 .head { display: grid; gap: 14px; margin-bottom: 40px; max-width: 36em; }
 .stage { background: var(--stage); border-radius: 36px; padding: 24px; display: grid; justify-items: center; gap: 20px; transition: background-color .5s var(--ease); }
@@ -572,7 +651,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
 
   <section class="feature" id="try" aria-labelledby="try-h">
     <div class="wrap try">
-      <div class="device" id="device"><div class="frame"><div class="ps" id="ps" aria-label="An interactive Shadowfax app"></div></div></div>
+      <div class="device" id="device"><div class="frame"><button class="side-btn" id="side-btn" type="button" aria-label="Side button: lock or wake the phone"></button><div class="ps" id="ps" aria-label="An interactive Shadowfax app"></div></div></div>
       <div class="try-copy">
         <span class="label">Try it</span>
         <h2 id="try-h">Tap around. It works.</h2>
@@ -584,6 +663,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
           <li><button type="button" data-try="books"><b>Find me something to read</b><span>Four books from what I’ve read. Buy one without leaving.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
           <li><button type="button" data-try="quest"><b>Let a quest run</b><span>He keeps working after I stop asking.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
           <li><button type="button" data-try="share"><b>Share from the browser</b><span>The plane becomes a letter. He catches it.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
+          <li><button type="button" data-try="memo"><b>Voice memo from the Lock Screen</b><span>Record in my pocket. Send it without unlocking.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
           <li><button type="button" data-try="talk"><b>Hold to talk</b><span>He gallops under my words.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
           <li><button type="button" data-try="upcoming"><b>Swipe up</b><span>To-dos, what’s coming, what he did, and quests.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
           <li><button type="button" data-try="quote"><b>Quote a book</b><span>Live Text reads the page. I file the line.</span><i class="go" data-glyph="arrow.up.right"></i></button></li>
@@ -1427,7 +1507,18 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
 
   ps.innerHTML = `
     <div class="sb" aria-hidden="true"><span id="sb-time" class="num">9:41</span><span class="r">${SIGNAL}${WIFI}${BATT}</span></div>
-    <div class="island" id="isl" aria-hidden="true"><canvas id="isl-c"></canvas><canvas id="isl-f"></canvas></div>
+    <div class="island" id="isl" aria-hidden="true"><canvas id="isl-c"></canvas><canvas id="isl-f"></canvas>
+      <div class="isl-memo"><span class="im-l"><span class="im-horse"></span><span class="im-meter meter"></span></span><span class="im-t">0:00</span></div>
+      <div class="isl-row"><div class="mrow2" data-memo-row></div></div></div>
+    <div class="lock" id="lock" aria-label="Lock Screen">
+      <div class="lk-wall"></div>
+      <div class="lk-date">Tuesday, September 30</div>
+      <div class="lk-time" id="lk-time">9:41</div>
+      <div class="lk-list" id="lk-list"></div>
+      <button class="lk-ctl l" id="lk-memo" type="button" aria-label="Voice Memo"></button>
+      <button class="lk-ctl r" id="lk-talk" type="button" aria-label="Talk to Shadowfax">${G("waveform", 3.4)}</button>
+      <div class="lk-hint" id="lk-hint">Tap to open</div>
+    </div>
     <canvas id="flight" aria-hidden="true"></canvas>
     <button class="banner glass" id="banner" type="button" aria-live="polite"><img src="icons/stride.png" alt=""><span class="bt"><b>Shadowfax</b><span class="bn"></span></span><span class="bw">now</span><span class="bb"></span></button>
     <div class="view" id="v-chat">
@@ -1450,6 +1541,13 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
         <div class="upc glass" id="upc" aria-hidden="true">
           <div class="tabs" role="tablist" id="tabs"></div>
           <div class="ulist" id="ulist"></div>
+        </div>
+        <div class="memo glass" id="memo" hidden>
+          <div class="m-top"><span class="rec" id="m-rec"></span><span class="m-time" id="m-time">0:00</span><span class="meter" id="m-meter"></span><span class="sp"></span>
+            <button class="ibtn" id="m-pause" type="button" aria-label="Pause">${G("pause.fill", 3)}</button></div>
+          <div class="m-line" id="m-line">Listening</div>
+          <div class="m-row"><button class="ibtn" id="m-trash" type="button" aria-label="Discard">${G("trash", 1.67)}</button><span class="sp"></span>
+            <button class="act primary" id="m-send" type="button">${G("arrow.up", 2.4)}<span>Send memo</span></button></div>
         </div>
         <form class="bar glass" id="bar" autocomplete="off">
           <div class="bar-top">
@@ -2156,7 +2254,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       tabs.appendChild(b);
     });
   }
-  const MARKS = { goal: ["flag", 1.4], sent: ["text.bubble", 1.4], kept: ["pencil", 2.6], noticed: ["magnifyingglass", 1.4], filed: ["books.vertical", 1.4], tidy: ["archivebox", 1.4], loop: ["checkmark", 2.6], quote: ["text.quote", 2.4] };
+  const MARKS = { goal: ["flag", 1.4], sent: ["text.bubble", 1.4], kept: ["pencil", 2.6], noticed: ["magnifyingglass", 1.4], filed: ["books.vertical", 1.4], tidy: ["archivebox", 1.4], loop: ["checkmark", 2.6], quote: ["text.quote", 2.4], reminder: ["bell", 1.4] };
   function renderUpc() {
     renderTabs();
     ulist.innerHTML = "";
@@ -2562,6 +2660,216 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
   }
   extSend.onclick = sendShare;
 
+  /* ---------- Voice memo: in the app, in the island, on the Lock Screen ---------- */
+  const MIC = [".XXX.", ".XXX.", ".XXX.", "X.X.X", ".XXX.", "..X..", ".XXX."];
+  $("#lk-memo").innerHTML = glyphSVG(MIC, 3.4);
+  const lock = $("#lock"), lkList = $("#lk-list"), memoCard = $("#memo");
+  // The island's night colors, whatever the appearance (MemoIsland).
+  function nightVars() {
+    const pal = S.P[document.documentElement.getAttribute("data-palette")] || S.P.fangorn;
+    ps.style.setProperty("--n-night", S.css(pal.paper[1])); ps.style.setProperty("--n-cream", S.css(pal.ink[1]));
+    ps.style.setProperty("--n-quiet", S.css(pal.quiet[1])); ps.style.setProperty("--n-sage", S.css(pal.accent[1]));
+  }
+  nightVars(); S.onPalette.push(nightVars);
+  // The Talk mark's three bars (MemoVoice): only 1 1 1, 1 3 1, 1 5 1 and 3 5 3.
+  const meterSVG = (bars, pitch) => {
+    const rows = [".....", ".....", ".....", ".....", "....."].map((r) => r.split(""));
+    bars.forEach((h, i) => { const half = (h - 1) / 2; for (let r = 2 - half; r <= 2 + half; r++) rows[r][i * 2] = "X"; });
+    return glyphSVG(rows.map((r) => r.join("")), pitch);
+  };
+  const MEMO_WORDS = "Couple things. Put the chainring bolts in the cart, the short ones. Move the Moab campsite to Friday. And remind me Thursday night to charge the headlamp.".split(" ");
+  const MEMO_GIST = "Chainring bolts, Moab to Friday, charge the headlamp";
+  const memo = { on: false, paused: false, acc: 0, since: 0, i: 0, bars: [1, 1, 1], timer: null, voice: [] };
+  const memoSecs = () => memo.acc + (memo.on && !memo.paused ? (performance.now() - memo.since) / 1000 : 0);
+  const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  function setBars(b) {
+    memo.bars = b;
+    const calm = b.every((x) => x <= 1);
+    [["#m-meter", 2.4], [".im-meter", 3]].forEach(([sel, pp]) => { const n = $(sel); n.innerHTML = meterSVG(b, pp); n.classList.toggle("calm", calm); });
+    $$(".mtr", ps).forEach((n) => { n.innerHTML = meterSVG(b, 3.6); n.classList.toggle("calm", calm); });
+  }
+  function memoRowHTML() {
+    return `<span>${S.markSVG(13, 2.4)}</span><span class="mtr meter"></span><span class="big mt">0:00</span><span class="sp"></span>
+      <button class="cir mp" type="button" aria-label="Pause">${G("pause.fill", 3.6)}</button><button class="cir send ms" type="button" aria-label="Send memo">${G("arrow.up", 3.6)}</button>`;
+  }
+  function wireRow(row, where) {
+    row.innerHTML = memoRowHTML();
+    $(".mp", row).onclick = (e) => { e.stopPropagation(); togglePause(); };
+    $(".ms", row).onclick = (e) => { e.stopPropagation(); sendMemo(where); };
+  }
+  wireRow($("[data-memo-row]"), "island");
+  $(".im-horse").innerHTML = S.markSVG(13, 1.2);
+  function hearWord() {
+    // A word lifts the middle; the sides follow a beat later; quiet falls back over a third of a second.
+    const tok = (memo.voiceTok = (memo.voiceTok || 0) + 1);
+    setBars([1, 5, 1]);
+    setTimeout(() => { if (tok === memo.voiceTok) setBars([3, 5, 3]); }, 180);
+    setTimeout(() => { if (tok === memo.voiceTok) setBars([1, 3, 1]); }, 560);
+    setTimeout(() => { if (tok === memo.voiceTok) setBars([1, 1, 1]); }, 900);
+  }
+  function nextWord() {
+    if (!memo.on) return;
+    if (!memo.paused && memo.i < MEMO_WORDS.length) {
+      memo.i++; hearWord();
+      const said = MEMO_WORDS.slice(0, memo.i), cut = Math.max(0, said.length - 9);
+      $("#m-line").innerHTML = (cut ? `<span class="old">…</span> ` : "") + esc(said.slice(cut).join(" "));
+    }
+    memo.timer = setTimeout(nextWord, 300 + Math.random() * 160);
+  }
+  function togglePause() {
+    if (!memo.on) return;
+    if (memo.paused) { memo.paused = false; memo.since = performance.now(); } else { memo.acc = memoSecs(); memo.paused = true; setBars([1, 1, 1]); }
+    const g = G(memo.paused ? "play.fill" : "pause.fill", 3);
+    $("#m-pause").innerHTML = g; $("#m-rec").classList.toggle("paused", memo.paused);
+    $("#m-line").firstChild && memo.paused && ($("#m-line").innerHTML = "Paused");
+    $$(".mrow2", ps).forEach((r) => { r.classList.toggle("paused", memo.paused); const b = $(".mp", r); if (b) b.innerHTML = G(memo.paused ? "play.fill" : "pause.fill", 3.6); });
+  }
+  S.ticks.push(() => {
+    if (!memo.on) return;
+    const t = mmss(memoSecs());
+    $("#m-time").textContent = t; $(".im-t").textContent = t;
+    $$(".mrow2 .mt", ps).forEach((n) => { n.textContent = t; });
+  });
+  function lockOn() {
+    lkList.innerHTML = "";
+    if (memo.on) {
+      const la = el(`<div class="la"><div class="mrow2"></div></div>`);
+      wireRow($(".mrow2", la), "lock"); lkList.appendChild(la); setBars(memo.bars);
+      $("#lk-hint").textContent = "Recording. Pause or send from here.";
+    } else $("#lk-hint").textContent = "Tap to open";
+    lock.classList.add("on");
+    isl.classList.remove("memo", "memo-x");
+  }
+  function unlock() {
+    lock.classList.remove("on");
+    if (memo.on) isl.classList.add("memo");
+  }
+  lock.addEventListener("click", (e) => {
+    if (e.target.closest("button")) return;
+    if (!lkList.querySelector(".la.turn")) unlock();
+  });
+  document.getElementById("side-btn").onclick = () => { if (lock.classList.contains("on")) unlock(); else { closeAll(); lockOn(); } };
+  function startMemo() {
+    if (busy || ride.riding || flying || memo.on) return false;
+    closeAll(); if (current !== "main") showThread("main");
+    Object.assign(memo, { on: true, paused: false, acc: 0, since: performance.now(), i: 0 });
+    $("#m-line").textContent = "Listening"; $("#m-pause").innerHTML = G("pause.fill", 3); $("#m-rec").classList.remove("paused");
+    $$(".mrow2", ps).forEach((r) => r.classList.remove("paused"));
+    memoCard.hidden = false; bar.hidden = true; $("#hint").style.opacity = 0;
+    isl.classList.remove("open", "lit", "staged"); isl.classList.add("memo");
+    setBars([1, 1, 1]);
+    clearTimeout(memo.timer); memo.timer = setTimeout(nextWord, 600);
+    return true;
+  }
+  function stopMemo() {
+    memo.acc = memoSecs(); memo.on = false; clearTimeout(memo.timer);
+    memoCard.hidden = true; bar.hidden = false;
+    isl.classList.remove("memo", "memo-x");
+  }
+  $("#lk-memo").onclick = async () => {
+    const b = $("#lk-memo"); b.classList.add("pressed");
+    if (!(await later(320))) return; b.classList.remove("pressed");
+    unlock(); startMemo();
+  };
+  $("#lk-talk").onclick = async () => { const b = $("#lk-talk"); b.classList.add("pressed"); if (!(await later(320))) return; b.classList.remove("pressed"); unlock(); scriptedTalk(); };
+  $("#m-pause").onclick = togglePause;
+  $("#m-trash").onclick = () => {
+    const row = $(".m-row", memoCard);
+    if (row.querySelector(".discard")) return;
+    const d = el(`<button class="discard" type="button">Discard</button>`);
+    d.onclick = () => { stopMemo(); toast("Memo discarded."); };
+    row.insertBefore(d, row.children[1]);
+    setTimeout(() => d.remove(), 3000);
+  };
+  $("#m-send").onclick = () => sendMemo("app");
+  isl.addEventListener("click", () => { if (memo.on && !lock.classList.contains("on")) isl.classList.toggle("memo-x"); });
+  isl.style.pointerEvents = "auto"; isl.style.cursor = "pointer";
+
+  const MEMO_STEPS = [["Reading the transcript.", "Read"], ["Putting the bolts in the cart.", "browse"], ["Moving the Moab booking.", "reminders"], ["Setting Thursday’s reminder.", "reminders"]];
+  const MEMO_REPLY = "Done. The short bolts are in the cart, Moab is Friday, and I’ll nudge you Thursday at 8 to charge the headlamp.";
+  function reminderCard() {
+    const c = el(`<div class="pc"><div class="pc-head"><div><h5>Charge the headlamp</h5><div class="sub">Thursday, 8:00 PM</div></div><span class="ic">${G("bell", 1.67)}</span></div>
+      <div class="pc-foot"><span class="stt">In Reminders</span><button type="button">Undo</button></div></div>`);
+    let on = true; const b = $("button", c);
+    b.onclick = () => { on = !on; $(".stt", c).textContent = on ? "In Reminders" : "Not in Reminders"; b.textContent = on ? "Undo" : "Add"; };
+    return c;
+  }
+  function memoBubble(secs) {
+    const wave = glyphSVG(["..X...X.X.....X...X..X.X..", ".XX.X.XXX.X..XX.X.XXX.XXX.", "XXXXXXXXXXXXXXXXXXXXXXXXXX", ".XX.X.XXX.X..XX.X.XXX.XXX.", "..X...X.X.....X...X..X.X.."], 2.2);
+    const b = el(`<div class="p-memo"><div class="mr">${G("play.fill", 2)}${wave}<span class="num">${mmss(secs)}</span></div>
+      <div class="gist">${esc(MEMO_GIST)}</div><button class="trb" type="button">Transcript ›</button><div class="full" hidden>${esc(MEMO_WORDS.join(" "))}</div></div>`);
+    $(".trb", b).onclick = () => { const f = $(".full", b); f.hidden = !f.hidden; $(".trb", b).textContent = f.hidden ? "Transcript ›" : "Hide transcript"; };
+    return b;
+  }
+  function memoEffects() {
+    const moab = todos.find((t) => /Moab/.test(t.title)); if (moab) moab.sub = "Fri 9:00 AM";
+    todos.push({ id: Date.now(), title: "Charge the headlamp", sec: "Later", sub: "Thu 8:00 PM", his: true });
+    activity.unshift({ kind: "reminder", title: "Added to Reminders: Charge the headlamp", detail: "Thursday 8:00 PM", when: "Now", isNew: true });
+    activity.unshift({ kind: "sent", title: "Voice memo: " + MEMO_GIST, detail: "Three things, all done", when: "Now", isNew: true });
+    badges.activity += 2;
+    T.main.pv = MEMO_REPLY;
+  }
+  async function sendMemo(where) {
+    if (!memo.on) return;
+    const secs = Math.max(1, Math.round(memoSecs()));
+    stopMemo();
+    const main = listFor("main");
+    $$(".p-chips", main).forEach((c) => c.remove());
+    if (where !== "lock") {
+      unlock(); if (current !== "main") showThread("main");
+      add(main, memoBubble(secs)); toBottom(true);
+      const evs = MEMO_STEPS.map(([t, tool], i) => st(t, tool, i ? 1.0 : 0.6)).concat([para(MEMO_REPLY), card(() => reminderCard()), done()]);
+      run("memo", { events: evs, voice: true, after: memoEffects });
+      return;
+    }
+    // Locked: the memo's Live Activity hands over to the reply's, on the Lock Screen.
+    const my = epoch;
+    lkList.innerHTML = "";
+    const la = el(`<div class="la turn"><div class="top"><span class="hm">${S.markSVG(0, 1.6)}</span><span class="num tt">0:00</span></div><div class="st">Sending</div><div class="q">Voice memo · ${mmss(secs)}</div></div>`);
+    lkList.appendChild(la); $("#lk-hint").textContent = "";
+    const t0 = performance.now();
+    let f = 0;
+    const gal = setInterval(() => { f = (f + 1) % 15; $(".hm", la).innerHTML = S.markSVG(f, 1.6); $(".tt", la).textContent = mmss((performance.now() - t0) / 1000); }, 90);
+    for (const [text] of MEMO_STEPS) { if (!(await later(1100))) { clearInterval(gal); return; } $(".st", la).textContent = text; }
+    if (!(await later(1100))) { clearInterval(gal); return; }
+    clearInterval(gal);
+    $(".hm", la).innerHTML = S.markSVG(13, 1.6); $(".hm", la).style.color = "var(--n-sage)";
+    $(".tt", la).textContent = "✓ " + $(".tt", la).textContent;
+    $(".st", la).remove(); $(".q", la).insertAdjacentHTML("beforebegin", `<div class="rp">${esc(MEMO_REPLY)}</div>`);
+    // The reply lands in the thread, and its voice note comes in over the Lock Screen.
+    add(main, memoBubble(secs));
+    const h = him(main);
+    h.body.appendChild(el(`<p class="p-reply">${esc(MEMO_REPLY)}</p>`)); h.body.appendChild(audioChip("0:09"));
+    h.cards.appendChild(reminderCard());
+    h.trail.hidden = false; $(".tx", h.trail).textContent = "Worked for 5 seconds · 4 steps";
+    h.steps.innerHTML = MEMO_STEPS.map((x, i) => `<div class="p-step"><span>${x[0]}</span><span class="tool">${x[1]}</span><span class="t">${i + 1}s</span></div>`).join("");
+    memoEffects(); T.main.unread = (T.main.unread || 0) + 1;
+    if (!(await later(2200))) return;
+    la.remove();
+    const n = el(`<button class="lk-note" type="button"><img src="icons/stride.png" alt=""><b>Shadowfax</b><span class="w">now</span><span class="t2">Voice note · 0:09</span><span class="b2">${esc(MEMO_REPLY)}</span></button>`);
+    n.onclick = () => { lkList.innerHTML = ""; unlock(); closeAll(); showThread("main"); };
+    lkList.appendChild(n); $("#lk-hint").textContent = "Tap the note to open it";
+    if (my !== epoch) return;
+  }
+  async function memoDemo() {
+    if (busy || ride.riding || flying) { toast("One moment, he’s still riding."); return; }
+    if (memo.on) stopMemo();
+    closeAll(); lockOn();
+    if (!(await later(1300))) return;
+    $("#lk-memo").click();
+    if (!(await later(3600))) return;
+    isl.classList.add("memo-x");
+    if (!(await later(2600))) return;
+    isl.classList.remove("memo-x");
+    if (!(await later(1400))) return;
+    lockOn();
+    if (!(await later(3200))) return;
+    const s = $(".la .ms", lkList); if (s) s.click(); else return;
+    for (let i = 0; i < 40 && !$(".lk-note", lkList); i++) { if (!(await later(250))) return; }
+    if (!(await later(1800))) return;
+    const n = $(".lk-note", lkList); if (n) n.click();
+  }
+
   /* ---------- Closing things ---------- */
   function closeAll(keepSheets) {
     attach.hidden = true; plus.classList.remove("open");
@@ -2621,6 +2929,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
       else if (name === "saturday") typeAndSend("Plan a slow Saturday.");
       else if (name === "playlist") typeAndSend("Make me a playlist for the drive home");
       else if (name === "books") typeAndSend("Find me something to read");
+      else if (name === "memo") memoDemo();
       else if (name === "quest") questDemo();
       else if (name === "share") shareDemo();
       else if (name === "talk") scriptedTalk();
@@ -2630,6 +2939,7 @@ footer .sign { font-size: 15px; color: var(--soft); max-width: 30em; }
     },
     reset() {
       epoch++; flying = false; fl = null; fctx.clearRect(0, 0, 402, 874);
+      if (memo.on) stopMemo(); lock.classList.remove("on"); lkList.innerHTML = "";
       isl.classList.remove("open", "lit", "staged"); ride.carry(false);
       $("#banner").classList.remove("on"); setClock("9:41"); questState = "idle";
       extSend.classList.remove("gone"); extSend.querySelector(".lb").textContent = "Send to Shadowfax";
